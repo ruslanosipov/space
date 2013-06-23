@@ -1,0 +1,6 @@
+# ignore compiled python binaries
+*.pyc
+*.pyo
+
+# IDE: ignore exhuberant ctags file
+/tags
