@@ -24,8 +24,8 @@ while True:
     # TODO: process data received from clients
     for s in data.keys():
         x, y = 25, 10
-        radius = 10
-        eyesight = 10
+        radius = 12
+        eyesight = 11
         player_view = view.generate((x, y), radius, eyesight)
         chat_log = chat.get_log(10)
         new_data[s] = (player_view, chat_log)

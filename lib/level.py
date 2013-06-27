@@ -9,7 +9,7 @@ class Level:
         """
         name -- string, file
 
-        Returns list of strings
+        Returns list of lists
         """
         f = open(name, 'rb')
         level = []
@@ -32,6 +32,6 @@ class Level:
 
     def get_level(self):
         """
-        Returns list of strings
+        Returns list of lists
         """
         return self.level
