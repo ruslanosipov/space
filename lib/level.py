@@ -1,10 +1,15 @@
 class Level:
     def __init__(self, name):
+        """
+        name -- string, file
+        """
         self.level = self.readfile(name)
 
     def readfile(self, name):
         """
-        name -- string, file in dat/ directory
+        name -- string, file
+
+        Returns list of strings
         """
         f = open(name, 'rb')
         level = []
@@ -26,4 +31,7 @@ class Level:
         return level
 
     def get_level(self):
+        """
+        Returns list of strings
+        """
         return self.level

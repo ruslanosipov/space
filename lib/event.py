@@ -26,6 +26,9 @@ IGNORE_EVENTS = [
 
 
 def get():
+    """
+    Returns str, meaningful event
+    """
     if not pygame.event.peek(TRACK_EVENTS):
         return
     events = pygame.event.get(TRACK_EVENTS)

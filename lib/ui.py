@@ -3,6 +3,12 @@ class UI:
         pass
 
     def compose(self, view, chat_log):
+        """
+        view -- list of strings
+        chat_log -- list of strings
+
+        Returns list of strings, the "text wall" ready to be rendered
+        """
         surface = []
         for i, line in enumerate(view):
             line += '|'

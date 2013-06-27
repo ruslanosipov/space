@@ -15,7 +15,7 @@ class Display:
 
     def draw(self, view):
         """
-        level -- 2d list of strings
+        view -- 2d list of strings
         """
         for i, line in enumerate(view):
             surface = self.font.render(line, True, (255, 255, 255), (0, 0, 0))

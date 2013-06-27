@@ -3,9 +3,17 @@ from lib.utl import packet
 
 class View:
     def __init__(self, level):
+        """
+        level -- Level object
+        """
         self.set_level(level)
 
     def generate(self, (x, y), radius, eyesight):
+        """
+        x, y -- int
+        radius -- int
+        eyesight -- int
+        """
         level = self.level.get_level()
         view_field = []
         for y_ in xrange(y - radius, y + radius + 1):
@@ -23,4 +31,7 @@ class View:
         return packet.encode(view_field)
 
     def set_level(self, level):
+        """
+        level -- Level object
+        """
         self.level = level

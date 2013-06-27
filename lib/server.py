@@ -22,6 +22,7 @@ class Server:
         self.server.bind((self.host, self.port))
         self.server.listen(self.backlog)
         self.inp = [self.server]
+        print "Started server on port %d..." % self.port
 
     def receive(self):
         self.data = {k: {} for k in self.data.keys()}  # clear data values
@@ -47,7 +48,13 @@ class Server:
         self.server.close()
 
     def get_data(self):
+        """
+        Returns dict
+        """
         return self.data
 
     def set_data(self, data):
+        """
+        data -- dict
+        """
         self.data = data

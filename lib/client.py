@@ -3,6 +3,10 @@ import socket
 
 class Client:
     def __init__(self, host, port):
+        """
+        host -- str
+        port -- int
+        """
         self.host = host
         self.port = port
         self.size = 4096
@@ -13,12 +17,18 @@ class Client:
         self.socket.connect((self.host, self.port))
 
     def receive(self):
+        """
+        Returns dict
+        """
         data = self.socket.recv(self.size)
         if not data:
             raise RuntimeError("Can not receive, socket connection broken!")
         return eval(data)
 
     def send(self, data):
+        """
+        data -- dict
+        """
         sent = self.socket.send(repr(data))
         if not sent:
             raise RuntimeError("Can not send, socket connection broken!")
