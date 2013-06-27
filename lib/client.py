@@ -2,6 +2,7 @@ import socket
 
 
 class Client:
+
     def __init__(self, host, port):
         """
         host -- str
@@ -9,7 +10,7 @@ class Client:
         """
         self.host = host
         self.port = port
-        self.size = 4096
+        self.size = 8192
         self.connect()
 
     def connect(self):

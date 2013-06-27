@@ -1,4 +1,5 @@
 class Level:
+
     def __init__(self, name):
         """
         name -- string, file
@@ -35,3 +36,17 @@ class Level:
         Returns list of lists
         """
         return self.level
+
+    def add_object(self, symbol, (x, y)):
+        """
+        symbol -- char
+        x, y -- int
+        """
+        self.level[y][x].append(symbol)
+
+    def remove_object(self, symbol, (x, y)):
+        """
+        symbol -- chat
+        x, y -- int
+        """
+        del self.level[y][x][self.level[y][x].index(symbol)]

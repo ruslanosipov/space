@@ -2,6 +2,7 @@ from lib.utl import packet
 
 
 class View:
+
     def __init__(self, level):
         """
         level -- Level object

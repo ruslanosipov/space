@@ -6,8 +6,7 @@ pygame.init()
 
 TRACK_EVENTS = [
     QUIT,
-    KEYDOWN
-]
+    KEYDOWN]
 IGNORE_EVENTS = [
     ACTIVEEVENT,
     KEYUP,
@@ -21,8 +20,7 @@ IGNORE_EVENTS = [
     JOYBUTTONDOWN,
     VIDEORESIZE,
     VIDEOEXPOSE,
-    USEREVENT
-]
+    USEREVENT]
 
 
 def get(mode='normal'):

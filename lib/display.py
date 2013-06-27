@@ -2,6 +2,7 @@ import pygame
 
 
 class Display:
+
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('Space')

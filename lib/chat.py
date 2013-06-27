@@ -1,4 +1,5 @@
 class Chat:
+
     def __init__(self):
         self.log = []
 
@@ -50,6 +51,5 @@ class Chat:
             'space owl: fell asleep in hello pose',
             'crewman: how is that?',
             'space owl: look -',
-            'space owl: hello!'
-        ]
+            'space owl: hello!']
         return log[len(log) - size:]

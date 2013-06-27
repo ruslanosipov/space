@@ -4,6 +4,7 @@ import sys
 
 
 class Server:
+
     def __init__(self, port):
         """
         port -- int
@@ -11,7 +12,7 @@ class Server:
         self.host = ''
         self.port = port
         self.backlog = 5
-        self.size = 4096
+        self.size = 8192
         self.inp = []
         self.out = []
         self.err = []
