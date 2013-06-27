@@ -26,7 +26,7 @@ class Server:
 
     def receive(self):
         self.data = {k: {} for k in self.data.keys()}  # clear data values
-        timeout = 0.5  # seconds
+        timeout = 0.02  # seconds
         inp, out, err = select.select(self.inp, self.out, self.err, timeout)
         for s in inp:
             if s == self.server:

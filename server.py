@@ -7,6 +7,7 @@ from lib.level import Level
 from lib.view import View
 from lib.chat import Chat
 from lib.player import Player
+from lib.utl import packet
 
 server = Server(12345)
 level = Level('dat/spaceship.map')
@@ -37,8 +38,9 @@ while True:
             radius,
             player.get_eyesight()
         )
-        chat_log = chat.get_log(10)
+        chat_log = packet.encode(chat.get_sample_log(24))
+        print chat_log
         new_data[s] = (player_view, chat_log)
     server.set_data(new_data)
-    time.sleep(time.clock() - clock + 0.5)
+    time.sleep(time.clock() - clock + 0.02)
     server.send()

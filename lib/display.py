@@ -17,6 +17,7 @@ class Display:
         """
         view -- 2d list of strings
         """
+        self.window.fill((0, 0, 0))
         for i, line in enumerate(view):
             surface = self.font.render(line, True, (255, 255, 255), (0, 0, 0))
             self.window.blit(surface, (0, i * self.symbol_height))

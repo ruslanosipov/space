@@ -13,6 +13,7 @@ display = Display()
 ui = UI()
 evt_mode = 'normal'
 action = None  # interaction with the world
+prompt = ''
 
 while True:
     client.send({'action': action})
@@ -20,7 +21,6 @@ while True:
     view_field, chat_msgs = client.receive()
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)
-    chat.add(chat_msgs)
 
     events = event.get(evt_mode)
     evt_mode, evt, evt_arg = events if events else (evt_mode, None, None)
@@ -29,7 +29,11 @@ while True:
         break
     if evt == 'move':
         action = (evt, evt_arg)
+    if evt == 'insert':
+        prompt += evt_arg
+    if evt == 'backspace' and prompt:
+        prompt = prompt[: - evt_arg]
 
-    surface = ui.compose(view_field, chat_msgs)
+    surface = ui.compose(view_field, chat_msgs + ['> ' + prompt])
     display.draw(surface)
     display.update()

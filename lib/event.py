@@ -37,8 +37,7 @@ def get(mode='normal'):
     pygame.event.clear(IGNORE_EVENTS)
     for evt in events:
         if evt.type == KEYDOWN and evt.key == K_ESCAPE:
-            mode = 'normal'
-            return
+            return ('normal', None, None)
         if mode == 'normal':
             if evt.type == QUIT:
                 return (mode, 'quit', None)
@@ -62,5 +61,7 @@ def get(mode='normal'):
                 if evt.key == K_m:
                     return (mode, 'move', (1, 1))
         if mode == 'insert':
-            # TODO: simple terminal input emulator
-            pass
+            if evt.type == KEYDOWN:
+                if evt.key == K_BACKSPACE:
+                    return (mode, 'backspace', 1)
+                return (mode, 'insert', evt.unicode)
