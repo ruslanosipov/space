@@ -3,30 +3,40 @@
 import time
 
 from lib.server import Server
-from lib.display import Display
 from lib.level import Level
 from lib.view import View
-from lib.ui import UI
 from lib.chat import Chat
+from lib.player import Player
 
 server = Server(12345)
 level = Level('dat/spaceship.map')
 view = View(level)
 chat = Chat()
-
 server.listen()
+players = {}
 
 while True:
     clock = time.clock()
     server.receive()
     data = server.get_data()
     new_data = {}
-    # TODO: process data received from clients
+    # Process data received from players
     for s in data.keys():
-        x, y = 25, 10
+        if s not in players:
+            players[s] = Player((25, 10))
+        if data[s]['action'] and data[s]['action'][0] == 'move':
+            # TODO: deal with data type loss on Server() level
+            x, y = data[s]['action'][1]
+            players[s].move((int(x), int(y)))
+    # Generate views for players
+    for s in data.keys():
+        player = players[s]
         radius = 12
-        eyesight = 11
-        player_view = view.generate((x, y), radius, eyesight)
+        player_view = view.generate(
+            player.get_coordinates(),
+            radius,
+            player.get_eyesight()
+        )
         chat_log = chat.get_log(10)
         new_data[s] = (player_view, chat_log)
     server.set_data(new_data)

@@ -11,20 +11,25 @@ chat = Chat()
 client = Client('127.0.0.1', 12345)
 display = Display()
 ui = UI()
+evt_mode = 'normal'
+action = None  # interaction with the world
 
 while True:
-    client.send({})
+    client.send({'action': action})
+    action = None
     view_field, chat_msgs = client.receive()
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)
-
     chat.add(chat_msgs)
 
-    surface = ui.compose(view_field, chat_msgs)
-    evt = event.get()
+    events = event.get(evt_mode)
+    evt_mode, evt, evt_arg = events if events else (evt_mode, None, None)
     if evt == 'quit':
         print 'Quiting...'
         break
+    if evt == 'move':
+        action = (evt, evt_arg)
 
+    surface = ui.compose(view_field, chat_msgs)
     display.draw(surface)
     display.update()
