@@ -3,6 +3,7 @@ from pygame.locals import *
 
 
 pygame.init()
+pygame.key.set_repeat(100, 100)
 
 TRACK_EVENTS = [
     QUIT,

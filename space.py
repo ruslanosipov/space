@@ -11,13 +11,15 @@ chat = Chat()
 client = Client('127.0.0.1', 12345)
 display = Display()
 ui = UI()
+
 evt_mode = 'normal'
-action = None  # interaction with the world
+action = ('connect', 'player 1')
 prompt = ''
 
 while True:
-    client.send({'action': action})
-    action = None
+    if action:
+        client.send(action)
+        action = 0
     view_field, chat_msgs = client.receive()
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)

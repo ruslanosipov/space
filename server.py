@@ -23,20 +23,22 @@ while True:
     new_data = {}
     # Process data received from players
     for s in data.keys():
-        if s not in players:
-            players[s] = Player((25, 10), symbol='@')
-            level.add_object(players[s].get_symbol(), (25, 10))
         if data[s]:
-            if data[s]['action'] and data[s]['action'][0] == 'move':
-                # TODO: deal with data type loss on Server() level
-                x, y = data[s]['action'][1]
-                level.remove_object(
-                    players[s].get_symbol(),
-                    players[s].get_coordinates())
-                players[s].move((int(x), int(y)))
-                level.add_object(
-                    players[s].get_symbol(),
-                    players[s].get_coordinates())
+            if data[s]:
+                if data[s][0] == 'connect' and s not in players:
+                    players[s] = Player((25, 10), symbol='@')
+                    level.add_object(players[s].get_symbol(), (25, 10))
+                if data[s][0] == 'move':
+                    # TODO: deal with data type loss on Server() level
+                    x, y = data[s][1]
+                    x, y = int(x), int(y)
+                    level.remove_object(
+                        players[s].get_symbol(),
+                        players[s].get_coordinates())
+                    players[s].move((x, y))
+                    level.add_object(
+                        players[s].get_symbol(),
+                        players[s].get_coordinates())
     # Generate views for players
     for s in data.keys():
         player = players[s]
