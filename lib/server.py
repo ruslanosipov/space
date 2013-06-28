@@ -1,6 +1,7 @@
 import select
 import socket
 import sys
+from lib.utl import net
 
 
 class Server:
@@ -36,14 +37,14 @@ class Server:
             else:
                 data = s.recv(self.size)
                 if data:
-                    self.data[s] = eval(data)
+                    self.data[s] = net.net_eval(data)
                 else:
                     s.close()
                     self.inp.remove(s)
 
     def send(self):
         for s in self.data.keys():
-            s.send(repr(self.data[s]))
+            s.send(net.net_repr(self.data[s]))
 
     def close(self):
         self.server.close()

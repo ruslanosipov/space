@@ -1,4 +1,5 @@
 import socket
+from lib.utl import net
 
 
 class Client:
@@ -24,12 +25,12 @@ class Client:
         data = self.socket.recv(self.size)
         if not data:
             raise RuntimeError("Can not receive, socket connection broken!")
-        return eval(data)
+        return net.net_eval(data)
 
     def send(self, data):
         """
         data -- dict
         """
-        sent = self.socket.send(repr(data))
+        sent = self.socket.send(net.net_repr(data))
         if not sent:
             raise RuntimeError("Can not send, socket connection broken!")

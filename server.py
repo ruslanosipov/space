@@ -24,13 +24,13 @@ while True:
     # Process data received from players
     for s in data.keys():
         if data[s]:
-            if data[s]:
-                if data[s][0] == 'connect' and s not in players:
+            for package in data[s]:
+                if package[0] == 'connect' and s not in players:
                     players[s] = Player((25, 10), symbol='@')
                     level.add_object(players[s].get_symbol(), (25, 10))
-                if data[s][0] == 'move':
+                if package[0] == 'move':
                     # TODO: deal with data type loss on Server() level
-                    x, y = data[s][1]
+                    x, y = package[1]
                     x, y = int(x), int(y)
                     level.remove_object(
                         players[s].get_symbol(),

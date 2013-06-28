@@ -20,7 +20,7 @@ while True:
     if action:
         client.send(action)
         action = 0
-    view_field, chat_msgs = client.receive()
+    view_field, chat_msgs = client.receive()[-1]
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)
 
