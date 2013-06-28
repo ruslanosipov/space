@@ -35,6 +35,9 @@ while True:
         prompt += evt_arg
     if evt == 'backspace' and prompt:
         prompt = prompt[: - evt_arg]
+    if evt == 'return' and prompt:
+        action = ('say', prompt)
+        prompt, evt_mode = '', 'normal'
 
     surface = ui.compose(view_field, chat_msgs + ['> ' + prompt])
     display.draw(surface)

@@ -37,30 +37,34 @@ def get(mode='normal'):
     for evt in events:
         if evt.type == KEYDOWN and evt.key == K_ESCAPE:
             return ('normal', None, None)
+        if evt.type == QUIT:
+            return (mode, 'quit', None)
         if mode == 'normal':
-            if evt.type == QUIT:
-                return (mode, 'quit', None)
             if evt.type == KEYDOWN:
-                if evt.key == K_SLASH:
+                if evt.unicode == 'Q':
+                    return (mode, 'quit', None)
+                if evt.unicode == '/':
                     return ('insert', 'say', '/')
-                if evt.key == K_h:
+                if evt.unicode == 'h':
                     return (mode, 'move', (-1, 0))
-                if evt.key == K_j:
+                if evt.unicode == 'j':
                     return (mode, 'move', (0, 1))
-                if evt.key == K_k:
+                if evt.unicode == 'k':
                     return (mode, 'move', (0, -1))
-                if evt.key == K_l:
+                if evt.unicode == 'l':
                     return (mode, 'move', (1, 0))
-                if evt.key == K_u:
+                if evt.unicode == 'u':
                     return (mode, 'move', (-1, -1))
-                if evt.key == K_i:
+                if evt.unicode == 'i':
                     return (mode, 'move', (1, -1))
-                if evt.key == K_n:
+                if evt.unicode == 'n':
                     return (mode, 'move', (-1, 1))
-                if evt.key == K_m:
+                if evt.unicode == 'm':
                     return (mode, 'move', (1, 1))
         if mode == 'insert':
             if evt.type == KEYDOWN:
                 if evt.key == K_BACKSPACE:
                     return (mode, 'backspace', 1)
+                if evt.key == K_RETURN:
+                    return (mode, 'return', 1)
                 return (mode, 'insert', evt.unicode)

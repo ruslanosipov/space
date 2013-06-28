@@ -26,9 +26,10 @@ while True:
         if data[s]:
             for package in data[s]:
                 if package[0] == 'connect' and s not in players:
-                    players[s] = Player((25, 10), symbol='@')
+                    player_name = package[1]
+                    players[s] = Player((25, 10), player_name, symbol='@')
                     level.add_object(players[s].get_symbol(), (25, 10))
-                if package[0] == 'move':
+                elif package[0] == 'move':
                     # TODO: deal with data type loss on Server() level
                     x, y = package[1]
                     x, y = int(x), int(y)
@@ -39,6 +40,8 @@ while True:
                     level.add_object(
                         players[s].get_symbol(),
                         players[s].get_coordinates())
+                elif package[0] == 'say':
+                    chat.add_single(package[1], name=players[s].get_name())
     # Generate views for players
     for s in data.keys():
         player = players[s]
@@ -47,7 +50,7 @@ while True:
             player.get_coordinates(),
             radius,
             player.get_eyesight())
-        chat_log = packet.encode(chat.get_sample_log(24))
+        chat_log = packet.encode(chat.get_log(24))
         new_data[s] = (player_view, chat_log)
     server.set_data(new_data)
     time.sleep(time.clock() - clock + 0.02)
