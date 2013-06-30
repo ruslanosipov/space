@@ -64,7 +64,7 @@ while True:
     # Generate views for players
     for s in data.keys():
         player = players[s]
-        radius = 12
+        radius = 11
         player_view = view.generate(
             player.get_coordinates(),
             radius,

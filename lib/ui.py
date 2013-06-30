@@ -3,11 +3,12 @@ class UI:
     def __init__(self):
         pass
 
-    def compose(self, view, chat_log, prompt):
+    def compose(self, view, chat_log, prompt, evt_mode):
         """
         view -- list of strings
         chat_log -- list of strings
         prompt -- str
+        evt_mode -- str
 
         Returns list of strings, the "text wall" ready to be rendered
         """
@@ -19,4 +20,8 @@ class UI:
             if i == len(view) - 1:
                 line += '> ' + prompt
             surface.append(line)
+        surface.append('-' * 23 + '+' + '-' * 56)
+        if evt_mode == 'normal':
+            evt_mode = '' * 6
+        surface.append(evt_mode[:6].upper())
         return surface
