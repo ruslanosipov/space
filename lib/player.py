@@ -19,6 +19,17 @@ class Player:
         self.x += x
         self.y += y
 
+    def validate_movement(self, (x, y)):
+        """
+        x, y -- int
+
+        Movement is allowed only in 4 directions.
+        """
+        if x == 0 and (y == 1 or y == -1) or \
+                y == 0 and (x == 1 or x == -1):
+            return True
+        return False
+
     def get_coordinates(self):
         return (self.x, self.y)
 
