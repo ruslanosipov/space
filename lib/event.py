@@ -26,7 +26,8 @@ IGNORE_EVENTS = [
 
 def get(mode='normal'):
     """
-    mode -- str, identical to the way vim mode works (normal, insert)
+    mode -- str, identical to the way vim mode works (normal, insert,
+    direction)
 
     Returns tuple (mode, event_name, event_argument)
     """
@@ -45,6 +46,8 @@ def get(mode='normal'):
                     return (mode, 'quit', None)
                 if evt.unicode == '/':
                     return ('insert', 'say', '/')
+                if evt.unicode == 'a':
+                    return ('direction', 'activate', 1)
                 if evt.unicode == 'h':
                     return (mode, 'move', (-1, 0))
                 if evt.unicode == 'j':
@@ -60,3 +63,14 @@ def get(mode='normal'):
                 if evt.key == K_RETURN:
                     return (mode, 'return', 1)
                 return (mode, 'insert', evt.unicode)
+        if mode == 'direction':
+            if evt.type == KEYDOWN:
+                if evt.unicode == 'h':
+                    return ('normal', 'arg', (-1, 0))
+                if evt.unicode == 'j':
+                    return ('normal', 'arg', (0, 1))
+                if evt.unicode == 'k':
+                    return ('normal', 'arg', (0, -1))
+                if evt.unicode == 'l':
+                    return ('normal', 'arg', (1, 0))
+            return ('normal', 'arg', None)

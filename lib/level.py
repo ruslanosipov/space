@@ -64,6 +64,21 @@ class Level:
                 return True
         return False
 
+    def get_top_item(self, (x, y)):
+        """
+        x, y -- int
+        """
+        for i in xrange(1, len(self.level[y][x])):
+            if self.level[y][x][- i] in self.items:
+                return self.level[y][x][- i]
+        return False
+
+    def get_item_name(self, symbol):
+        """
+        symbol -- char
+        """
+        return self.items[symbol][0]
+
     def _load_stationary(self, name):
         """
         name -- filename with relative path and extension

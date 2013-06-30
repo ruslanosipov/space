@@ -14,10 +14,11 @@ ui = UI()
 
 evt_mode = 'normal'
 action = ('connect', 'player 1')
+waiting_for_action_arg = 0
 prompt = ''
 
 while True:
-    if action:
+    if action and not waiting_for_action_arg:
         client.send(action)
         action = 0
     view_field, chat_msgs = client.receive()[-1]
@@ -29,6 +30,12 @@ while True:
     if evt == 'quit':
         print 'Quiting...'
         break
+    if evt == 'arg' and waiting_for_action_arg:
+        action = (action, evt_arg) if evt_arg else 0
+        waiting_for_action_arg = 0
+    if evt == 'activate':
+        action = evt
+        waiting_for_action_arg = 1
     if evt == 'move':
         action = (evt, evt_arg)
     if evt == 'insert':

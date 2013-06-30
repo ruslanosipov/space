@@ -29,6 +29,21 @@ while True:
                     player_name = package[1]
                     players[s] = Player((25, 10), player_name, symbol='@')
                     level.add_object(players[s].get_symbol(), (25, 10))
+                elif package[0] == 'activate':
+                    x, y = package[1]
+                    x, y = int(x), int(y)
+                    x_, y_ = players[s].get_coordinates()
+                    x_, y_ = x_ + x, y_ + y
+                    item = level.get_top_item((x_, y_))
+                    if item:
+                        name = level.get_item_name(item)
+                        exec("from lib.obj.%s import Item" % name)
+                        i = Item(item)
+                        i.activate()
+                        i.get_symbol()
+                        level.remove_object(item, (x_, y_))
+                        level.add_object(i.get_symbol(), (x_, y_))
+                        del i
                 elif package[0] == 'move':
                     # TODO: deal with data type loss on Server() level
                     x, y = package[1]
