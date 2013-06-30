@@ -44,8 +44,8 @@ def get(mode='normal'):
             if evt.type == KEYDOWN:
                 if evt.unicode == 'Q':
                     return (mode, 'quit', None)
-                if evt.unicode == '/':
-                    return ('insert', 'say', '/')
+                if evt.unicode == '/' or evt.unicode == 'i':
+                    return ('insert', 'say', evt.unicode)
                 if evt.unicode == 'a':
                     return ('direction', 'activate', 1)
                 if evt.unicode == 'h':

@@ -22,6 +22,8 @@ class UI:
             surface.append(line)
         surface.append('-' * 23 + '+' + '-' * 56)
         if evt_mode == 'normal':
-            evt_mode = '' * 6
-        surface.append(evt_mode[:6].upper())
+            evt_mode = ' ' * 12
+        else:
+            evt_mode = '-- %s --' % evt_mode[:6].upper()
+        surface.append(evt_mode)
         return surface
