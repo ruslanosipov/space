@@ -10,7 +10,7 @@ from lib.player import Player
 from lib.utl import packet
 
 server = Server(12345)
-level = Level('dat/spaceship.map')
+level = Level('spaceship')
 view = View(level)
 chat = Chat()
 server.listen()

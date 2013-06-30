@@ -1,5 +1,4 @@
-+|door_closed|1
-/|door_open|0
 .|floor|0
 0|glass|1
+ |space|0
 #|wall|1
