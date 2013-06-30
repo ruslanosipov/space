@@ -5,6 +5,7 @@ class Level:
         name -- string, file
         """
         self.level = self.readfile(name)
+        self.load_objects_data()
 
     def readfile(self, name):
         """
@@ -50,3 +51,20 @@ class Level:
         x, y -- int
         """
         del self.level[y][x][self.level[y][x].index(symbol)]
+
+    def load_objects_data(self):
+        stationary = open('dat/objects/stationary.txt', 'r').read()
+        self.stationary = {}
+        for line in stationary.split('\n'):
+            if line:
+                symbol, id, is_blocker = line.split('|')
+                self.stationary[symbol] = (id, int(is_blocker))
+
+    def is_blocker(self, (x, y)):
+        """
+        x, y -- int
+        """
+        for symbol in self.level[y][x]:
+            if self.stationary[symbol][1]:
+                return True
+        return False

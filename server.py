@@ -33,13 +33,16 @@ while True:
                     # TODO: deal with data type loss on Server() level
                     x, y = package[1]
                     x, y = int(x), int(y)
-                    level.remove_object(
-                        players[s].get_symbol(),
-                        players[s].get_coordinates())
-                    players[s].move((x, y))
-                    level.add_object(
-                        players[s].get_symbol(),
-                        players[s].get_coordinates())
+                    x_, y_ = players[s].get_coordinates()
+                    x_, y_ = x_ + x, y_ + y
+                    if not level.is_blocker((x_, y_)):
+                        level.remove_object(
+                            players[s].get_symbol(),
+                            players[s].get_coordinates())
+                        players[s].move((x, y))
+                        level.add_object(
+                            players[s].get_symbol(),
+                            players[s].get_coordinates())
                 elif package[0] == 'say':
                     chat.add_single(package[1], name=players[s].get_name())
     # Generate views for players
