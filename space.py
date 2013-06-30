@@ -46,6 +46,6 @@ while True:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
 
-    surface = ui.compose(view_field, chat_msgs + ['> ' + prompt])
+    surface = ui.compose(view_field, chat_msgs, prompt)
     display.draw(surface)
     display.update()
