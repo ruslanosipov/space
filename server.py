@@ -41,11 +41,14 @@ try:
                             name = level.get_item_name(item)
                             exec("from lib.obj.%s import Item" % name)
                             i = Item(item)
-                            i.activate()
+                            msg = i.activate()
                             i.get_symbol()
                             level.remove_object(item, (x_, y_))
                             level.add_object(i.get_symbol(), (x_, y_))
                             del i
+                        else:
+                            msg = "Nothing to activate"
+                        chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'move':
                         # TODO: deal with data type loss on Server() level
                         x, y = package[1]
@@ -61,6 +64,10 @@ try:
                                 level.add_object(
                                     players[s].get_symbol(),
                                     players[s].get_coordinates())
+                            else:
+                                # TODO: object-specific message
+                                msg = "Something is obstructing your way"
+                                chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'say':
                         chat.add_single(
                             'all',

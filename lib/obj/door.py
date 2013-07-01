@@ -4,4 +4,10 @@ from lib.obj.itemtemplate import ItemTemplate
 class Item(ItemTemplate):
 
     def activate(self):
-        self.symbol = '/' if self.symbol == '+' else '+'
+        if self.symbol == '+':
+            self.symbol = '/'
+            msg = "You open the door"
+        else:
+            self.symbol = '+'
+            msg = "You close the door"
+        return msg
