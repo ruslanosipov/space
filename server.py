@@ -6,14 +6,14 @@ import sys
 from lib.server import Server
 from lib.level import Level
 from lib.view import View
-from lib.chat import Chat
+from lib.chat import ChatServer
 from lib.player import Player
 from lib.utl import packet
 
 server = Server(12345)
 level = Level('spaceship')
 view = View(level)
-chat = Chat()
+chat = ChatServer()
 server.listen()
 players = {}
 
@@ -62,7 +62,10 @@ try:
                                     players[s].get_symbol(),
                                     players[s].get_coordinates())
                     elif package[0] == 'say':
-                        chat.add_single(package[1], name=players[s].get_name())
+                        chat.add_single(
+                            'all',
+                            package[1],
+                            name=players[s].get_name())
         # Generate views for players
         for s in data.keys():
             player = players[s]
@@ -71,7 +74,7 @@ try:
                 player.get_coordinates(),
                 radius,
                 player.get_eyesight())
-            chat_log = packet.encode(chat.get_log(24))
+            chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)

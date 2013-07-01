@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-from lib.chat import Chat
+from lib.chat import ChatClient
 from lib.client import Client
 from lib.display import Display
 from lib.ui import UI
 from lib.utl import packet
 from lib import event
 
-chat = Chat()
+chat = ChatClient()
 client = Client('127.0.0.1', 12345)
 display = Display()
 ui = UI()
@@ -24,6 +24,8 @@ while True:
     view_field, chat_msgs = client.receive()[-1]
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)
+    if len(chat_msgs[0]):
+        chat.add_multiple(chat_msgs)
 
     events = event.get(evt_mode)
     evt_mode, evt, evt_arg = events if events else (evt_mode, None, None)
@@ -46,6 +48,6 @@ while True:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
 
-    surface = ui.compose(view_field, chat_msgs, prompt, evt_mode)
+    surface = ui.compose(view_field, chat.get_log(), prompt, evt_mode)
     display.draw(surface)
     display.update()
