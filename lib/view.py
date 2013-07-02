@@ -33,7 +33,7 @@ class View:
                             n_x, n_y = i_x - x0 + radius, i_y - y0 + radius
                             if not is_blocker and view_field[n_y][n_x] == ' ':
                                 view_field[n_y][n_x] = level[i_y][i_x][-1]
-                            if self.level.is_blocker((i_x, i_y)):
+                            if self.level.is_view_obstructor((i_x, i_y)):
                                 is_blocker = True
         for y, line in enumerate(view_field):
             view_field[y] = ''.join(line)
