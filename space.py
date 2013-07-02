@@ -32,19 +32,22 @@ while True:
     if evt == 'quit':
         print 'Quiting...'
         break
-    if evt == 'arg' and waiting_for_action_arg:
+    elif evt == 'arg' and waiting_for_action_arg:
         action = (action, evt_arg) if evt_arg else 0
         waiting_for_action_arg = 0
-    if evt == 'activate':
+    elif evt == 'activate':
         action = evt
         waiting_for_action_arg = 1
-    if evt == 'move':
+    elif evt == 'look':
+        action = evt
+        waiting_for_action_arg = 1
+    elif evt == 'move':
         action = (evt, evt_arg)
-    if evt == 'insert':
+    elif evt == 'insert':
         prompt += evt_arg
-    if evt == 'backspace' and prompt:
+    elif evt == 'backspace' and prompt:
         prompt = prompt[: - evt_arg]
-    if evt == 'return' and prompt:
+    elif evt == 'return' and prompt:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
 

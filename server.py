@@ -73,6 +73,14 @@ try:
                             'all',
                             package[1],
                             name=players[s].get_name())
+                    elif package[0] == 'look':
+                        x, y = package[1]
+                        x, y = int(x), int(y)
+                        x_, y_ = players[s].get_coordinates()
+                        x, y = x + x_, y + y_
+                        items = ', '.join(level.get_object_ids((x, y)))
+                        msg = 'You see: %s' % items
+                        chat.add_single(players[s].get_name(), msg)
         # Generate views for players
         for s in data.keys():
             player = players[s]

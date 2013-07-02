@@ -48,6 +48,8 @@ def get(mode='normal'):
                     return ('insert', 'say', evt.unicode)
                 if evt.unicode == 'a':
                     return ('direction', 'activate', 1)
+                if evt.unicode == 'v':
+                    return ('direction', 'look', 1)
                 if evt.unicode == 'h':
                     return (mode, 'move', (-1, 0))
                 if evt.unicode == 'j':

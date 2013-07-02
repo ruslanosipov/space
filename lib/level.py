@@ -83,6 +83,21 @@ class Level:
                 return self.level[y][x][- i]
         return False
 
+    def get_object_ids(self, (x, y)):
+        """
+        x, y -- int
+
+        Returns list of object IDs
+        """
+        names = []
+        for obj in self.level[y][x]:
+            if obj in self.stationary.keys():
+                names.append(self.stationary[obj][0])
+            if obj in self.items:
+                names.append(self.items[obj][0])
+        return names
+
+
     def get_item_name(self, symbol):
         """
         symbol -- char
