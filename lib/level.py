@@ -45,14 +45,14 @@ class Level:
         self.stationary = {}
         for line in stationary.split('\n'):
             if line:
-                symbol, id, is_blocker = line.split('|')
-                self.stationary[symbol] = (id, int(is_blocker))
+                symbol, id, is_blocker, view_obstr = line.split('|')
+                self.stationary[symbol] = (id, int(is_blocker), int(view_obstr))
         items = open('dat/objects/items.txt', 'rb').read()
         self.items = {}
         for line in items.split('\n'):
             if line:
-                symbol, id, is_blocker = line.split('|')
-                self.items[symbol] = (id, int(is_blocker))
+                symbol, id, is_blocker, view_obstr = line.split('|')
+                self.items[symbol] = (id, int(is_blocker), int(view_obstr))
 
     def is_blocker(self, (x, y)):
         """
@@ -61,6 +61,16 @@ class Level:
         for symbol in self.level[y][x]:
             if symbol in self.stationary and self.stationary[symbol][1] or \
                     symbol in self.items and self.items[symbol][1]:
+                return True
+        return False
+
+    def is_view_obstructor(self, (x, y)):
+        """
+        x, y -- int
+        """
+        for symbol in self.level[y][x]:
+            if symbol in self.stationary and self.stationary[symbol][2] or \
+                    symbol in self.items and self.items[symbol][2]:
                 return True
         return False
 
