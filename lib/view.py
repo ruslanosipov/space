@@ -1,4 +1,5 @@
 from lib.utl import packet
+from lib.utl import bresenham
 
 
 class View:
@@ -9,27 +10,33 @@ class View:
         """
         self.set_level(level)
 
-    def generate(self, (x, y), radius, eyesight):
+    def generate(self, (x0, y0), radius, eyesight):
         """
-        x, y -- int
+        x0, y0 -- int
         radius -- int
         eyesight -- int
         """
         level = self.level.get_level()
         view_field = []
-        for y_ in xrange(y - radius, y + radius + 1):
-            if y - eyesight <= y_ <= y + eyesight \
-                    and len(level) >= y_ + 1 and y_ >= 0:
-                view_field.append('')
-                for x_ in xrange(x - radius, x + radius + 1):
-                    if x - eyesight <= x_ <= x + eyesight \
-                            and len(level[y_]) >= x_ + 1 and x_ >= 0:
-                        view_field[-1] += level[y_][x_][-1]
-                    else:
-                        view_field[-1] += ' '
-            else:
-                line = [' ' for i in xrange(y - radius, y + radius + 1)]
-                view_field.append(''.join(line))
+        for _ in xrange(0, radius * 2 + 1):
+                line = [' ' for _ in xrange(0, radius * 2 + 1)]
+                view_field.append(line)
+        for y in xrange(y0 - radius, y0 + radius + 1):
+            if y0 - eyesight <= y <= y0 + eyesight \
+                    and len(level) >= y + 1 and y >= 0:
+                for x in xrange(x0 - radius, x0 + radius + 1):
+                    if (x0 - eyesight <= x <= x0 + eyesight) \
+                            and len(level[y]) >= x + 1 and x >= 0:
+                        line = bresenham.get_line((x0, y0), (x, y))
+                        is_blocker = False
+                        for (i_x, i_y) in line:
+                            n_x, n_y = i_x - x0 + radius, i_y - y0 + radius
+                            if not is_blocker and view_field[n_y][n_x] == ' ':
+                                view_field[n_y][n_x] = level[i_y][i_x][-1]
+                            if self.level.is_blocker((i_x, i_y)):
+                                is_blocker = True
+        for y, line in enumerate(view_field):
+            view_field[y] = ''.join(line)
         return packet.encode(view_field)
 
     def set_level(self, level):
