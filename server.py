@@ -56,6 +56,7 @@ try:
                         if players[s].validate_movement((x, y)):
                             x_, y_ = players[s].get_coordinates()
                             x_, y_ = x_ + x, y_ + y
+                            mob = level.get_mob((x_, y_))
                             if not level.is_blocker((x_, y_)):
                                 level.remove_object(
                                     players[s].get_symbol(),
@@ -64,8 +65,20 @@ try:
                                 level.add_object(
                                     players[s].get_symbol(),
                                     players[s].get_coordinates())
-                            elif level.get_mob((x_, y_)):
-                                pass
+                            elif mob:
+                                for player in players.values():
+                                    if player.get_coordinates() == (x_, y_):
+                                        if players[s].get_mode() == 'attack':
+                                            player.take_damage(25)
+                                            msg = 'You attack player'
+                                            if not player.is_alive():
+                                                level.remove_object('@',
+                                                                    (x_, y_))
+                                                level.add_object('%', (x_, y_))
+                                                msg += '. Player is dead'
+                                            chat.add_single(
+                                                    players[s].get_name(),
+                                                    msg)
                             else:
                                 # TODO: object-specific message
                                 msg = "Something is obstructing your path"

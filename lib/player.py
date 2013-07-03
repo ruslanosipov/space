@@ -13,6 +13,7 @@ class Player:
         self.set_symbol(symbol)
         self.health_max = self.health = 100
         self.alive = 1
+        self.mode = 'attack'
 
     def move(self, (x, y)):
         """
@@ -41,6 +42,18 @@ class Player:
         self.health -= x
         if self.health <= 0:
             self.alive = 0
+
+    def is_alive(self):
+        return self.alive
+
+    def set_mode(self, mode):
+        """
+        mode -- str
+        """
+        self.mode = mode
+
+    def get_mode(self):
+        return self.mode
 
     def get_coordinates(self):
         return (self.x, self.y)

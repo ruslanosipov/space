@@ -46,7 +46,8 @@ class Level:
         for line in stationary.split('\n'):
             if line:
                 symbol, id, is_blocker, view_obstr = line.split('|')
-                self.stationary[symbol] = (id, int(is_blocker), int(view_obstr))
+                self.stationary[symbol] = (id, int(is_blocker),
+                                           int(view_obstr))
         items = open('dat/objects/items.txt', 'rb').read()
         self.items = {}
         for line in items.split('\n'):
@@ -57,8 +58,8 @@ class Level:
         self.mobs = {}
         for line in mobs.split('\n'):
             if line:
-                symbol, id= line.split('|')
-                self.mobs[symbol] = (id)
+                symbol, id = line.split('|')
+                self.mobs[symbol] = (id, )
 
     def is_blocker(self, (x, y)):
         """
@@ -86,8 +87,9 @@ class Level:
         x, y -- int
         """
         for i in xrange(1, len(self.level[y][x])):
-            if self.level[y][x][- i] in self.items:
-                return self.level[y][x][- i]
+            i = - i
+            if self.level[y][x][i] in self.items:
+                return self.level[y][x][i]
         return False
 
     def get_object_ids(self, (x, y)):
