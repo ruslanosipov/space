@@ -42,10 +42,12 @@ class ChatClient:
     def __init__(self):
         self.log = []
 
-    def get_log(self, size=24):
+    def get_log(self, size=22):
         """
         size -- int
         """
+        if len(self.log) <= size:
+            return self.log
         return self.log[len(self.log) - size:]
 
     def add_multiple(self, msgs):
