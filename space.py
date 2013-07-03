@@ -45,6 +45,8 @@ while True:
         action = (evt, evt_arg)
     elif evt == 'target':
         action = (evt, evt_arg)
+    elif evt == 'fire':
+        action = (evt, evt_arg)
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:

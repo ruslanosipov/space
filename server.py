@@ -92,6 +92,21 @@ try:
                         else:
                             msg = 'Nothing to target'
                             chat.add_single(players[s].get_name(), msg)
+                    elif package[0] == 'fire':
+                        target = players[s].get_target()
+                        if target:
+                            for mob in players.values():
+                                if mob.get_coordinates() == target:
+                                    mob.take_damage(50)
+                                    msg = 'You shoot at the player'
+                                    if not mob.is_alive():
+                                        level.remove_object('@', (x_, y_))
+                                        level.add_object('%', (x_, y_))
+                                        msg += '. Player is dead'
+                                        players[s].set_target(None)
+                        else:
+                            msg = 'No target found, nothing to shoot at'
+                        chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'say':
                         chat.add_single(
                             'all',
