@@ -17,6 +17,114 @@ chat = ChatServer()
 server.listen()
 players = {}
 
+
+def connect(player_name):
+    global level
+
+    player = Player((25, 10), player_name, symbol='@')
+    level.add_object(player.get_symbol(), (25, 10))
+    return player
+
+
+def activate(player, (dx, dy)):
+    global level
+
+    x, y = player.get_coordinates()
+    x, y = dx + x, dy + y
+    item_symbol = level.get_top_item((x, y))
+    if item_symbol:
+        name = level.get_item_name(item_symbol)
+        exec("from lib.obj.%s import Item" % name)
+        item = Item(item_symbol)
+        msg = item.activate()
+        new_symbol = item.get_symbol()
+        if new_symbol != item_symbol:
+            level.remove_object(item_symbol, (x, y))
+            level.add_object(new_symbol, (x, y))
+        del item
+    else:
+        msg = "Nothing to activate"
+    return msg
+
+
+def move(player, (x, y)):
+    global level
+    global players
+
+    msg = None
+    if player.validate_movement((x, y)):
+        x, y = player.get_coordinates()
+        x, y = dx + x, dy + y
+        mob = level.get_mob((x, y))
+        if not level.is_blocker((x, y)):
+            level.remove_object(
+                player.get_symbol(),
+                player.get_coordinates())
+            player.move((dx, dy))
+            level.add_object(
+                player.get_symbol(),
+                player.get_coordinates())
+        elif mob:
+            for mob in players.values():
+                if mob.get_coordinates() == (x, y):
+                    if player.get_mode() == 'attack':
+                        mob.take_damage(25)
+                        msg = 'You attack someone'
+                        if not mob.is_alive():
+                            level.remove_object('@', (x, y))
+                            level.add_object('%', (x, y))
+                            player.set_target(None)
+                            msg += '. Enemy is dead'
+        else:
+            # TODO: object-specific message
+            msg = "Something is obstructing your path"
+        return msg
+
+
+def target(player):
+    global view
+
+    msg = None
+    targets = view.get_visible_players(
+            player.get_coordinates(),
+            player.get_eyesight())
+    if len(targets):
+        player.set_target(targets[0])
+    else:
+        msg = 'Nothing to target'
+    return msg
+
+
+def fire(player):
+    global level
+    global players
+
+    target = player.get_target()
+    if target:
+        for mob in players.values():
+            x, y = mob.get_coordinates()
+            if (x, y) == target:
+                mob.take_damage(50)
+                msg = 'You shoot at someone'
+                if not mob.is_alive():
+                    level.remove_object('@', (x, y))
+                    level.add_object('%', (x, y))
+                    msg += '. Target is dead'
+                    player.set_target(None)
+    else:
+        msg = 'No target found'
+    return msg
+
+
+def look(player, (dx, dy)):
+    global level
+
+    x, y = player.get_coordinates()
+    x, y = dx + x, dy + y
+    items = ', '.join(level.get_object_ids((x, y)))
+    msg = 'You see: %s' % items
+    return msg
+
 try:
     while True:
         clock = time.clock()
@@ -26,100 +134,38 @@ try:
         # Process data received from players
         for s in data.keys():
             if data[s]:
-                for package in data[s]:
-                    if package[0] == 'connect' and s not in players:
-                        player_name = package[1]
-                        players[s] = Player((25, 10), player_name, symbol='@')
-                        level.add_object(players[s].get_symbol(), (25, 10))
-                    elif package[0] == 'activate':
-                        x, y = package[1]
-                        x, y = int(x), int(y)
-                        x_, y_ = players[s].get_coordinates()
-                        x_, y_ = x_ + x, y_ + y
-                        item = level.get_top_item((x_, y_))
-                        if item:
-                            name = level.get_item_name(item)
-                            exec("from lib.obj.%s import Item" % name)
-                            i = Item(item)
-                            msg = i.activate()
-                            i.get_symbol()
-                            level.remove_object(item, (x_, y_))
-                            level.add_object(i.get_symbol(), (x_, y_))
-                            del i
-                        else:
-                            msg = "Nothing to activate"
-                        chat.add_single(players[s].get_name(), msg)
-                    elif package[0] == 'move':
+                for evt, arg in data[s]:
+                    if s in players:
+                        player = players[s]
+                    if evt == 'connect' and s not in players:
+                        player = connect(arg)
+                        players[s] = player
+                    elif evt == 'activate':
+                        dx, dy = arg
+                        dx, dy = int(dx), int(dy)
+                        msg = activate(player, (dx, dy))
+                        chat.add_single(player.get_name(), msg)
+                    elif evt == 'move':
                         # TODO: deal with data type loss on Server() level
-                        x, y = package[1]
-                        x, y = int(x), int(y)
-                        if players[s].validate_movement((x, y)):
-                            x_, y_ = players[s].get_coordinates()
-                            x_, y_ = x_ + x, y_ + y
-                            mob = level.get_mob((x_, y_))
-                            if not level.is_blocker((x_, y_)):
-                                level.remove_object(
-                                    players[s].get_symbol(),
-                                    players[s].get_coordinates())
-                                players[s].move((x, y))
-                                level.add_object(
-                                    players[s].get_symbol(),
-                                    players[s].get_coordinates())
-                            elif mob:
-                                for player in players.values():
-                                    if player.get_coordinates() == (x_, y_):
-                                        if players[s].get_mode() == 'attack':
-                                            player.take_damage(25)
-                                            msg = 'You attack player'
-                                            if not player.is_alive():
-                                                level.remove_object('@',
-                                                                    (x_, y_))
-                                                level.add_object('%', (x_, y_))
-                                                msg += '. Player is dead'
-                                            chat.add_single(
-                                                    players[s].get_name(),
-                                                    msg)
-                            else:
-                                # TODO: object-specific message
-                                msg = "Something is obstructing your path"
-                                chat.add_single(players[s].get_name(), msg)
-                    elif package[0] == 'target':
-                        targets = view.get_visible_players(
-                                players[s].get_coordinates(),
-                                players[s].get_eyesight())
-                        if len(targets):
-                            players[s].set_target(targets[0])
-                        else:
-                            msg = 'Nothing to target'
-                            chat.add_single(players[s].get_name(), msg)
-                    elif package[0] == 'fire':
-                        target = players[s].get_target()
-                        if target:
-                            for mob in players.values():
-                                if mob.get_coordinates() == target:
-                                    mob.take_damage(50)
-                                    msg = 'You shoot at the player'
-                                    if not mob.is_alive():
-                                        level.remove_object('@', (x_, y_))
-                                        level.add_object('%', (x_, y_))
-                                        msg += '. Player is dead'
-                                        players[s].set_target(None)
-                        else:
-                            msg = 'No target found, nothing to shoot at'
-                        chat.add_single(players[s].get_name(), msg)
-                    elif package[0] == 'say':
-                        chat.add_single(
-                            'all',
-                            package[1],
-                            name=players[s].get_name())
-                    elif package[0] == 'look':
-                        x, y = package[1]
-                        x, y = int(x), int(y)
-                        x_, y_ = players[s].get_coordinates()
-                        x, y = x + x_, y + y_
-                        items = ', '.join(level.get_object_ids((x, y)))
-                        msg = 'You see: %s' % items
-                        chat.add_single(players[s].get_name(), msg)
+                        dx, dy = arg
+                        dx, dy = int(dx), int(dy)
+                        msg = move(player, (dx, dy))
+                        if msg:
+                            chat.add_single(player.get_name(), msg)
+                    elif evt == 'target':
+                        msg = target(player)
+                        if msg:
+                            chat.add_single(player.get_name(), msg)
+                    elif evt == 'fire':
+                        msg = fire(player)
+                        chat.add_single(player.get_name(), msg)
+                    elif evt == 'say':
+                        chat.add_single('all', arg, name=player.get_name())
+                    elif evt == 'look':
+                        dx, dy = arg
+                        dx, dy = int(dx), int(dy)
+                        msg = look(player, (dx, dy))
+                        chat.add_single(player.get_name(), msg)
         # Generate views for players
         for s in data.keys():
             player = players[s]
