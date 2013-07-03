@@ -83,6 +83,15 @@ try:
                                 # TODO: object-specific message
                                 msg = "Something is obstructing your path"
                                 chat.add_single(players[s].get_name(), msg)
+                    elif package[0] == 'target':
+                        targets = view.get_visible_players(
+                                players[s].get_coordinates(),
+                                players[s].get_eyesight())
+                        if len(targets):
+                            players[s].set_target(targets[0])
+                        else:
+                            msg = 'Nothing to target'
+                            chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'say':
                         chat.add_single(
                             'all',
@@ -103,7 +112,8 @@ try:
             player_view = view.generate(
                 player.get_coordinates(),
                 radius,
-                player.get_eyesight())
+                player.get_eyesight(),
+                player.get_target())
             chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)

@@ -43,6 +43,8 @@ while True:
         waiting_for_action_arg = 1
     elif evt == 'move':
         action = (evt, evt_arg)
+    elif evt == 'target':
+        action = (evt, evt_arg)
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:

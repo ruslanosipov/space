@@ -14,6 +14,7 @@ class Player:
         self.health_max = self.health = 100
         self.alive = 1
         self.mode = 'attack'
+        self.target = None
 
     def move(self, (x, y)):
         """
@@ -52,8 +53,17 @@ class Player:
         """
         self.mode = mode
 
+    def set_target(self, (x, y)):
+        """
+        x, y -- int
+        """
+        self.target = (x, y)
+
     def get_mode(self):
         return self.mode
+
+    def get_target(self):
+        return self.target
 
     def get_coordinates(self):
         return (self.x, self.y)
