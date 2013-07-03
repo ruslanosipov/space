@@ -50,29 +50,14 @@ class Player:
     def is_alive(self):
         return self.alive
 
-    def set_mode(self, mode):
-        """
-        mode -- str
-        """
-        self.mode = mode
-
-    def set_target(self, coord):
-        """
-        coord -- tuple (int, int) or None
-        """
-        self.target = coord
-
     def become_target(self, player):
         """
         player -- Player obj, become target of...
         """
         self.under_target = player
 
-    def get_mode(self):
-        return self.mode
-
-    def get_target(self):
-        return self.target
+    #--------------------------------------------------------------------------
+    # getters and setters
 
     def get_coordinates(self):
         return (self.x, self.y)
@@ -80,14 +65,32 @@ class Player:
     def get_eyesight(self):
         return self.eyesight
 
+    def get_mode(self):
+        return self.mode
+
+    def get_name(self):
+        return self.name
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_target(self):
+        return self.target
+
+    def set_mode(self, mode):
+        """
+        mode -- str
+        """
+        self.mode = mode
+
     def set_symbol(self, symbol):
         """
         symbol -- char
         """
         self.symbol = symbol
 
-    def get_symbol(self):
-        return self.symbol
-
-    def get_name(self):
-        return self.name
+    def set_target(self, coord):
+        """
+        coord -- tuple (int, int) or None
+        """
+        self.target = coord
