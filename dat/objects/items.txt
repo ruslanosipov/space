@@ -1,2 +1,3 @@
 +|door|1|1
 /|door|0|0
+%|corpse|0|0

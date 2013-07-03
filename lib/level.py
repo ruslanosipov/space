@@ -46,13 +46,20 @@ class Level:
         for line in stationary.split('\n'):
             if line:
                 symbol, id, is_blocker, view_obstr = line.split('|')
-                self.stationary[symbol] = (id, int(is_blocker), int(view_obstr))
+                self.stationary[symbol] = (id, int(is_blocker),
+                                           int(view_obstr))
         items = open('dat/objects/items.txt', 'rb').read()
         self.items = {}
         for line in items.split('\n'):
             if line:
                 symbol, id, is_blocker, view_obstr = line.split('|')
                 self.items[symbol] = (id, int(is_blocker), int(view_obstr))
+        mobs = open('dat/objects/mobs.txt', 'rb').read()
+        self.mobs = {}
+        for line in mobs.split('\n'):
+            if line:
+                symbol, id = line.split('|')
+                self.mobs[symbol] = (id, )
 
     def is_blocker(self, (x, y)):
         """
@@ -60,7 +67,8 @@ class Level:
         """
         for symbol in self.level[y][x]:
             if symbol in self.stationary and self.stationary[symbol][1] or \
-                    symbol in self.items and self.items[symbol][1]:
+                    symbol in self.items and self.items[symbol][1] or \
+                    symbol in self.mobs:
                 return True
         return False
 
@@ -79,8 +87,9 @@ class Level:
         x, y -- int
         """
         for i in xrange(1, len(self.level[y][x])):
-            if self.level[y][x][- i] in self.items:
-                return self.level[y][x][- i]
+            i = - i
+            if self.level[y][x][i] in self.items:
+                return self.level[y][x][i]
         return False
 
     def get_object_ids(self, (x, y)):
@@ -95,8 +104,18 @@ class Level:
                 names.append(self.stationary[obj][0])
             if obj in self.items:
                 names.append(self.items[obj][0])
+            if obj in self.mobs:
+                names.append(self.mobs[obj][0])
         return names
 
+    def get_mob(self, (x, y)):
+        """
+        x, y -- int
+        """
+        for obj in self.level[y][x]:
+            if obj in self.mobs.keys():
+                return self.mobs[obj]
+        return False
 
     def get_item_name(self, symbol):
         """

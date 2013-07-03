@@ -56,6 +56,7 @@ try:
                         if players[s].validate_movement((x, y)):
                             x_, y_ = players[s].get_coordinates()
                             x_, y_ = x_ + x, y_ + y
+                            mob = level.get_mob((x_, y_))
                             if not level.is_blocker((x_, y_)):
                                 level.remove_object(
                                     players[s].get_symbol(),
@@ -64,10 +65,48 @@ try:
                                 level.add_object(
                                     players[s].get_symbol(),
                                     players[s].get_coordinates())
+                            elif mob:
+                                for player in players.values():
+                                    if player.get_coordinates() == (x_, y_):
+                                        if players[s].get_mode() == 'attack':
+                                            player.take_damage(25)
+                                            msg = 'You attack player'
+                                            if not player.is_alive():
+                                                level.remove_object('@',
+                                                                    (x_, y_))
+                                                level.add_object('%', (x_, y_))
+                                                msg += '. Player is dead'
+                                            chat.add_single(
+                                                    players[s].get_name(),
+                                                    msg)
                             else:
                                 # TODO: object-specific message
-                                msg = "Something is obstructing your way"
+                                msg = "Something is obstructing your path"
                                 chat.add_single(players[s].get_name(), msg)
+                    elif package[0] == 'target':
+                        targets = view.get_visible_players(
+                                players[s].get_coordinates(),
+                                players[s].get_eyesight())
+                        if len(targets):
+                            players[s].set_target(targets[0])
+                        else:
+                            msg = 'Nothing to target'
+                            chat.add_single(players[s].get_name(), msg)
+                    elif package[0] == 'fire':
+                        target = players[s].get_target()
+                        if target:
+                            for mob in players.values():
+                                if mob.get_coordinates() == target:
+                                    mob.take_damage(50)
+                                    msg = 'You shoot at the player'
+                                    if not mob.is_alive():
+                                        level.remove_object('@', (x_, y_))
+                                        level.add_object('%', (x_, y_))
+                                        msg += '. Player is dead'
+                                        players[s].set_target(None)
+                        else:
+                            msg = 'No target found, nothing to shoot at'
+                        chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'say':
                         chat.add_single(
                             'all',
@@ -88,7 +127,8 @@ try:
             player_view = view.generate(
                 player.get_coordinates(),
                 radius,
-                player.get_eyesight())
+                player.get_eyesight(),
+                player.get_target())
             chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)
