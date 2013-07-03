@@ -64,9 +64,11 @@ try:
                                 level.add_object(
                                     players[s].get_symbol(),
                                     players[s].get_coordinates())
+                            elif level.get_mob((x_, y_)):
+                                pass
                             else:
                                 # TODO: object-specific message
-                                msg = "Something is obstructing your way"
+                                msg = "Something is obstructing your path"
                                 chat.add_single(players[s].get_name(), msg)
                     elif package[0] == 'say':
                         chat.add_single(

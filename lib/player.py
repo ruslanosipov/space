@@ -11,6 +11,8 @@ class Player:
         self.eyesight = eyesight
         self.name = name
         self.set_symbol(symbol)
+        self.health_max = self.health = 100
+        self.alive = 1
 
     def move(self, (x, y)):
         """
@@ -29,6 +31,16 @@ class Player:
                 y == 0 and (x == 1 or x == -1):
             return True
         return False
+
+    def take_damage(self, x):
+        """
+        x -- int
+
+        Take x points of damage
+        """
+        self.health -= x
+        if self.health <= 0:
+            self.alive = 0
 
     def get_coordinates(self):
         return (self.x, self.y)
