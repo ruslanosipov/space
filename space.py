@@ -38,6 +38,10 @@ while True:
     elif evt == 'activate':
         action = evt
         waiting_for_action_arg = 1
+    elif evt == 'pickup':
+        action = (evt, evt_arg)
+    elif evt == 'inventory':
+        action = (evt, evt_arg)
     elif evt == 'look':
         action = evt
         waiting_for_action_arg = 1

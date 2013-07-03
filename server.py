@@ -34,25 +34,62 @@ def activate(player, (dx, dy)):
     item_symbol = level.get_top_item((x, y))
     if item_symbol:
         name = level.get_item_name(item_symbol)
-        exec("from lib.obj.%s import Item" % name)
-        item = Item(item_symbol)
-        msg = item.activate()
-        new_symbol = item.get_symbol()
-        if new_symbol != item_symbol:
-            level.remove_object(item_symbol, (x, y))
-            level.add_object(new_symbol, (x, y))
-        del item
+        try:
+            exec("from lib.obj.%s import Item" % name)
+            item = Item(item_symbol)
+            msg = item.activate()
+            new_symbol = item.get_symbol()
+            if new_symbol != item_symbol:
+                level.remove_object(item_symbol, (x, y))
+                level.add_object(new_symbol, (x, y))
+            del item
+        except ImportError:
+            msg = "This object can not be activated"
     else:
         msg = "Nothing to activate"
     return msg
 
 
-def move(player, (x, y)):
+def pickup(player, (dx, dy)):
+    global level
+
+    x, y = player.get_coordinates()
+    x, y = dx + x, dy + y
+    item_symbol = level.get_top_item((x, y))
+    if item_symbol:
+        if level.can_be_picked_up(item_symbol):
+            name = level.get_item_name(item_symbol)
+            player.add_to_inventory((name, 1))
+            msg = 'You pick up %s' % name
+            level.remove_object(item_symbol, (x, y))
+        else:
+            msg = "This object can not be picked up"
+    else:
+        msg = "Nothing to pick up"
+    return msg
+
+
+def inventory(player):
+    inv = player.get_inventory()
+    if not len(inv):
+        return "You do not own anything at the moment"
+    msg = 'You have: '
+    items = []
+    for item, qty in inv.items():
+        if qty > 1:
+            items.append("%s (%d)" % (item, qty))
+        else:
+            items.append(item)
+    msg += ', '.join(items)
+    return msg
+
+
+def move(player, (dx, dy)):
     global level
     global players
 
     msg = None
-    if player.validate_movement((x, y)):
+    if player.validate_movement((dx, dy)):
         x, y = player.get_coordinates()
         x, y = dx + x, dy + y
         mob = level.get_mob((x, y))
@@ -161,6 +198,14 @@ try:
                         dx, dy = arg
                         dx, dy = int(dx), int(dy)
                         msg = activate(player, (dx, dy))
+                        chat.add_single(player.get_name(), msg)
+                    elif evt == 'pickup':
+                        dx, dy = arg
+                        dx, dy = int(dx), int(dy)
+                        msg = pickup(player, (dx, dy))
+                        chat.add_single(player.get_name(), msg)
+                    elif evt == 'inventory':
+                        msg = inventory(player)
                         chat.add_single(player.get_name(), msg)
                     elif evt == 'move':
                         # TODO: deal with data type loss on Server() level

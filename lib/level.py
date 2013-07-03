@@ -52,8 +52,10 @@ class Level:
         self.items = {}
         for line in items.split('\n'):
             if line:
-                symbol, id, is_blocker, view_obstr = line.split('|')
-                self.items[symbol] = (id, int(is_blocker), int(view_obstr))
+                symbol, id, is_blocker, view_obstr, stationary = \
+                        line.split('|')
+                self.items[symbol] = (id, int(is_blocker),
+                                      int(view_obstr), int(stationary))
         mobs = open('dat/objects/mobs.txt', 'rb').read()
         self.mobs = {}
         for line in mobs.split('\n'):
@@ -81,6 +83,15 @@ class Level:
                     symbol in self.items and self.items[symbol][2]:
                 return True
         return False
+
+    def can_be_picked_up(self, symbol):
+        """
+        symbol -- char
+        """
+        if symbol in self.items.keys() and not self.items[symbol][3]:
+            return True
+        return False
+
 
     def get_top_item(self, (x, y)):
         """

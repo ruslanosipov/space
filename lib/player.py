@@ -16,6 +16,7 @@ class Player:
         self.mode = 'attack'
         self.target = None
         self.under_target = 0
+        self.inventory = {}
 
     def move(self, (x, y)):
         """
@@ -56,6 +57,12 @@ class Player:
         """
         self.under_target = player
 
+    def add_to_inventory(self, (item_id, quantity)):
+        if item_id in self.inventory:
+            self.inventory[item_id] += quantity
+        else:
+            self.inventory[item_id] = quantity
+
     #--------------------------------------------------------------------------
     # getters and setters
 
@@ -64,6 +71,9 @@ class Player:
 
     def get_eyesight(self):
         return self.eyesight
+
+    def get_inventory(self):
+        return self.inventory
 
     def get_mode(self):
         return self.mode

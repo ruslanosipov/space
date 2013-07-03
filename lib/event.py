@@ -44,7 +44,7 @@ def get(mode='normal'):
             if evt.type == KEYDOWN:
                 if evt.unicode == 'Q':
                     return (mode, 'quit', None)
-                if evt.unicode == '/' or evt.unicode == 'i':
+                if evt.unicode == '/':
                     return ('insert', 'say', evt.unicode)
                 if evt.unicode == 'a':
                     return ('direction', 'activate', 1)
@@ -62,6 +62,10 @@ def get(mode='normal'):
                     return (mode, 'target', 1)
                 if evt.unicode == 'f':
                     return (mode, 'fire', 1)
+                if evt.unicode == ',':
+                    return (mode, 'pickup', (0, 0))
+                if evt.unicode == 'i':
+                    return (mode, 'inventory', 1)
         if mode == 'insert':
             if evt.type == KEYDOWN:
                 if evt.key == K_BACKSPACE:
