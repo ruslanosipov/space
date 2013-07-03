@@ -70,11 +70,15 @@ def move(player, (x, y)):
                     if player.get_mode() == 'attack':
                         mob.take_damage(25)
                         msg = 'You attack someone'
+                        mob_msg = 'You are being attacked'
                         if not mob.is_alive():
                             level.remove_object('@', (x, y))
                             level.add_object('%', (x, y))
                             player.set_target(None)
                             msg += '. Enemy is dead'
+                            mob_msg += '. You are dead'
+                break
+            chat.add_single(mob.get_name(), mob_msg)
         else:
             # TODO: object-specific message
             msg = "Something is obstructing your path"
@@ -104,6 +108,7 @@ def target(player):
 def fire(player):
     global level
     global players
+    global chat
 
     target = player.get_target()
     if target:
@@ -112,13 +117,17 @@ def fire(player):
             if (x, y) == target:
                 mob.take_damage(50)
                 msg = 'You shoot at someone'
+                mob_msg = 'Someone shoots at you'
                 if not mob.is_alive():
                     level.remove_object('@', (x, y))
                     level.add_object('%', (x, y))
                     msg += '. Target is dead'
+                    mob_msg += '. You are dead'
                     player.set_target(None)
+                break
     else:
         msg = 'No target found'
+    chat.add_single(mob.get_name(), mob_msg)
     return msg
 
 
@@ -146,6 +155,8 @@ try:
                     if evt == 'connect' and s not in players:
                         player = connect(arg)
                         players[s] = player
+                    if not player.is_alive():
+                        continue
                     if evt == 'activate':
                         dx, dy = arg
                         dx, dy = int(dx), int(dy)
