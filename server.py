@@ -2,6 +2,7 @@
 
 import time
 import sys
+from ConfigParser import ConfigParser
 
 from lib.server import Server
 from lib.level import Level
@@ -10,7 +11,11 @@ from lib.chat import ChatServer
 from lib.player import Player
 from lib.utl import packet
 
-server = Server(12345)
+config = ConfigParser()
+config.read('config.ini')
+port = config.getint('server', 'port')
+
+server = Server(port)
 level = Level('spaceship')
 view = View(level)
 chat = ChatServer()

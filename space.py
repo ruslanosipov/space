@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from ConfigParser import ConfigParser
+
 from lib.chat import ChatClient
 from lib.client import Client
 from lib.display import Display
@@ -7,13 +9,19 @@ from lib.ui import UI
 from lib.utl import packet
 from lib import event
 
+config = ConfigParser()
+config.read('config.ini')
+host = config.get('server', 'host')
+port = config.getint('server', 'port')
+name = config.get('player', 'name')
+
 chat = ChatClient()
-client = Client('127.0.0.1', 12345)
+client = Client(host, port)
 display = Display()
 ui = UI()
 
 evt_mode = 'normal'
-action = ('connect', 'player 1')
+action = ('connect', name)
 waiting_for_action_arg = 0
 prompt = ''
 
