@@ -83,13 +83,19 @@ def move(player, (x, y)):
 
 def target(player):
     global view
+    global players
 
     msg = None
     targets = view.get_visible_players(
             player.get_coordinates(),
             player.get_eyesight())
     if len(targets):
-        player.set_target(targets[0])
+        x, y = targets[0]
+        player.set_target((x, y))
+        for mob in players.values():
+            if mob.get_coordinates() == (x, y):
+                mob.become_target(player)
+                break
     else:
         msg = 'Nothing to target'
     return msg
@@ -140,7 +146,7 @@ try:
                     if evt == 'connect' and s not in players:
                         player = connect(arg)
                         players[s] = player
-                    elif evt == 'activate':
+                    if evt == 'activate':
                         dx, dy = arg
                         dx, dy = int(dx), int(dy)
                         msg = activate(player, (dx, dy))

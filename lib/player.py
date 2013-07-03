@@ -15,6 +15,7 @@ class Player:
         self.alive = 1
         self.mode = 'attack'
         self.target = None
+        self.under_target = 0
 
     def move(self, (x, y)):
         """
@@ -22,6 +23,8 @@ class Player:
         """
         self.x += x
         self.y += y
+        if self.under_target:
+            self.under_target.set_target((self.x, self.y))
 
     def validate_movement(self, (x, y)):
         """
@@ -53,11 +56,17 @@ class Player:
         """
         self.mode = mode
 
-    def set_target(self, (x, y)):
+    def set_target(self, coord):
         """
-        x, y -- int
+        coord -- tuple (int, int) or None
         """
-        self.target = (x, y)
+        self.target = coord
+
+    def become_target(self, player):
+        """
+        player -- Player obj, become target of...
+        """
+        self.under_target = player
 
     def get_mode(self):
         return self.mode
