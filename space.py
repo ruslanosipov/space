@@ -4,8 +4,8 @@ from ConfigParser import ConfigParser
 
 from lib.chat import ChatClient
 from lib.client import Client
-from lib.display import Display
-from lib.ui import UI
+from lib.player.display import Display
+from lib.player.ui import UI
 from lib.utl import packet
 from lib import event
 
@@ -59,6 +59,9 @@ while True:
         action = (evt, evt_arg)
     elif evt == 'fire':
         action = (evt, evt_arg)
+    elif evt == 'fly':
+        action = (evt, evt_arg)
+        evt_mode = 'ship' if evt_mode == 'normal' else 'normal'
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:

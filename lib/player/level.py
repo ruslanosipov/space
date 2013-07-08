@@ -4,7 +4,7 @@ class Level:
         """
         name -- string, file name without extension or path
         """
-        self.map_dir = 'dat/maps/'
+        self.map_dir = 'dat/maps/ship/'
         self.map_ext = '.map'
         self.load_objects_data()
         self.level = self.load_level(name)

@@ -66,6 +66,12 @@ def get(mode='normal'):
                     return (mode, 'pickup', (0, 0))
                 if evt.unicode == 'i':
                     return (mode, 'inventory', 1)
+                if evt.unicode == 'F':
+                    return (mode, 'fly', 1)
+        if mode == 'ship':
+            if evt.type == KEYDOWN:
+                if evt.unicode == 'F':
+                    return (mode, 'fly', 1)
         if mode == 'insert':
             if evt.type == KEYDOWN:
                 if evt.key == K_BACKSPACE:

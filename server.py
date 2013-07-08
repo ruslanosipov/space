@@ -5,11 +5,15 @@ import sys
 from ConfigParser import ConfigParser
 
 from lib.server import Server
-from lib.level import Level
-from lib.view import View
 from lib.chat import ChatServer
-from lib.player import Player
 from lib.utl import packet
+
+from lib.player.level import Level
+from lib.player.view import PlayerView
+from lib.player.player import Player
+from lib.ship.view import ShipView
+from lib.ship.level import Level as ShipLevel
+from lib.ship.spaceship import Spaceship
 
 config = ConfigParser()
 config.read('config.ini')
@@ -17,10 +21,13 @@ port = config.getint('server', 'port')
 
 server = Server(port)
 level = Level('spaceship')
-view = View(level)
+view = PlayerView(level)
+ship_level = ShipLevel('space')
+ship_view = ShipView(ship_level)
 chat = ChatServer()
 server.listen()
 players = {}
+spaceships = {}
 
 
 def connect(player_name):
@@ -40,7 +47,7 @@ def activate(player, (dx, dy)):
     if item_symbol:
         name = level.get_item_name(item_symbol)
         try:
-            exec("from lib.obj.%s import Item" % name)
+            exec("from lib.player.obj.%s import Item" % name)
             item = Item(item_symbol)
             msg = item.activate()
             new_symbol = item.get_symbol()
@@ -198,6 +205,8 @@ try:
                     if evt == 'connect' and s not in players:
                         player = connect(arg)
                         players[s] = player
+                        spaceships[s] = Spaceship((5, 5))
+                        ship_level.add_object('@', (5, 5))
                     if not player.is_alive():
                         continue
                     if evt == 'activate':
@@ -234,15 +243,32 @@ try:
                         dx, dy = int(dx), int(dy)
                         msg = look(player, (dx, dy))
                         chat.add_single(player.get_name(), msg)
+                    elif evt == 'fly':
+                        if player.get_game_mode() == 'player':
+                            msg = "You are flying the spaceship now"
+                            player.set_game_mode('ship')
+                        else:
+                            msg = "You are on foot now"
+                            player.set_game_mode('player')
+                        chat.add_single(player.get_name(), msg)
         # Generate views for players
         for s in data.keys():
             player = players[s]
+            spaceship = spaceships[s]
             radius = 11
-            player_view = view.generate(
-                player.get_coordinates(),
-                radius,
-                player.get_eyesight(),
-                player.get_target())
+            ship_radius = 12
+            if player.get_game_mode() == 'player':
+                player_view = view.generate(
+                    player.get_coordinates(),
+                    radius,
+                    player.get_eyesight(),
+                    player.get_target())
+            else:
+                player_view = ship_view.generate(
+                    spaceship.get_coordinates(),
+                    ship_radius,
+                    ship_radius,
+                    None)
             chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)

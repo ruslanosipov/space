@@ -17,6 +17,7 @@ class Player:
         self.target = None
         self.under_target = 0
         self.inventory = {}
+        self.set_game_mode('player')
 
     def move(self, (x, y)):
         """
@@ -72,6 +73,9 @@ class Player:
     def get_eyesight(self):
         return self.eyesight
 
+    def get_game_mode(self):
+        return self.game_mode
+
     def get_inventory(self):
         return self.inventory
 
@@ -86,6 +90,12 @@ class Player:
 
     def get_target(self):
         return self.target
+
+    def set_game_mode(self, game_mode):
+        """
+        game_mode -- str; foot or ship
+        """
+        self.game_mode = game_mode
 
     def set_mode(self, mode):
         """
