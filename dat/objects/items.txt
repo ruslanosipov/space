@@ -4,3 +4,4 @@
 ?|scroll|0|0|0
 }|gun|0|0|0
 )|knife|0|0|0
+c|console|1|0|1

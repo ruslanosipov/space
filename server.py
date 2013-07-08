@@ -122,8 +122,9 @@ def move(player, (dx, dy)):
                 break
             chat.add_single(mob.get_name(), mob_msg)
         else:
-            # TODO: object-specific message
-            msg = "Something is obstructing your path"
+            symbol = level.get_top_object((x, y))
+            item = level.get_object_name(symbol)
+            msg = "The %s is obstructing your path" % item
         return msg
 
 

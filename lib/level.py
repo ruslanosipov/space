@@ -92,6 +92,13 @@ class Level:
             return True
         return False
 
+    def get_top_object(self, (x, y)):
+        """
+        x, y -- int
+        """
+        if len(self.level[y][x]):
+            return self.level[y][x][-1]
+        return False
 
     def get_top_item(self, (x, y)):
         """
@@ -128,11 +135,41 @@ class Level:
                 return self.mobs[obj]
         return False
 
+    def get_object_name(self, symbol):
+        name = self.get_item_name(symbol)
+        if name:
+            return name
+        name = self.get_stationary_name(symbol)
+        if name:
+            return name
+        name = self.get_mob_name(symbol)
+        if name:
+            return name
+        return False
+
     def get_item_name(self, symbol):
         """
         symbol -- char
         """
-        return self.items[symbol][0]
+        if symbol in self.items.keys():
+            return self.items[symbol][0]
+        return False
+
+    def get_stationary_name(self, symbol):
+        """
+        symbol -- char
+        """
+        if symbol in self.stationary.keys():
+            return self.stationary[symbol][0]
+        return False
+
+    def get_mob_name(self, symbol):
+        """
+        symbol -- char
+        """
+        if symbol in self.mobs.keys():
+            return self.mobs[symbol][0]
+        return False
 
     def _load_stationary(self, name):
         """
