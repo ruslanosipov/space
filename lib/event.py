@@ -72,6 +72,10 @@ def get(mode='normal'):
             if evt.type == KEYDOWN:
                 if evt.unicode == 'F':
                     return (mode, 'fly', 1)
+                if evt.unicode == 'h':
+                    return (mode, 'move', 1)
+                if evt.unicode == 'l':
+                    return (mode, 'move', 0)
         if mode == 'insert':
             if evt.type == KEYDOWN:
                 if evt.key == K_BACKSPACE:

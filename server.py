@@ -222,13 +222,16 @@ try:
                     elif evt == 'inventory':
                         msg = inventory(player)
                         chat.add_single(player.get_name(), msg)
-                    elif evt == 'move':
+                    elif evt == 'move' and player.get_game_mode() == 'player':
                         # TODO: deal with data type loss on Server() level
                         dx, dy = arg
                         dx, dy = int(dx), int(dy)
                         msg = move(player, (dx, dy))
                         if msg:
                             chat.add_single(player.get_name(), msg)
+                    elif evt == 'move' and player.get_game_mode() == 'ship':
+                        reverse = int(arg)
+                        spaceships[s].rotate_target(reverse)
                     elif evt == 'target':
                         msg = target(player)
                         if msg:
@@ -268,7 +271,7 @@ try:
                     spaceship.get_coordinates(),
                     ship_radius,
                     ship_radius,
-                    None)
+                    spaceship.get_target())
             chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)
