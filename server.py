@@ -222,16 +222,18 @@ try:
                     elif evt == 'inventory':
                         msg = inventory(player)
                         chat.add_single(player.get_name(), msg)
-                    elif evt == 'move' and player.get_game_mode() == 'player':
+                    elif evt == 'move':
                         # TODO: deal with data type loss on Server() level
                         dx, dy = arg
                         dx, dy = int(dx), int(dy)
                         msg = move(player, (dx, dy))
                         if msg:
                             chat.add_single(player.get_name(), msg)
-                    elif evt == 'move' and player.get_game_mode() == 'ship':
+                    elif evt == 'rotate':
                         reverse = int(arg)
                         spaceships[s].rotate_target(reverse)
+                    elif evt == 'accelerate':
+                        spaceships[s].accelerate(int(arg))
                     elif evt == 'target':
                         msg = target(player)
                         if msg:
@@ -255,6 +257,13 @@ try:
                             player.set_game_mode('player')
                         chat.add_single(player.get_name(), msg)
         # Generate views for players
+        for spaceship in spaceships.values():
+            x0, y0 = spaceship.get_coordinates()
+            spaceship.update()
+            x1, y1 = spaceship.get_coordinates()
+            if x0 != x1 or y0 != y1:
+                ship_level.remove_object('@', (x0, y0))
+                ship_level.add_object('@', (x1, y1))
         for s in data.keys():
             player = players[s]
             spaceship = spaceships[s]

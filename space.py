@@ -46,19 +46,9 @@ while True:
     elif evt == 'activate':
         action = evt
         waiting_for_action_arg = 1
-    elif evt == 'pickup':
-        action = (evt, evt_arg)
-    elif evt == 'inventory':
-        action = (evt, evt_arg)
     elif evt == 'look':
         action = evt
         waiting_for_action_arg = 1
-    elif evt == 'move':
-        action = (evt, evt_arg)
-    elif evt == 'target':
-        action = (evt, evt_arg)
-    elif evt == 'fire':
-        action = (evt, evt_arg)
     elif evt == 'fly':
         action = (evt, evt_arg)
         evt_mode = 'ship' if evt_mode == 'normal' else 'normal'
@@ -69,6 +59,8 @@ while True:
     elif evt == 'return' and prompt:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
+    else:
+        action = (evt, evt_arg)
 
     surface = ui.compose(view_field, chat.get_log(), prompt, evt_mode)
     display.draw(surface)
