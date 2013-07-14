@@ -1,4 +1,4 @@
-class ItemTemplate:
+class ItemTemplate(object):
 
     def __init__(self, symbol):
         """

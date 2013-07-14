@@ -1,7 +1,7 @@
 from lib.utl import bresenham
 
 
-class Spaceship:
+class Spaceship(object):
 
     def __init__(self, (x, y)):
         self.x, self.y = x, y

@@ -1,4 +1,4 @@
-class Player:
+class Player(object):
 
     def __init__(self, (x, y), name, symbol, eyesight=11):
         """

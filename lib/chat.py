@@ -1,4 +1,4 @@
-class ChatServer:
+class ChatServer(object):
 
     def __init__(self):
         self.log = []
@@ -37,7 +37,7 @@ class ChatServer:
         self.log.append((id, recipient, msg))
 
 
-class ChatClient:
+class ChatClient(object):
 
     def __init__(self):
         self.log = []

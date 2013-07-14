@@ -2,7 +2,7 @@ from lib.utl import packet
 from lib.utl import bresenham
 
 
-class View:
+class View(object):
 
     def __init__(self, level):
         """
