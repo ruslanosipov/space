@@ -3,7 +3,7 @@ from lib.utl import net
 import sys
 
 
-class Client:
+class Client(object):
 
     def __init__(self, host, port):
         """

@@ -5,22 +5,29 @@ import sys
 from ConfigParser import ConfigParser
 
 from lib.server import Server
-from lib.level import Level
-from lib.view import View
 from lib.chat import ChatServer
-from lib.player import Player
 from lib.utl import packet
+
+from lib.player.level import PlayerLevel
+from lib.player.view import PlayerView
+from lib.player.player import Player
+from lib.ship.view import ShipView
+from lib.ship.levelsmap import LevelsMap
+from lib.ship.spaceship import Spaceship
 
 config = ConfigParser()
 config.read('config.ini')
 port = config.getint('server', 'port')
 
 server = Server(port)
-level = Level('spaceship')
-view = View(level)
+level = PlayerLevel('spaceship')
+view = PlayerView(level)
+levels_map = LevelsMap()
+ship_view = ShipView(levels_map)
 chat = ChatServer()
 server.listen()
 players = {}
+spaceships = {}
 
 
 def connect(player_name):
@@ -40,7 +47,7 @@ def activate(player, (dx, dy)):
     if item_symbol:
         name = level.get_item_name(item_symbol)
         try:
-            exec("from lib.obj.%s import Item" % name)
+            exec("from lib.player.obj.%s import Item" % name)
             item = Item(item_symbol)
             msg = item.activate()
             new_symbol = item.get_symbol()
@@ -198,6 +205,8 @@ try:
                     if evt == 'connect' and s not in players:
                         player = connect(arg)
                         players[s] = player
+                        spaceships[s] = Spaceship((0, 0, 5, 5))
+                        levels_map.add_object((0, 0, 5, 5), '@')
                     if not player.is_alive():
                         continue
                     if evt == 'activate':
@@ -220,6 +229,11 @@ try:
                         msg = move(player, (dx, dy))
                         if msg:
                             chat.add_single(player.get_name(), msg)
+                    elif evt == 'rotate':
+                        reverse = int(arg)
+                        spaceships[s].rotate_target(reverse)
+                    elif evt == 'accelerate':
+                        spaceships[s].accelerate(int(arg))
                     elif evt == 'target':
                         msg = target(player)
                         if msg:
@@ -234,15 +248,39 @@ try:
                         dx, dy = int(dx), int(dy)
                         msg = look(player, (dx, dy))
                         chat.add_single(player.get_name(), msg)
+                    elif evt == 'fly':
+                        if player.get_game_mode() == 'player':
+                            msg = "You are flying the spaceship now"
+                            player.set_game_mode('ship')
+                        else:
+                            msg = "You are on foot now"
+                            player.set_game_mode('player')
+                        chat.add_single(player.get_name(), msg)
         # Generate views for players
+        for spaceship in spaceships.values():
+            p0, q0, x0, y0 = spaceship.get_coordinates()
+            spaceship.update()
+            p1, q1, x1, y1 = spaceship.get_coordinates()
+            if x0 != x1 or y0 != y1 or p0 != p1 or q0 != q1:
+                levels_map.remove_object((p0, q0, x0, y0), '@')
+                levels_map.add_object((p1, q1, x1, y1), '@')
         for s in data.keys():
             player = players[s]
+            spaceship = spaceships[s]
             radius = 11
-            player_view = view.generate(
-                player.get_coordinates(),
-                radius,
-                player.get_eyesight(),
-                player.get_target())
+            ship_radius = 12
+            if player.get_game_mode() == 'player':
+                player_view = view.generate(
+                    player.get_coordinates(),
+                    radius,
+                    player.get_eyesight(),
+                    player.get_target())
+            else:
+                player_view = ship_view.generate(
+                    spaceship.get_coordinates(),
+                    ship_radius,
+                    ship_radius,
+                    spaceship.get_target())
             chat_log = packet.encode(chat.get_recent(player.get_name()))
             new_data[s] = (player_view, chat_log)
         server.set_data(new_data)

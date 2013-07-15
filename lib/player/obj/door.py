@@ -1,4 +1,4 @@
-from lib.obj.itemtemplate import ItemTemplate
+from lib.player.obj.itemtemplate import ItemTemplate
 
 
 class Item(ItemTemplate):

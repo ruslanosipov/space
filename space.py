@@ -4,8 +4,8 @@ from ConfigParser import ConfigParser
 
 from lib.chat import ChatClient
 from lib.client import Client
-from lib.display import Display
-from lib.ui import UI
+from lib.player.display import Display
+from lib.player.ui import UI
 from lib.utl import packet
 from lib import event
 
@@ -46,19 +46,12 @@ while True:
     elif evt == 'activate':
         action = evt
         waiting_for_action_arg = 1
-    elif evt == 'pickup':
-        action = (evt, evt_arg)
-    elif evt == 'inventory':
-        action = (evt, evt_arg)
     elif evt == 'look':
         action = evt
         waiting_for_action_arg = 1
-    elif evt == 'move':
+    elif evt == 'fly':
         action = (evt, evt_arg)
-    elif evt == 'target':
-        action = (evt, evt_arg)
-    elif evt == 'fire':
-        action = (evt, evt_arg)
+        evt_mode = 'ship' if evt_mode == 'normal' else 'normal'
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:
@@ -66,6 +59,8 @@ while True:
     elif evt == 'return' and prompt:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
+    elif (evt, evt_arg) != (None, None):
+        action = (evt, evt_arg)
 
     surface = ui.compose(view_field, chat.get_log(), prompt, evt_mode)
     display.draw(surface)

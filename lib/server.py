@@ -4,7 +4,7 @@ import sys
 from lib.utl import net
 
 
-class Server:
+class Server(object):
 
     def __init__(self, port):
         """
