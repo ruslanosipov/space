@@ -92,6 +92,14 @@ class Level(object):
             return True
         return False
 
+    def get_width(self, y):
+        if y >= len(self.level):
+            return False
+        return len(self.level[y])
+
+    def get_height(self):
+        return len(self.level)
+
     def get_top_object(self, (x, y)):
         """
         x, y -- int

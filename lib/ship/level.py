@@ -1,37 +1,21 @@
+import random
+
+
 class Level(object):
 
-    def __init__(self, name):
+    def __init__(self, size):
         """
-        name -- string, file name without extension or path
+        size -- int
         """
-        self.map_dir = 'dat/maps/space/'
-        self.map_ext = '.map'
-        self.level = self.load_level(name)
+        self.level = self.generate(size)
 
-    def load_level(self, name):
-        """
-        name -- string, file
-
-        Returns 3-dimensional list
-        """
-        name = self.map_dir + name + self.map_ext
-        f = open(name, 'rb')
+    def generate(self, size):
         level = []
-        length = 0
-        while 1:
-            line = f.readline()
-            if len(line) == 0:
-                break
-            if len(line) > length:
-                length = len(line)
-            line = line[:-1]
+        for y in xrange(0, size):
             level.append([])
-            for char in line:
-                level[-1].append([char])
-        for y, line in enumerate(level):
-            if len(line) < length:
-                appendix = [[' '] for i in xrange(0, length - len(line) + 1)]
-                level[y] = line + appendix
+            for x in xrange(0, size):
+                dice = random.randint(0, 10)
+                level[y].append(['.'] if dice == 0 else [' '])
         return level
 
     def get_level(self):
@@ -57,25 +41,15 @@ class Level(object):
     def is_view_obstructor(self, (x, y)):
         return False
 
-    # def load_objects_data(self):
-    #     stationary = open('dat/objects/stationary.txt', 'rb').read()
-    #     self.stationary = {}
-    #     for line in stationary.split('\n'):
-    #         if line:
-    #             symbol, id, is_blocker, view_obstr = line.split('|')
-    #             self.stationary[symbol] = (id, int(is_blocker),
-    #                                        int(view_obstr))
-    #     items = open('dat/objects/items.txt', 'rb').read()
-    #     self.items = {}
-    #     for line in items.split('\n'):
-    #         if line:
-    #             symbol, id, is_blocker, view_obstr, stationary = \
-    #                     line.split('|')
-    #             self.items[symbol] = (id, int(is_blocker),
-    #                                   int(view_obstr), int(stationary))
-    #     mobs = open('dat/objects/mobs.txt', 'rb').read()
-    #     self.mobs = {}
-    #     for line in mobs.split('\n'):
-    #         if line:
-    #             symbol, id = line.split('|')
-    #             self.mobs[symbol] = (id, )
+    def get_top_object(self, (x, y)):
+        if len(self.level[y][x]):
+            return self.level[y][x][-1]
+        return False
+
+    def get_width(self, y):
+        if y >= len(self.level):
+            return False
+        return len(self.level[y])
+
+    def get_height(self):
+        return len(self.level)

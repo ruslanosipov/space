@@ -59,7 +59,7 @@ while True:
     elif evt == 'return' and prompt:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
-    else:
+    elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)
 
     surface = ui.compose(view_field, chat.get_log(), prompt, evt_mode)

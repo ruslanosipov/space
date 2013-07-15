@@ -3,8 +3,8 @@ from lib.utl import bresenham
 
 class Spaceship(object):
 
-    def __init__(self, (x, y)):
-        self.x, self.y = x, y
+    def __init__(self, (map_x, map_y, x, y)):
+        self.map_x, self.map_y, self.x, self.y = map_x, map_y, x, y
         self.movement_fraction = 0
         self.targets = [
             (0, -2),
@@ -50,8 +50,8 @@ class Spaceship(object):
             self.x, self.y = x, y
 
     def get_coordinates(self):
-        return (self.x, self.y)
+        return (self.map_x, self.map_y, self.x, self.y)
 
     def get_target(self):
         dx, dy = self.target
-        return (self.x + dx, self.y + dy)
+        return (self.map_x, self.map_y, self.x + dx, self.y + dy)

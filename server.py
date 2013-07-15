@@ -12,7 +12,7 @@ from lib.player.level import Level
 from lib.player.view import PlayerView
 from lib.player.player import Player
 from lib.ship.view import ShipView
-from lib.ship.level import Level as ShipLevel
+from lib.ship.levelsmap import LevelsMap
 from lib.ship.spaceship import Spaceship
 
 config = ConfigParser()
@@ -22,8 +22,8 @@ port = config.getint('server', 'port')
 server = Server(port)
 level = Level('spaceship')
 view = PlayerView(level)
-ship_level = ShipLevel('space')
-ship_view = ShipView(ship_level)
+levels_map = LevelsMap()
+ship_view = ShipView(levels_map)
 chat = ChatServer()
 server.listen()
 players = {}
@@ -205,8 +205,8 @@ try:
                     if evt == 'connect' and s not in players:
                         player = connect(arg)
                         players[s] = player
-                        spaceships[s] = Spaceship((5, 5))
-                        ship_level.add_object('@', (5, 5))
+                        spaceships[s] = Spaceship((0, 0, 5, 5))
+                        levels_map.add_object((0, 0, 5, 5), '@')
                     if not player.is_alive():
                         continue
                     if evt == 'activate':
@@ -258,12 +258,12 @@ try:
                         chat.add_single(player.get_name(), msg)
         # Generate views for players
         for spaceship in spaceships.values():
-            x0, y0 = spaceship.get_coordinates()
+            p0, q0, x0, y0 = spaceship.get_coordinates()
             spaceship.update()
-            x1, y1 = spaceship.get_coordinates()
-            if x0 != x1 or y0 != y1:
-                ship_level.remove_object('@', (x0, y0))
-                ship_level.add_object('@', (x1, y1))
+            p1, q1, x1, y1 = spaceship.get_coordinates()
+            if x0 != x1 or y0 != y1 or p0 != p1 or q0 != q1:
+                levels_map.remove_object((p0, q0, x0, y0), '@')
+                levels_map.add_object((p1, q1, x1, y1), '@')
         for s in data.keys():
             player = players[s]
             spaceship = spaceships[s]
