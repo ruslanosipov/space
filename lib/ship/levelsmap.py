@@ -54,12 +54,14 @@ class LevelsMap(object):
                 elif y < 0:
                     y += self.levels[(p, q)].get_height()
                     q -= 1
-                elif x > self.levels[(p, q)].get_width(0):
+                elif x >= self.levels[(p, q)].get_width(0):
                     x -= self.levels[(p, q)].get_width(0)
                     p += 1
-                elif y > self.levels[(p, q)].get_height():
+                elif y >= self.levels[(p, q)].get_height():
                     y -= self.levels[(p, q)].get_height()
                     q += 1
                 else:
                     break
+            else:
+                self.levels[(p, q)] = ShipLevel(25)
         return p, q, x, y
