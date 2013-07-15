@@ -8,7 +8,7 @@ from lib.server import Server
 from lib.chat import ChatServer
 from lib.utl import packet
 
-from lib.player.level import Level
+from lib.player.level import PlayerLevel
 from lib.player.view import PlayerView
 from lib.player.player import Player
 from lib.ship.view import ShipView
@@ -20,7 +20,7 @@ config.read('config.ini')
 port = config.getint('server', 'port')
 
 server = Server(port)
-level = Level('spaceship')
+level = PlayerLevel('spaceship')
 view = PlayerView(level)
 levels_map = LevelsMap()
 ship_view = ShipView(levels_map)

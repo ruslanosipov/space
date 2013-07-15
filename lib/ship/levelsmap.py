@@ -1,9 +1,10 @@
-from lib.ship.level import Level
+from lib.ship.level import ShipLevel
 
 
 class LevelsMap(object):
 
     def _validate(func):
+
         def wrapper(self, (p, q, x, y), symbol=None):
             if symbol is not None:
                 symbol = self._validate_symbol(symbol)
@@ -11,6 +12,7 @@ class LevelsMap(object):
             if symbol is not None:
                 return func(self, (p, q, x, y), symbol)
             return func(self, (p, q, x, y))
+
         return wrapper
 
     def __init__(self):
@@ -21,7 +23,7 @@ class LevelsMap(object):
         for y in xrange(y0 - 1, y0 + 2):
             for x in xrange(x0 - 1, x0 + 2):
                 if (x, y) not in self.levels.keys():
-                    self.levels[(x, y)] = Level(25)
+                    self.levels[(x, y)] = ShipLevel(25)
 
     @_validate
     def add_object(self, (p, q, x, y), symbol):
