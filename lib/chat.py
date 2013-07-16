@@ -1,17 +1,23 @@
 class ChatServer(object):
+    """
+    Manages and sends out chat messages for players.
+    """
 
     def __init__(self):
-        self.log = []
+        self.log = [(0, 'all', 'Welcome to Space, the game in space!')]
         self.recipients = {}
 
     def get_recent(self, recipient):
         """
         Returns list of latest chat messages
 
+        >>> chat = ChatServer()
+        >>> chat.add_single('foo', 'bar')
+        >>> chat.get_recent('foo')[-1]
+        'bar'
+
         recipient -- str, who reads the log
         """
-        if not self.log:
-            self.log = [(0, 'all', 'Welcome to Space, the game in space!')]
         log = []
         if recipient not in self.recipients:
             self.recipients[recipient] = -1
@@ -24,6 +30,8 @@ class ChatServer(object):
 
     def add_single(self, recipient, msg, name=False):
         """
+        Add single message to chat log meant for recepient. 
+
         recipient -- str
         msg -- str
         name -- str
@@ -38,6 +46,9 @@ class ChatServer(object):
 
 
 class ChatClient(object):
+    """
+    Receives, cuts and displays chat log
+    """
 
     def __init__(self):
         self.log = []
@@ -45,6 +56,13 @@ class ChatClient(object):
 
     def get_log(self, size=22):
         """
+        Cut chat log to screen width.
+
+        >>> chat = ChatClient()
+        >>> chat.add_multiple(['foo', 'bar'])
+        >>> chat.get_log()
+        ['foo', 'bar']
+
         size -- int
         """
         if len(self.log) <= size:
@@ -64,7 +82,9 @@ class ChatClient(object):
 
     def add_multiple(self, msgs):
         """
-        msgs -- list
+        Add messages to a chat log.
+
+        msgs -- list of str
         """
         if len(self.log) > 1000:
             # TODO: save in a text file

@@ -1,4 +1,12 @@
 def get_line((x, y), (x1, y1)):
+    """
+    Draw line from (x, y) to (x1, y1).
+
+    >>> get_line((0, 0), (3, 3))
+    [(0, 0), (1, 1), (2, 2), (3, 3)]
+    >>> get_line((0, 0), (0, 0))
+    [(0, 0)]
+    """
     steep = 0
     line = []
     dx = abs(x1 - x)

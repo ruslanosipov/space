@@ -30,9 +30,15 @@ class Player(object):
 
     def validate_movement(self, (x, y)):
         """
-        x, y -- int
-
         Movement is allowed only in 4 directions.
+
+        >>> player = Player((9, 9), 'foo', '@')
+        >>> player.validate_movement((-1, 0))
+        True
+        >>> player.validate_movement((1, 1))
+        False
+
+        x, y -- int
         """
         if x == 0 and (y == 1 or y == -1) or \
                 y == 0 and (x == 1 or x == -1):
