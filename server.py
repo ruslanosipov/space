@@ -181,6 +181,18 @@ def fire(player):
     return msg
 
 
+def fire_ship(spaceship):
+    global levels_map
+    global spaceships
+
+    levels_map.add_projectile(
+            spaceship.get_coordinates(), 
+            spaceship.get_target(), 
+            damage=50,
+            speed=0.5,
+            fire_range=20)
+
+
 def look(player, (dx, dy)):
     global level
 
@@ -234,6 +246,8 @@ try:
                         spaceships[s].rotate_target(reverse)
                     elif evt == 'accelerate':
                         spaceships[s].accelerate(int(arg))
+                    elif evt == 'fire_ship':
+                        fire_ship(spaceships[s])
                     elif evt == 'target':
                         msg = target(player)
                         if msg:
@@ -257,6 +271,7 @@ try:
                             player.set_game_mode('player')
                         chat.add_single(player.get_name(), msg)
         # Generate views for players
+        levels_map.update()
         for spaceship in spaceships.values():
             p0, q0, x0, y0 = spaceship.get_coordinates()
             spaceship.update()

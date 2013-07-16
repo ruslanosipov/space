@@ -23,6 +23,8 @@ class Spaceship(object):
         self.target_index = 0
         self.acceleration = 0
         self.acceleration_limit = 1
+        self.health = self.max_health = 100
+        self.alive = True
 
     def accelerate(self, acceleration):
         self.acceleration += acceleration * 0.1
@@ -48,6 +50,23 @@ class Spaceship(object):
             (dx, dy), (x, y) = self.target, (self.x, self.y)
             x, y = bresenham.get_line((x, y), (x + dx, y + dy))[1]
             self.x, self.y = x, y
+
+    def take_damage(self, damage):
+        """
+        >>> s = Spaceship((0, 0, 0, 0))
+        >>> s.take_damage(10)
+        >>> s.is_alive()
+        True
+        >>> s.take_damage(100)
+        >>> s.is_alive()
+        False
+        """
+        self.health -= damage
+        if self.health <= 0:
+            self.alive = False
+
+    def is_alive(self):
+        return self.alive
 
     def get_coordinates(self):
         return (self.map_x, self.map_y, self.x, self.y)

@@ -7,9 +7,11 @@ import doctest
 modules = [
     'lib.player.player',
     'lib.utl.bresenham',
-    'lib.chat']
+    'lib.ship.spaceship',
+    'lib.chat',
+    'lib.ship.projectile']
 
 suite = unittest.TestSuite()
 for module in modules:
     suite.addTest(doctest.DocTestSuite(module))
-unittest.TextTestRunner(verbosity=2).run(suite)
+unittest.TextTestRunner(verbosity=1).run(suite)

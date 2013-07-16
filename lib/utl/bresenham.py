@@ -1,4 +1,4 @@
-def get_line((x, y), (x1, y1)):
+def get_line((x, y), (x1, y1), length=False):
     """
     Draw line from (x, y) to (x1, y1).
 
@@ -6,6 +6,8 @@ def get_line((x, y), (x1, y1)):
     [(0, 0), (1, 1), (2, 2), (3, 3)]
     >>> get_line((0, 0), (0, 0))
     [(0, 0)]
+    >>> get_line((0, 0), (1, 1), length=5)
+    [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
     """
     steep = 0
     line = []
@@ -25,7 +27,20 @@ def get_line((x, y), (x1, y1)):
         dx, dy = dy, dx
         sx, sy = sy, sx
     d = (2 * dy) - dx
-    for i in range(0, dx):
+    if not length:
+        for i in range(0, dx):
+            if steep:
+                line.append((y, x))
+            else:
+                line.append((x, y))
+            while d >= 0:
+                y = y + sy
+                d = d - (2 * dx)
+            x = x + sx
+            d = d + (2 * dy)
+        line.append((x1, y1))
+        return line
+    for i in range(0, length):
         if steep:
             line.append((y, x))
         else:
@@ -35,5 +50,4 @@ def get_line((x, y), (x1, y1)):
             d = d - (2 * dx)
         x = x + sx
         d = d + (2 * dy)
-    line.append((x1, y1))
     return line
