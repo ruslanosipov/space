@@ -1,8 +1,5 @@
 class UI(object):
 
-    def __init__(self):
-        pass
-
     def compose(self, view, chat_log, prompt, evt_mode):
         """
         view -- list of strings

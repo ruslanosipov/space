@@ -1,50 +1,23 @@
-from lib.utl import packet
-from lib.utl import bresenham
-
-
 class View(object):
+
+    #--------------------------------------------------------------------------
+    # setup
 
     def __init__(self, level):
         """
+        >>> from lib.level import Level
+        >>> level = Level([[['.']]], {'.': 'Floor'})
+        >>> View(level)
+        <class 'View'>
+
         level -- Level object
         """
-        self.set_level(level)
+        self._set_level(level)
 
-    def generate(self, (x0, y0), radius, eyesight, target):
-        """
-        x0, y0 -- int
-        radius -- int
-        eyesight -- int
-        target -- tuple (int, int)
-        """
-        l = self.level
-        view_field = []
-        for _ in xrange(0, radius * 2 + 1):
-                line = [' ' for _ in xrange(0, radius * 2 + 1)]
-                view_field.append(line)
-        for y in xrange(y0 - radius, y0 + radius + 1):
-            if y0 - eyesight <= y <= y0 + eyesight \
-                    and l.get_height() >= y + 1 and y >= 0:
-                for x in xrange(x0 - radius, x0 + radius + 1):
-                    if (x0 - eyesight <= x <= x0 + eyesight) \
-                            and l.get_width(y) >= x + 1 and x >= 0:
-                        line = bresenham.get_line((x0, y0), (x, y))
-                        is_blocker = False
-                        for (i_x, i_y) in line:
-                            n_x, n_y = i_x - x0 + radius, i_y - y0 + radius
-                            if not is_blocker and view_field[n_y][n_x] == ' ':
-                                if target and (i_x, i_y) == target:
-                                    view_field[n_y][n_x] = 'X'
-                                else:
-                                    view_field[n_y][n_x] = \
-                                            l.get_top_object((i_x, i_y))
-                            if l.is_view_obstructor((i_x, i_y)):
-                                is_blocker = True
-        for y, line in enumerate(view_field):
-            view_field[y] = ''.join(line)
-        return packet.encode(view_field)
+    def __repr__(self):
+        return "<class '%s'>" % (self.__class__.__name__)
 
-    def set_level(self, level):
+    def _set_level(self, level):
         """
         level -- Level object
         """

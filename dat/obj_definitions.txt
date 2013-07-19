@@ -1,0 +1,8 @@
++|Door
+%|Corpse
+}|Gun
+c|Console
+@|Player
+ |Space
+#|Wall
+.|Floor

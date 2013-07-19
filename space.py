@@ -2,10 +2,10 @@
 
 from ConfigParser import ConfigParser
 
-from lib.chat import ChatClient
+from lib.chatclient import ChatClient
 from lib.client import Client
-from lib.player.display import Display
-from lib.player.ui import UI
+from lib.interior.display import Display
+from lib.interior.ui import UI
 from lib.utl import packet
 from lib import event
 
@@ -22,13 +22,13 @@ ui = UI()
 
 evt_mode = 'normal'
 action = ('connect', name)
-waiting_for_action_arg = 0
+require_arg = False
 prompt = ''
 
 while True:
-    if action and not waiting_for_action_arg:
+    if action and not require_arg:
         client.send(action)
-        action = 0
+        action = False
     view_field, chat_msgs = client.receive()[-1]
     view_field = packet.decode(view_field)
     chat_msgs = packet.decode(chat_msgs)
@@ -40,15 +40,15 @@ while True:
     if evt == 'quit':
         print 'Quiting...'
         break
-    elif evt == 'arg' and waiting_for_action_arg:
+    elif evt == 'arg' and require_arg:
         action = (action, evt_arg) if evt_arg else 0
-        waiting_for_action_arg = 0
+        require_arg = False
     elif evt == 'activate':
         action = evt
-        waiting_for_action_arg = 1
+        require_arg = True
     elif evt == 'look':
         action = evt
-        waiting_for_action_arg = 1
+        require_arg = True
     elif evt == 'fly':
         action = (evt, evt_arg)
         evt_mode = 'ship' if evt_mode == 'normal' else 'normal'
