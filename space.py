@@ -58,6 +58,8 @@ while True:
     elif evt == 'return' and prompt:
         action = ('say', prompt)
         prompt, evt_mode = '', 'normal'
+    elif evt == 'say':
+        continue
     elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)
 
