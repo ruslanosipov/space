@@ -10,6 +10,8 @@ class Player(Mob):
         """
         super(Player, self).__init__('@', name, 11)
         self.inventory = []
+        self.target = None
+        self.spaceship = None
 
     def inventory_add(self, item):
         """
@@ -24,14 +26,20 @@ class Player(Mob):
         """
         self.inventory.append(item)
 
-    def set_pointer(self, pointer):
-        self.pointer = pointer
-
     #--------------------------------------------------------------------------
     # accessors
 
     def get_inventory(self):
         return self.inventory
 
-    def get_pointer(self):
-        return self.pointers
+    def get_spaceship(self):
+        return self.spaceship
+
+    def get_target(self):
+        return self.target
+
+    def set_spaceship(self, spaceship=None):
+        self.spaceship = spaceship
+
+    def set_target(self, target=None):
+        self.target = target

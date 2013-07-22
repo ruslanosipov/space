@@ -10,5 +10,5 @@ class Space(Tile):
         <class 'Space'>
         """
         stars = ['.', ',']
-        char = ' ' if random.randint(0, 10) == 0 else random.choice(stars)
+        char = random.choice(stars) if random.randint(0, 10) == 0 else ' '
         super(Space, self).__init__(char, 'space')

@@ -6,3 +6,4 @@ c|Console
  |Space
 #|Wall
 .|Floor
+0|Glass

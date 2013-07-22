@@ -19,21 +19,16 @@ class ExteriorView(View):
         """
         l = self.level
         view = []
-        for _ in xrange(0, r * 2 + 1):
-                line = [' ' for _ in xrange(0, r * 2 + 1)]
-                view.append(line)
         for y in xrange(y0 - r, y0 + r + 1):
             if y0 - eyesight <= y <= y0 + eyesight:
+                view.append('')
                 for x in xrange(x0 - r, x0 + r + 1):
-                    if (x0 - eyesight <= x <= x0 + eyesight):
-                        line = bresenham.get_line((x0, y0), (x, y))
-                        for (ix, iy) in line:
-                            nx, ny = ix - x0 + r, iy - y0 + r
-                            if pointer and (p, q, ix, iy) == pointer:
-                                view[ny][nx] = '+'
-                            else:
-                                obj = l.get_objects((p, q, ix, iy))[-1]
-                                view[ny][nx] = obj.get_char()
+                    if x0 - eyesight <= x <= x0 + eyesight:
+                        if pointer and (p, q, x, y) == pointer:
+                            view[-1] += '+'
+                        else:
+                            obj = l.get_objects((p, q, x, y))[-1]
+                            view[-1] += obj.get_char()
         for y, line in enumerate(view):
             view[y] = ''.join(line)
         return view

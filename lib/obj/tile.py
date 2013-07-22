@@ -9,6 +9,7 @@ class Tile(object):
         self.name = name
         self.block_path = block_path
         self.block_view = block_view
+        self.pickupable = False
         self.moveable = False
 
     def __repr__(self):
@@ -28,6 +29,9 @@ class Tile(object):
 
     def is_path_blocker(self):
         return self.block_path
+
+    def is_pickupable(self):
+        return self.pickupable
 
     def is_view_blocker(self):
         return self.block_view

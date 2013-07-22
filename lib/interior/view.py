@@ -33,8 +33,8 @@ class InteriorView(View):
                         for (ix, iy) in line:
                             nx, ny = ix - x0 + r, iy - y0 + r
                             if not is_blocker and view[ny][nx] == ' ':
-                                if pointer and (i_x, i_y) == pointer:
-                                    view_field[ny][nx] = 'x'
+                                if pointer and (ix, iy) == pointer:
+                                    view[ny][nx] = 'x'
                                 else:
                                     obj = l.get_objects((ix, iy))[-1]
                                     view[ny][nx] = obj.get_char()

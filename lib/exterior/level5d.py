@@ -1,26 +1,18 @@
+from functools import wraps
+
 from lib.exterior.randomlevel import RandomLevel
-from lib.utl import bresenham
 from lib.obj.projectile import Projectile
+from lib.obj.spaceship import Spaceship
 
 
 class Level5D(object):
-    """
-    >>> level = Level5D()
-    >>> from lib.obj.projectile import Projectile
-    >>> projectile = Projectile((0, 2), 7, 10, 0.7)
-    >>> level.add_object((0, 0, 0, 0), projectile)
-    >>> level.get_objects((0, 0, 0, 0))
-    [<class 'Space'>, <class 'Projectile'>]
-    >>> level.remove_object((0, 0, 0, 0), projectile)
-    >>> level.get_objects((0, 0, 0, 0))
-    [<class 'Space'>]
-    """
 
     #--------------------------------------------------------------------------
     # decorators
 
     def _validate(func):
 
+        @wraps(func)
         def wrapper(self, (p, q, x, y), char=None):
             p, q, x, y = self._validate_coordinates(p, q, x, y)
             if char is not None:
@@ -38,7 +30,8 @@ class Level5D(object):
         <class 'Level5D'>
         """
         self.levels = {}
-        self.projectiles = []
+        self.projectiles = {}
+        self.spaceships = {}
         self._populate_area((0, 0))
 
     def __repr__(self):
@@ -54,14 +47,42 @@ class Level5D(object):
     # update
 
     def update(self):
-        for i, p in enumerate(self.projectiles):
-            coords = p.get_coordinates()
-            if p.move():
-                self.remove_object(coords, '*')
-                self.add_object(p.get_coordinates(), '*')
-            if not p.is_alive():
-                self.remove_object(coords, '*')
-        self.projectiles = [p for p in self.projectiles if p.is_alive()]
+        """
+        >>> level = Level5D()
+        >>> level.add_projectile((0, 0, 0, 0), (2, 0), 2, 17, 0.8)
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>, <class 'Projectile'>]
+        >>> level.update()
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>, <class 'Projectile'>]
+        >>> level.update()
+        >>> level.get_objects((0, 0, 1, 0))
+        [<class 'Space'>, <class 'Projectile'>]
+        >>> level.update()
+        >>> level.get_objects((0, 0, 1, 0))
+        [<class 'Space'>]
+        >>> level.get_objects((0, 0, 2, 0))
+        [<class 'Space'>]
+        """
+        for projectile, coords in self.projectiles.items():
+            dx, dy = projectile.move()
+            if (dx, dy) != (0, 0):
+                p, q, x, y = coords
+                coords = self._validate_coordinates(p, q, x + dx, y + dy)
+                projectile.set_coords(coords)
+                self.projectiles[projectile] = coords
+                self.move_object((p, q, x, y), coords, projectile)
+            if not projectile.is_alive():
+                self.remove_object(coords, projectile)
+                del self.projectiles[projectile]
+        for spaceship, coords in self.spaceships.items():
+            dx, dy = spaceship.move()
+            if (dx, dy) != (0, 0):
+                p, q, x, y = coords
+                coords = self._validate_coordinates(p, q, x + dx, y + dy)
+                spaceship.set_coords(coords)
+                self.spaceships[spaceship] = coords
+                self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
     # object operations
@@ -69,7 +90,12 @@ class Level5D(object):
     @_validate
     def add_object(self, (p, q, x, y), obj):
         """
-        See class definition for tests (decorated functions and doctest issue).
+        >>> level = Level5D()
+        >>> from lib.obj.projectile import Projectile
+        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> level.add_object((0, 0, 0, 0), projectile)
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>, <class 'Projectile'>]
         """
         return self.levels[(p, q)].add_object((x, y), obj)
 
@@ -77,15 +103,53 @@ class Level5D(object):
         """
         >>> level = Level5D()
         >>> level.add_projectile((0, 0, 1, 1), (-2, 0), 17, 0.7, 4)
+        >>> level.get_objects((0, 0, 1, 1))
+        [<class 'Space'>, <class 'Projectile'>]
         """
         # TODO: validate coordinates
-        self.projectiles.append(Projectile(pointer, dmg, spd, rng))
-        self.add_object((p, q, x, y), self.projectiles[-1])
+        projectile = Projectile(pointer, dmg, spd, rng)
+        projectile.set_coords((p, q, x, y))
+        self.projectiles[projectile] = (p, q, x, y)
+        self.add_object((p, q, x, y), projectile)
+
+    def add_spaceship(self, name):
+        """
+        >>> level = Level5D()
+        >>> level.add_spaceship('USS Enterprise')
+        <class 'Spaceship'> USS Enterprise
+        """
+        spaceship = Spaceship('@', name)
+        self.spaceships[spaceship] = spaceship.get_coords()
+        coords = (0, 0, 13, 13)
+        self.add_object(coords, spaceship)
+        spaceship.set_coords(coords)
+        return spaceship
+
+    def move_object(self, (p0, q0, x0, y0), (p1, q1, x1, y1), obj):
+        """
+        >>> level = Level5D()
+        >>> from lib.obj.projectile import Projectile
+        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> level.add_object((0, 0, 0, 0), projectile)
+        >>> level.move_object((0, 0, 0, 0), (0, 0, 1, 1), projectile)
+        >>> level.get_objects((0, 0, 1, 1))
+        [<class 'Space'>, <class 'Projectile'>]
+        """
+        self.remove_object((p0, q0, x0, y0), obj)
+        self.add_object((p1, q1, x1, y1), obj)
 
     @_validate
     def remove_object(self, (p, q, x, y), obj):
         """
-        See class definition for tests (decorated functions and doctest issue).
+        >>> level = Level5D()
+        >>> from lib.obj.projectile import Projectile
+        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> level.add_object((0, 0, 0, 0), projectile)
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>, <class 'Projectile'>]
+        >>> level.remove_object((0, 0, 0, 0), projectile)
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>]
         """
         return self.levels[(p, q)].remove_object((x, y), obj)
 
@@ -95,7 +159,9 @@ class Level5D(object):
     @_validate
     def get_objects(self, (p, q, x, y)):
         """
-        See class definition for tests (decorated functions and doctest issue).
+        >>> level = Level5D()
+        >>> level.get_objects((0, 0, 0, 0))
+        [<class 'Space'>]
         """
         return self.levels[(p, q)].get_objects((x, y))
 
@@ -120,5 +186,11 @@ class Level5D(object):
                 else:
                     break
             else:
-                self.levels[(p, q)] = ShipLevel(25)
+                self.levels[(p, q)] = RandomLevel(25)
         return p, q, x, y
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_spaceships(self):
+        return self.spaceships

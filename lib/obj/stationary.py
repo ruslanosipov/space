@@ -5,6 +5,7 @@ class Stationary(Tile):
 
     def __init__(self, *args, **kwargs):
         super(Stationary, self).__init__(*args, **kwargs)
+        self.pickupable = False
         self.moveable = False
 
     def activate(self):

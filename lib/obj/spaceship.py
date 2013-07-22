@@ -18,6 +18,7 @@ class Spaceship(object):
         self.speed_max = 1.0
         self.health = self.health_max = 100
         self.alive = True
+        self.coords = (0, 0, 0, 0)
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -97,14 +98,25 @@ class Spaceship(object):
     #--------------------------------------------------------------------------
     # accessors
 
+    def get_abs_pointer(self):
+        dx, dy = self.pointers[self.pointer]
+        q, p, x, y = self.coords
+        return (q, p, x + dx, y + dy)
+
     def is_alive(self):
         return self.alive
 
     def get_char(self):
         return self.char
 
+    def get_coords(self):
+        return self.coords
+
     def get_name(self):
         return self.name
 
     def get_pointer(self):
         return self.pointers[self.pointer]
+
+    def set_coords(self, (p, q, x, y)):
+        self.coords = (p, q, x, y)

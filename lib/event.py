@@ -61,7 +61,7 @@ def get(mode='normal'):
                 if evt.unicode == 't':
                     return (mode, 'target', 1)
                 if evt.unicode == 'f':
-                    return (mode, 'fire', 1)
+                    return (mode, 'int_fire', 1)
                 if evt.unicode == ',':
                     return (mode, 'pickup', (0, 0))
                 if evt.unicode == 'i':
@@ -77,11 +77,11 @@ def get(mode='normal'):
                 if evt.unicode == 'l':
                     return (mode, 'rotate', 0)
                 if evt.unicode == 'k':
-                    return (mode, 'accelerate', 1)
+                    return (mode, 'accelerate', 0.1)
                 if evt.unicode == 'j':
-                    return (mode, 'accelerate', -1)
+                    return (mode, 'accelerate', -0.1)
                 if evt.unicode == 'f':
-                    return (mode, 'fire_ship', 1)
+                    return (mode, 'ext_fire', 1)
         if mode == 'insert':
             if evt.type == KEYDOWN:
                 if evt.key == K_BACKSPACE:

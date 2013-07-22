@@ -55,6 +55,24 @@ class Level(object):
             return False
         self.level[y][x].append(obj)
 
+    def move_object(self, (x0, y0), (x1, y1), obj):
+        """
+        >>> level = Level([[['.'], ['.']]], {'.': 'Floor'})
+        >>> from lib.obj.player import Player
+        >>> player = Player('Mike')
+        >>> level.add_object((0, 0), player)
+        >>> level.move_object((0, 0), (1, 0), player)
+        >>> level.get_objects((1, 0))
+        [<class 'Floor'>, <class 'Player'> Mike]
+        >>> level.move_object((2, 8), (7, 9), player)
+        False
+        """
+        for x, y in [(x0, y0), (x1, y1)]:
+            if not (0 <= y < self.get_height() or 0 <= x < self.get_width(y)):
+                return False
+        self.remove_object((x0, y0), obj)
+        self.add_object((x1, y1), obj)
+
     def remove_object(self, (x, y), obj):
         """
         >>> level = Level([[['.']]], {'.': 'Floor'})

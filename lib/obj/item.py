@@ -9,4 +9,5 @@ class Item(Tile):
         <class 'Item'>
         """
         super(Item, self).__init__(*args, **kwargs)
-        self.moveable = True
+        self.pickupable = True
+        self.moveable = False

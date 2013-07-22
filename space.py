@@ -4,9 +4,8 @@ from ConfigParser import ConfigParser
 
 from lib.chatclient import ChatClient
 from lib.client import Client
-from lib.interior.display import Display
+from lib.display import Display
 from lib.interior.ui import UI
-from lib.utl import packet
 from lib import event
 
 config = ConfigParser()
@@ -30,8 +29,8 @@ while True:
         client.send(action)
         action = False
     view_field, chat_msgs = client.receive()[-1]
-    view_field = packet.decode(view_field)
-    chat_msgs = packet.decode(chat_msgs)
+    view_field = view_field.split('\n')
+    chat_msgs = chat_msgs.split('\n')
     if len(chat_msgs[0]):
         chat.add_multiple(chat_msgs)
 

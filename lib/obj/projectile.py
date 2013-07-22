@@ -17,6 +17,7 @@ class Projectile:
         self.speed = speed
         self.movement = 0.0
         self.alive = True
+        self.coords = (0, 0, 0, 0)
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -61,5 +62,11 @@ class Projectile:
     def get_char(self):
         return self.char
 
+    def get_coords(self):
+        return self.coords
+
     def get_damage(self):
         return self.damage
+
+    def set_coords(self, (p, q, x, y)):
+        self.coords = (p, q, x, y)
