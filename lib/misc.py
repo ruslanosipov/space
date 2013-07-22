@@ -1,9 +1,9 @@
 from lib.obj.player import Player
-from lib.obj.spaceship import Spaceship
 from lib.obj.corpse import Corpse
 
 #------------------------------------------------------------------------------
 # server game start setup
+
 
 def load_interior_level(tiles_map, items_map):
     r"""
@@ -40,6 +40,7 @@ def load_obj_definitions(txt, separator='|'):
 
 #------------------------------------------------------------------------------
 # player (interior)
+
 
 def activate_obj((x, y), level):
     """
@@ -244,6 +245,7 @@ def set_target(player, level):
 
 #------------------------------------------------------------------------------
 # spaceship (exterior)
+
 
 def exterior_fire(coords, pointer, level):
     """

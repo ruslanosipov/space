@@ -1,5 +1,4 @@
 from lib.view import View
-from lib.utl import bresenham
 
 
 class ExteriorView(View):

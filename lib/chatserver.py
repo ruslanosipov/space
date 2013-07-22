@@ -37,7 +37,7 @@ class ChatServer(object):
 
     def add_single(self, recipient, msg, name=False):
         """
-        Add single message to chat log meant for recepient. 
+        Add single message to chat log meant for recepient.
 
         >>> chat = ChatServer()
         >>> chat.add_single('foo', 'bar')
