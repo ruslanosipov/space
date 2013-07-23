@@ -95,7 +95,7 @@ try:
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
                     msg = misc.look((x + dx, y + dy), int_level)
-                elif evt == 'fly':
+                elif evt == 'unpilot':
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
                 if msg is not None:

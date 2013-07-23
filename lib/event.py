@@ -49,13 +49,13 @@ def get(mode='normal'):
                     return ('direction', 'activate', 1)
                 if evt.unicode == 'v':
                     return ('direction', 'look', 1)
-                if evt.unicode == 'h':
+                if evt.key == pygame.K_LEFT:
                     return (mode, 'move', (-1, 0))
-                if evt.unicode == 'j':
+                if evt.key == pygame.K_DOWN:
                     return (mode, 'move', (0, 1))
-                if evt.unicode == 'k':
+                if evt.key == pygame.K_UP:
                     return (mode, 'move', (0, -1))
-                if evt.unicode == 'l':
+                if evt.key == pygame.K_RIGHT:
                     return (mode, 'move', (1, 0))
                 if evt.unicode == 't':
                     return (mode, 'target', 1)
@@ -67,15 +67,15 @@ def get(mode='normal'):
                     return (mode, 'inventory', 1)
         if mode == 'pilot':
             if evt.type == pygame.KEYDOWN:
-                if evt.unicode == 'F':
-                    return ('normal', 'fly', 1)
-                if evt.unicode == 'h':
+                if evt.unicode == 'Q':
+                    return ('normal', 'unpilot', 1)
+                if evt.key == pygame.K_LEFT:
                     return (mode, 'rotate', 1)
-                if evt.unicode == 'l':
+                if evt.key == pygame.K_RIGHT:
                     return (mode, 'rotate', 0)
-                if evt.unicode == 'k':
+                if evt.key == pygame.K_UP:
                     return (mode, 'accelerate', 0.1)
-                if evt.unicode == 'j':
+                if evt.key == pygame.K_DOWN:
                     return (mode, 'accelerate', -0.1)
                 if evt.unicode == 'f':
                     return (mode, 'ext_fire', 1)
@@ -88,12 +88,12 @@ def get(mode='normal'):
                 return (mode, 'insert', evt.unicode)
         if mode == 'direction':
             if evt.type == pygame.KEYDOWN:
-                if evt.unicode == 'h':
+                if evt.key == pygame.K_LEFT:
                     return ('normal', 'arg', (-1, 0))
-                if evt.unicode == 'j':
+                if evt.key == pygame.K_DOWN:
                     return ('normal', 'arg', (0, 1))
-                if evt.unicode == 'k':
+                if evt.key == pygame.K_UP:
                     return ('normal', 'arg', (0, -1))
-                if evt.unicode == 'l':
+                if evt.key == pygame.K_RIGHT:
                     return ('normal', 'arg', (1, 0))
             return ('normal', 'arg', None)
