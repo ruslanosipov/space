@@ -49,19 +49,17 @@ class Level5D(object):
     def update(self):
         """
         >>> level = Level5D()
-        >>> level.add_projectile((0, 0, 0, 0), (2, 0), 2, 17, 0.8)
-        >>> level.get_objects((0, 0, 0, 0))
+        >>> level.add_projectile((0, 0, 12, 13), (2, 0), 2, 100, 0.8)
+        >>> _ = level.add_spaceship('USS Enterprise', (0, 0, 13, 13))
+        >>> level.get_objects((0, 0, 12, 13))
         [<class 'Space'>, <class 'Projectile'>]
         >>> level.update()
-        >>> level.get_objects((0, 0, 0, 0))
+        >>> level.get_objects((0, 0, 12, 13))
         [<class 'Space'>, <class 'Projectile'>]
+        >>> level.get_objects((0, 0, 13, 13))
+        [<class 'Space'>, <class 'Spaceship'> USS Enterprise]
         >>> level.update()
-        >>> level.get_objects((0, 0, 1, 0))
-        [<class 'Space'>, <class 'Projectile'>]
-        >>> level.update()
-        >>> level.get_objects((0, 0, 1, 0))
-        [<class 'Space'>]
-        >>> level.get_objects((0, 0, 2, 0))
+        >>> level.get_objects((0, 0, 13, 13))
         [<class 'Space'>]
         """
         for projectile, coords in self.projectiles.items():
@@ -72,7 +70,12 @@ class Level5D(object):
                 projectile.set_coords(coords)
                 self.projectiles[projectile] = coords
                 self.move_object((p, q, x, y), coords, projectile)
-            if not projectile.is_alive():
+            spaceship = self.get_spaceship(coords)
+            if spaceship:
+                spaceship.receive_damage(projectile.get_damage())
+                if not spaceship.is_alive():
+                    self.remove_object(coords, spaceship)
+            if not projectile.is_alive() or spaceship:
                 self.remove_object(coords, projectile)
                 del self.projectiles[projectile]
         for spaceship, coords in self.spaceships.items():
@@ -112,15 +115,14 @@ class Level5D(object):
         self.projectiles[projectile] = (p, q, x, y)
         self.add_object((p, q, x, y), projectile)
 
-    def add_spaceship(self, name):
+    def add_spaceship(self, name, coords):
         """
         >>> level = Level5D()
-        >>> level.add_spaceship('USS Enterprise')
+        >>> level.add_spaceship('USS Enterprise', (0, 0, 0, 0))
         <class 'Spaceship'> USS Enterprise
         """
         spaceship = Spaceship('@', name)
         self.spaceships[spaceship] = spaceship.get_coords()
-        coords = (0, 0, 13, 13)
         self.add_object(coords, spaceship)
         spaceship.set_coords(coords)
         return spaceship
@@ -191,6 +193,12 @@ class Level5D(object):
 
     #--------------------------------------------------------------------------
     # accessors
+
+    def get_spaceship(self, (p, q, x, y)):
+        for obj in self.get_objects((p, q, x, y))[::-1]:
+            if obj.__class__.__name__ == 'Spaceship':
+                return obj
+        return False
 
     def get_spaceships(self):
         return self.spaceships

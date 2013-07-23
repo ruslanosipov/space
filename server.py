@@ -50,10 +50,15 @@ try:
                 if evt == 'connect' and s not in players:
                     player = misc.add_player(arg, (25, 10), int_level)
                     players[s] = player
-                    spaceship = ext_level.add_spaceship('USS Enterprise')
+                    spaceship = ext_level.add_spaceship(
+                        'USS Enterprise',
+                        (0, 0, 13, 13))
+                spaceship = player.get_spaceship()
                 if player.get_spaceship() is not None:
                     spaceship = player.get_spaceship()
                 if not player.is_alive():
+                    continue
+                if player.get_spaceship() and not spaceship.is_alive():
                     continue
                 if evt == 'activate':
                     dx, dy = map(int, arg)
