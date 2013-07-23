@@ -49,7 +49,7 @@ class Level5D(object):
     def update(self):
         """
         >>> level = Level5D()
-        >>> level.add_projectile((0, 0, 12, 13), (2, 0), 2, 100, 0.8)
+        >>> level.add_projectile((0, 0, 12, 13), (2, 0), 100, 0.8, 2)
         >>> _ = level.add_spaceship('USS Enterprise', (0, 0, 13, 13))
         >>> level.get_objects((0, 0, 12, 13))
         [<class 'Space'>, <class 'Projectile'>]
@@ -59,8 +59,8 @@ class Level5D(object):
         >>> level.get_objects((0, 0, 13, 13))
         [<class 'Space'>, <class 'Spaceship'> USS Enterprise]
         >>> level.update()
-        >>> level.get_objects((0, 0, 13, 13))
-        [<class 'Space'>]
+        >>> level.get_objects((0, 0, 13, 13))[-1].is_alive()
+        False
         """
         for projectile, coords in self.projectiles.items():
             dx, dy = projectile.move()
@@ -74,7 +74,7 @@ class Level5D(object):
             if spaceship:
                 spaceship.receive_damage(projectile.get_damage())
                 if not spaceship.is_alive():
-                    self.remove_object(coords, spaceship)
+                    spaceship.accelerate(-1)
             if not projectile.is_alive() or spaceship:
                 self.remove_object(coords, projectile)
                 del self.projectiles[projectile]

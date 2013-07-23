@@ -3,7 +3,7 @@ from lib.utl import bresenham
 
 class Projectile:
 
-    def __init__(self, direction, lifespan, damage, speed):
+    def __init__(self, direction, damage, speed, lifespan):
         """
         >>> Projectile((-2, 0), 8, 10, 0.8)
         <class 'Projectile'>
@@ -27,7 +27,7 @@ class Projectile:
         Move projectile by self.speed. Return True if object changes
         coordinates, False otherwise.
 
-        >>> projectile = Projectile((1, 1), 2, 10, 0.8)
+        >>> projectile = Projectile((1, 1), 10, 0.8, 2)
         >>> projectile.move()
         (0, 0)
         >>> projectile.move()
