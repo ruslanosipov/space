@@ -21,6 +21,7 @@ class Spaceship(object):
         self.coords = (0, 0, 0, 0)
         self.interior = None
         self.players = []
+        self.spawn_point = (0, 0)
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -133,6 +134,9 @@ class Spaceship(object):
     def get_players(self):
         return self.players
 
+    def get_spawn_point(self):
+        return self.spawn_point
+
     def get_pointer(self):
         return self.pointers[self.pointer]
 
@@ -144,6 +148,9 @@ class Spaceship(object):
 
     def set_interior(self, interior):
         self.interior = interior
+
+    def set_spawn_point(self, (x, y)):
+        self.spawn_point = (x, y)
 
     def set_view(self, view):
         self.view = view

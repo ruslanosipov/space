@@ -29,7 +29,9 @@ while True:
     if action and not require_arg:
         client.send(action)
         action = False
-    view_field, chat_msgs = client.receive()[-1]
+    view_field, chat_msgs, is_pilot = client.receive()[-1]
+    if is_pilot:
+        evt_mode = 'pilot'
     view_field = view_field.split('\n')
     chat_msgs = chat_msgs.split('\n')
     if len(chat_msgs[0]):
@@ -49,9 +51,6 @@ while True:
     elif evt == 'look':
         action = evt
         require_arg = True
-    elif evt == 'fly':
-        action = (evt, evt_arg)
-        evt_mode = 'ship' if evt_mode == 'normal' else 'normal'
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:

@@ -45,7 +45,7 @@ def load_obj_definitions(txt, separator='|'):
 # player (interior)
 
 
-def activate_obj((x, y), level):
+def activate_obj((x, y), level, player=None):
     """
     >>> from lib.interior.level3d import Level3D
     >>> level = Level3D([[['.', '+'], ['.']]], {'.': 'Floor', '+': 'Door'})
@@ -58,6 +58,10 @@ def activate_obj((x, y), level):
     msg = "Nothing to activate here..."
     for obj in objects[::-1]:
         try:
+            try:
+                obj.set_player(player)
+            except AttributeError:
+                pass
             msg = obj.activate()
             break
         except AttributeError:
@@ -65,20 +69,22 @@ def activate_obj((x, y), level):
     return msg
 
 
-def add_player(name, (x, y), spaceship):
+def add_player(name, spaceship, coords=None):
     """
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.spaceship import Spaceship
     >>> spaceship = Spaceship('@', 'USS Enterprise')
     >>> spaceship.set_interior(Level3D([[['.']]], {'.': 'Floor'}))
-    >>> player = add_player('Mike', (0, 0), spaceship)
+    >>> player = add_player('Mike', spaceship, (0, 0))
     >>> player
     <class 'Player'> Mike
     >>> player.get_spaceship()
     <class 'Spaceship'> USS Enterprise
     """
     player = Player(name)
-    spaceship.add_player(player, (x, y))
+    if coords is None:
+        coords = spaceship.get_spawn_point()
+    spaceship.add_player(player, coords)
     return player
 
 
@@ -148,8 +154,8 @@ def move(player, (x, y), level, chat):
     >>> spaceship = Spaceship('@', 'USS Enterprise')
     >>> l = [[['.'], ['#']], [['.'], ['.']]]
     >>> spaceship.set_interior(Level3D(l, {'.': 'Floor', '#': 'Wall'}))
-    >>> player = add_player('Mike', (0, 0), spaceship)
-    >>> hostile = add_player('Josh', (1, 1), spaceship)
+    >>> player = add_player('Mike', spaceship, (0, 0))
+    >>> hostile = add_player('Josh', spaceship, (1, 1))
     >>> chat = ChatServer()
     >>> level = spaceship.get_interior()
     >>> move(player, (1, 0), level, chat)
@@ -257,10 +263,10 @@ def set_target(player, level):
 # spaceship (exterior)
 
 
-def add_spaceship(name, coords, level):
+def add_spaceship(name, coords, spawn, level):
     """
     >>> from lib.exterior.level5d import Level5D
-    >>> add_spaceship('Galactica', (0, 0, 0, 0), Level5D())
+    >>> add_spaceship('Galactica', (0, 0, 0, 0), (8, 3), Level5D())
     <class 'Spaceship'> Galactica
     """
     tiles_map = open('dat/maps/%s_tiles.txt' % name.lower(), 'rb').read()
@@ -273,6 +279,7 @@ def add_spaceship(name, coords, level):
     spaceship = level.add_spaceship(name, coords)
     spaceship.set_interior(int_level)
     spaceship.set_view(int_view)
+    spaceship.set_spawn_point(spawn)
     return spaceship
 
 

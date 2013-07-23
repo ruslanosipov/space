@@ -25,9 +25,13 @@ server.listen()
 players = {}
 spaceships = {}
 
-spaceship = misc.add_spaceship('Enterprise', (0, 0, 10, 10), ext_level)
+spaceship = misc.add_spaceship(
+    'Enterprise', (0, 0, 10, 10),
+    (24, 2), ext_level)
 spaceships['Enterprise'] = spaceship
-spaceship = misc.add_spaceship('Galactica', (0, 0, 16, 16), ext_level)
+spaceship = misc.add_spaceship(
+    'Galactica', (0, 0, 16, 16),
+    (7, 2), ext_level)
 spaceships['Galactica'] = spaceship
 
 try:
@@ -47,7 +51,7 @@ try:
                 if evt == 'connect' and s not in players:
                     name, spaceship = arg
                     spaceship = spaceships[spaceship]
-                    player = misc.add_player(name, (8, 8), spaceship)
+                    player = misc.add_player(name, spaceship)
                     players[s] = player
                 spaceship = player.get_spaceship()
                 if not player.is_alive():
@@ -58,7 +62,10 @@ try:
                 if evt == 'activate':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.activate_obj((x + dx, y + dy), int_level)
+                    msg = misc.activate_obj(
+                        (x + dx, y + dy),
+                        int_level,
+                        player)
                 elif evt == 'pickup':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
@@ -89,14 +96,8 @@ try:
                     x, y = player.get_coords()
                     msg = misc.look((x + dx, y + dy), int_level)
                 elif evt == 'fly':
-                    if not player.is_pilot():
-                        msg = "You are piloting the spaceship now..."
-                        for spaceship in ext_level.get_spaceships():
-                            player.set_pilot()
-                            break
-                    else:
-                        msg = "You are done piloting the spaceship..."
-                        player.set_pilot()
+                    msg = "You are done piloting the spaceship..."
+                    player.set_pilot()
                 if msg is not None:
                     chat.add_single(player.get_name(), msg)
         # Let the world process one step
@@ -120,7 +121,10 @@ try:
                     ext_radius,
                     spaceship.get_abs_pointer())
             chat_log = chat.get_recent(player.get_name())
-            new_data[s] = ('\n'.join(view), '\n'.join(chat_log))
+            new_data[s] = (
+                '\n'.join(view),
+                '\n'.join(chat_log),
+                player.is_pilot())
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)
         server.send()

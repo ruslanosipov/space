@@ -7,3 +7,4 @@ c|Console
 #|Wall
 .|Floor
 0|Glass
+n|NavigationConsole

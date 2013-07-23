@@ -122,9 +122,9 @@ class Level5D(object):
         <class 'Spaceship'> USS Enterprise
         """
         spaceship = Spaceship('@', name)
+        spaceship.set_coords(coords)
         self.spaceships[spaceship] = spaceship.get_coords()
         self.add_object(coords, spaceship)
-        spaceship.set_coords(coords)
         return spaceship
 
     def move_object(self, (p0, q0, x0, y0), (p1, q1, x1, y1), obj):
