@@ -13,6 +13,7 @@ config.read('config.ini')
 host = config.get('server', 'host')
 port = config.getint('server', 'port')
 name = config.get('player', 'name')
+spaceship = config.get('player', 'spaceship')
 
 chat = ChatClient()
 client = Client(host, port)
@@ -20,7 +21,7 @@ display = Display()
 ui = UI()
 
 evt_mode = 'normal'
-action = ('connect', name)
+action = ('connect', (name, spaceship))
 require_arg = False
 prompt = ''
 

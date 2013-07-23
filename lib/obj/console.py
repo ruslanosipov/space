@@ -8,7 +8,7 @@ class Console(Stationary):
         >>> Console()
         <class 'Console'>
         """
-        super(Console, self).__init__('c', 'console')
+        super(Console, self).__init__('c', 'console', True)
 
     def activate(self):
         """

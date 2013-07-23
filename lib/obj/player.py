@@ -12,6 +12,7 @@ class Player(Mob):
         self.inventory = []
         self.target = None
         self.spaceship = None
+        self.pilot = False
 
     def inventory_add(self, item):
         """
@@ -29,6 +30,9 @@ class Player(Mob):
     #--------------------------------------------------------------------------
     # accessors
 
+    def is_pilot(self):
+        return self.pilot
+
     def get_inventory(self):
         return self.inventory
 
@@ -37,6 +41,9 @@ class Player(Mob):
 
     def get_target(self):
         return self.target
+
+    def set_pilot(self):
+        self.pilot = False if self.pilot else True
 
     def set_spaceship(self, spaceship=None):
         self.spaceship = spaceship

@@ -19,6 +19,8 @@ class Spaceship(object):
         self.health = self.health_max = 100
         self.alive = True
         self.coords = (0, 0, 0, 0)
+        self.interior = None
+        self.players = []
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -95,6 +97,16 @@ class Spaceship(object):
         else:
             self.pointer += i
 
+
+    #--------------------------------------------------------------------------
+    # players operations
+
+    def add_player(self, player, (x, y)):
+        self.players.append(player)
+        self.interior.add_object((x, y), player)
+        player.set_coords((x, y))
+        player.set_spaceship(self)
+
     #--------------------------------------------------------------------------
     # accessors
 
@@ -112,11 +124,26 @@ class Spaceship(object):
     def get_coords(self):
         return self.coords
 
+    def get_interior(self):
+        return self.interior
+
     def get_name(self):
         return self.name
+
+    def get_players(self):
+        return self.players
 
     def get_pointer(self):
         return self.pointers[self.pointer]
 
+    def get_view(self):
+        return self.view
+
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)
+
+    def set_interior(self, interior):
+        self.interior = interior
+
+    def set_view(self, view):
+        self.view = view

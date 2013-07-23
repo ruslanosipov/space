@@ -8,23 +8,14 @@ from lib.server import Server
 from lib.chatserver import ChatServer
 from lib import misc
 
-from lib.interior.level3d import Level3D
-from lib.interior.view import InteriorView
-from lib.exterior.view import ExteriorView
 from lib.exterior.level5d import Level5D
+from lib.exterior.view import ExteriorView
 
 config = ConfigParser()
 config.read('config.ini')
 port = config.getint('server', 'port')
 
-tiles_map = open('dat/maps/spaceship_tiles.txt', 'rb').read()
-items_map = open('dat/maps/spaceship_items.txt', 'rb').read()
-level_definition = misc.load_interior_level(tiles_map, items_map)
-txt = open('dat/obj_definitions.txt', 'rb').read()
-obj_definitions = misc.load_obj_definitions(txt)
-int_level = Level3D(level_definition, obj_definitions)
 ext_level = Level5D()
-int_view = InteriorView(int_level)
 ext_view = ExteriorView(ext_level)
 chat = ChatServer()
 
@@ -32,6 +23,12 @@ server = Server(port)
 server.listen()
 
 players = {}
+spaceships = {}
+
+spaceship = misc.add_spaceship('Enterprise', (0, 0, 10, 10), ext_level)
+spaceships['Enterprise'] = spaceship
+spaceship = misc.add_spaceship('Galactica', (0, 0, 16, 16), ext_level)
+spaceships['Galactica'] = spaceship
 
 try:
     while True:
@@ -48,17 +45,15 @@ try:
                 if s in players:
                     player = players[s]
                 if evt == 'connect' and s not in players:
-                    player = misc.add_player(arg, (25, 10), int_level)
+                    name, spaceship = arg
+                    spaceship = spaceships[spaceship]
+                    player = misc.add_player(name, (8, 8), spaceship)
                     players[s] = player
-                    spaceship = ext_level.add_spaceship(
-                        'USS Enterprise',
-                        (0, 0, 13, 13))
                 spaceship = player.get_spaceship()
-                if player.get_spaceship() is not None:
-                    spaceship = player.get_spaceship()
                 if not player.is_alive():
                     continue
-                if player.get_spaceship() and not spaceship.is_alive():
+                int_level = player.get_spaceship().get_interior()
+                if player.is_pilot() and not spaceship.is_alive():
                     continue
                 if evt == 'activate':
                     dx, dy = map(int, arg)
@@ -94,14 +89,14 @@ try:
                     x, y = player.get_coords()
                     msg = misc.look((x + dx, y + dy), int_level)
                 elif evt == 'fly':
-                    if player.get_spaceship() is None:
+                    if not player.is_pilot():
                         msg = "You are piloting the spaceship now..."
                         for spaceship in ext_level.get_spaceships():
-                            player.set_spaceship(spaceship)
+                            player.set_pilot()
                             break
                     else:
                         msg = "You are done piloting the spaceship..."
-                        player.set_spaceship()
+                        player.set_pilot()
                 if msg is not None:
                     chat.add_single(player.get_name(), msg)
         # Let the world process one step
@@ -112,8 +107,8 @@ try:
             spaceship = player.get_spaceship()
             int_radius = 11
             ext_radius = 12
-            if spaceship is None:
-                view = int_view.generate(
+            if not player.is_pilot():
+                view = player.get_spaceship().get_view().generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),
