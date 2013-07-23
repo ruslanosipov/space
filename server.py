@@ -5,190 +5,34 @@ import sys
 from ConfigParser import ConfigParser
 
 from lib.server import Server
-from lib.chat import ChatServer
-from lib.utl import packet
+from lib.chatserver import ChatServer
+from lib import misc
 
-from lib.player.level import PlayerLevel
-from lib.player.view import PlayerView
-from lib.player.player import Player
-from lib.ship.view import ShipView
-from lib.ship.levelsmap import LevelsMap
-from lib.ship.spaceship import Spaceship
+from lib.exterior.level5d import Level5D
+from lib.exterior.view import ExteriorView
 
 config = ConfigParser()
 config.read('config.ini')
 port = config.getint('server', 'port')
 
-server = Server(port)
-level = PlayerLevel('spaceship')
-view = PlayerView(level)
-levels_map = LevelsMap()
-ship_view = ShipView(levels_map)
+ext_level = Level5D()
+ext_view = ExteriorView(ext_level)
 chat = ChatServer()
+
+server = Server(port)
 server.listen()
+
 players = {}
 spaceships = {}
 
-
-def connect(player_name):
-    global level
-
-    player = Player((25, 10), player_name, symbol='@')
-    level.add_object(player.get_symbol(), (25, 10))
-    return player
-
-
-def activate(player, (dx, dy)):
-    global level
-
-    x, y = player.get_coordinates()
-    x, y = dx + x, dy + y
-    item_symbol = level.get_top_item((x, y))
-    if item_symbol:
-        name = level.get_item_name(item_symbol)
-        try:
-            exec("from lib.player.obj.%s import Item" % name)
-            item = Item(item_symbol)
-            msg = item.activate()
-            new_symbol = item.get_symbol()
-            if new_symbol != item_symbol:
-                level.remove_object(item_symbol, (x, y))
-                level.add_object(new_symbol, (x, y))
-            del item
-        except ImportError:
-            msg = "This object can not be activated"
-    else:
-        msg = "Nothing to activate"
-    return msg
-
-
-def pickup(player, (dx, dy)):
-    global level
-
-    x, y = player.get_coordinates()
-    x, y = dx + x, dy + y
-    item_symbol = level.get_top_item((x, y))
-    if item_symbol:
-        if level.can_be_picked_up(item_symbol):
-            name = level.get_item_name(item_symbol)
-            player.add_to_inventory((name, 1))
-            msg = 'You pick up %s' % name
-            level.remove_object(item_symbol, (x, y))
-        else:
-            msg = "This object can not be picked up"
-    else:
-        msg = "Nothing to pick up"
-    return msg
-
-
-def inventory(player):
-    inv = player.get_inventory()
-    if not len(inv):
-        return "You do not own anything at the moment"
-    msg = 'You have: '
-    items = []
-    for item, qty in inv.items():
-        if qty > 1:
-            items.append("%s (%d)" % (item, qty))
-        else:
-            items.append(item)
-    msg += ', '.join(items)
-    return msg
-
-
-def move(player, (dx, dy)):
-    global level
-    global players
-
-    msg = None
-    if player.validate_movement((dx, dy)):
-        x, y = player.get_coordinates()
-        x, y = dx + x, dy + y
-        mob = level.get_mob((x, y))
-        if not level.is_blocker((x, y)):
-            level.remove_object(
-                player.get_symbol(),
-                player.get_coordinates())
-            player.move((dx, dy))
-            level.add_object(
-                player.get_symbol(),
-                player.get_coordinates())
-        elif mob:
-            for mob in players.values():
-                if mob.get_coordinates() == (x, y):
-                    if player.get_mode() == 'attack':
-                        mob.take_damage(25)
-                        msg = 'You attack someone'
-                        mob_msg = 'You are being attacked'
-                        if not mob.is_alive():
-                            level.remove_object('@', (x, y))
-                            level.add_object('%', (x, y))
-                            player.set_target(None)
-                            msg += '. Enemy is dead'
-                            mob_msg += '. You are dead'
-                break
-            chat.add_single(mob.get_name(), mob_msg)
-        else:
-            symbol = level.get_top_object((x, y))
-            item = level.get_object_name(symbol)
-            msg = "The %s is obstructing your path" % item
-        return msg
-
-
-def target(player):
-    global view
-    global players
-
-    msg = None
-    targets = view.get_visible_players(
-            player.get_coordinates(),
-            player.get_eyesight())
-    if len(targets):
-        x, y = targets[0]
-        player.set_target((x, y))
-        for mob in players.values():
-            if mob.get_coordinates() == (x, y):
-                mob.become_target(player)
-                break
-    else:
-        msg = 'Nothing to target'
-    return msg
-
-
-def fire(player):
-    global level
-    global players
-    global chat
-
-    target = player.get_target()
-    if target:
-        for mob in players.values():
-            x, y = mob.get_coordinates()
-            if (x, y) == target:
-                mob.take_damage(50)
-                msg = 'You shoot at someone'
-                mob_msg = 'Someone shoots at you'
-                if not mob.is_alive():
-                    level.remove_object('@', (x, y))
-                    level.add_object('%', (x, y))
-                    msg += '. Target is dead'
-                    mob_msg += '. You are dead'
-                    player.set_target(None)
-                break
-    else:
-        msg = 'No target found'
-    chat.add_single(mob.get_name(), mob_msg)
-    return msg
-
-
-def look(player, (dx, dy)):
-    global level
-
-    x, y = player.get_coordinates()
-    x, y = dx + x, dy + y
-    items = ', '.join(level.get_object_ids((x, y)))
-    msg = 'You see: %s' % items
-    return msg
+spaceship = misc.add_spaceship(
+    'Enterprise', (0, 0, 10, 10),
+    (24, 2), ext_level)
+spaceships['Enterprise'] = spaceship
+spaceship = misc.add_spaceship(
+    'Galactica', (0, 0, 16, 16),
+    (7, 2), ext_level)
+spaceships['Galactica'] = spaceship
 
 try:
     while True:
@@ -198,91 +42,89 @@ try:
         new_data = {}
         # Process data received from players
         for s in data.keys():
-            if data[s]:
-                for evt, arg in data[s]:
-                    if s in players:
-                        player = players[s]
-                    if evt == 'connect' and s not in players:
-                        player = connect(arg)
-                        players[s] = player
-                        spaceships[s] = Spaceship((0, 0, 5, 5))
-                        levels_map.add_object((0, 0, 5, 5), '@')
-                    if not player.is_alive():
-                        continue
-                    if evt == 'activate':
-                        dx, dy = arg
-                        dx, dy = int(dx), int(dy)
-                        msg = activate(player, (dx, dy))
-                        chat.add_single(player.get_name(), msg)
-                    elif evt == 'pickup':
-                        dx, dy = arg
-                        dx, dy = int(dx), int(dy)
-                        msg = pickup(player, (dx, dy))
-                        chat.add_single(player.get_name(), msg)
-                    elif evt == 'inventory':
-                        msg = inventory(player)
-                        chat.add_single(player.get_name(), msg)
-                    elif evt == 'move':
-                        # TODO: deal with data type loss on Server() level
-                        dx, dy = arg
-                        dx, dy = int(dx), int(dy)
-                        msg = move(player, (dx, dy))
-                        if msg:
-                            chat.add_single(player.get_name(), msg)
-                    elif evt == 'rotate':
-                        reverse = int(arg)
-                        spaceships[s].rotate_target(reverse)
-                    elif evt == 'accelerate':
-                        spaceships[s].accelerate(int(arg))
-                    elif evt == 'target':
-                        msg = target(player)
-                        if msg:
-                            chat.add_single(player.get_name(), msg)
-                    elif evt == 'fire':
-                        msg = fire(player)
-                        chat.add_single(player.get_name(), msg)
-                    elif evt == 'say':
-                        chat.add_single('all', arg, name=player.get_name())
-                    elif evt == 'look':
-                        dx, dy = arg
-                        dx, dy = int(dx), int(dy)
-                        msg = look(player, (dx, dy))
-                        chat.add_single(player.get_name(), msg)
-                    elif evt == 'fly':
-                        if player.get_game_mode() == 'player':
-                            msg = "You are flying the spaceship now"
-                            player.set_game_mode('ship')
-                        else:
-                            msg = "You are on foot now"
-                            player.set_game_mode('player')
-                        chat.add_single(player.get_name(), msg)
+            if not data[s]:
+                continue
+            for evt, arg in data[s]:
+                msg = None
+                if s in players:
+                    player = players[s]
+                if evt == 'connect' and s not in players:
+                    name, spaceship = arg
+                    spaceship = spaceships[spaceship]
+                    player = misc.add_player(name, spaceship)
+                    players[s] = player
+                spaceship = player.get_spaceship()
+                if not player.is_alive():
+                    continue
+                int_level = player.get_spaceship().get_interior()
+                if player.is_pilot() and not spaceship.is_alive():
+                    continue
+                if evt == 'activate':
+                    dx, dy = map(int, arg)
+                    x, y = player.get_coords()
+                    msg = misc.activate_obj(
+                        (x + dx, y + dy),
+                        int_level,
+                        player)
+                elif evt == 'pickup':
+                    dx, dy = map(int, arg)
+                    x, y = player.get_coords()
+                    msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
+                elif evt == 'inventory':
+                    msg = misc.inventory(player)
+                elif evt == 'move':
+                    dx, dy = map(int, arg)
+                    x, y = player.get_coords()
+                    msg = misc.move(player, (x + dx, y + dy), int_level, chat)
+                elif evt == 'rotate':
+                    spaceship.rotate_pointer(int(arg))
+                elif evt == 'accelerate':
+                    spaceship.accelerate(float(arg))
+                elif evt == 'ext_fire':
+                    misc.exterior_fire(
+                        spaceship.get_coords(),
+                        spaceship.get_pointer(),
+                        ext_level)
+                elif evt == 'target':
+                    msg = misc.set_target(player, int_level)
+                elif evt == 'int_fire':
+                    msg = misc.interior_fire(player, int_level, chat)
+                elif evt == 'say':
+                    chat.add_single('all', arg, name=player.get_name())
+                elif evt == 'look':
+                    dx, dy = map(int, arg)
+                    x, y = player.get_coords()
+                    msg = misc.look((x + dx, y + dy), int_level)
+                elif evt == 'fly':
+                    msg = "You are done piloting the spaceship..."
+                    player.set_pilot()
+                if msg is not None:
+                    chat.add_single(player.get_name(), msg)
+        # Let the world process one step
+        ext_level.update()
         # Generate views for players
-        for spaceship in spaceships.values():
-            p0, q0, x0, y0 = spaceship.get_coordinates()
-            spaceship.update()
-            p1, q1, x1, y1 = spaceship.get_coordinates()
-            if x0 != x1 or y0 != y1 or p0 != p1 or q0 != q1:
-                levels_map.remove_object((p0, q0, x0, y0), '@')
-                levels_map.add_object((p1, q1, x1, y1), '@')
         for s in data.keys():
             player = players[s]
-            spaceship = spaceships[s]
-            radius = 11
-            ship_radius = 12
-            if player.get_game_mode() == 'player':
-                player_view = view.generate(
-                    player.get_coordinates(),
-                    radius,
-                    player.get_eyesight(),
+            spaceship = player.get_spaceship()
+            int_radius = 11
+            ext_radius = 12
+            if not player.is_pilot():
+                view = player.get_spaceship().get_view().generate(
+                    player.get_coords(),
+                    int_radius,
+                    player.get_sight(),
                     player.get_target())
             else:
-                player_view = ship_view.generate(
-                    spaceship.get_coordinates(),
-                    ship_radius,
-                    ship_radius,
-                    spaceship.get_target())
-            chat_log = packet.encode(chat.get_recent(player.get_name()))
-            new_data[s] = (player_view, chat_log)
+                view = ext_view.generate(
+                    spaceship.get_coords(),
+                    ext_radius,
+                    ext_radius,
+                    spaceship.get_abs_pointer())
+            chat_log = chat.get_recent(player.get_name())
+            new_data[s] = (
+                '\n'.join(view),
+                '\n'.join(chat_log),
+                player.is_pilot())
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)
         server.send()

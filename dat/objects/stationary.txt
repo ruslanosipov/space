@@ -1,4 +1,0 @@
-.|floor|0|0
-0|glass|1|0
- |space|0|0
-#|wall|1|1

@@ -1,0 +1,10 @@
++|Door
+%|Corpse
+}|Gun
+c|Console
+@|Player
+ |Space
+#|Wall
+.|Floor
+0|Glass
+n|NavigationConsole

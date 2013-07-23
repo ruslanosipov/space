@@ -1,27 +1,26 @@
 import pygame
-from pygame.locals import *
 
 
 pygame.init()
 pygame.key.set_repeat(100, 100)
 
 TRACK_EVENTS = [
-    QUIT,
-    KEYDOWN]
+    pygame.QUIT,
+    pygame.KEYDOWN]
 IGNORE_EVENTS = [
-    ACTIVEEVENT,
-    KEYUP,
-    MOUSEMOTION,
-    MOUSEBUTTONUP,
-    MOUSEBUTTONDOWN,
-    JOYAXISMOTION,
-    JOYBALLMOTION,
-    JOYHATMOTION,
-    JOYBUTTONUP,
-    JOYBUTTONDOWN,
-    VIDEORESIZE,
-    VIDEOEXPOSE,
-    USEREVENT]
+    pygame.ACTIVEEVENT,
+    pygame.KEYUP,
+    pygame.MOUSEMOTION,
+    pygame.MOUSEBUTTONUP,
+    pygame.MOUSEBUTTONDOWN,
+    pygame.JOYAXISMOTION,
+    pygame.JOYBALLMOTION,
+    pygame.JOYHATMOTION,
+    pygame.JOYBUTTONUP,
+    pygame.JOYBUTTONDOWN,
+    pygame.VIDEORESIZE,
+    pygame.VIDEOEXPOSE,
+    pygame.USEREVENT]
 
 
 def get(mode='normal'):
@@ -36,12 +35,12 @@ def get(mode='normal'):
     events = pygame.event.get(TRACK_EVENTS)
     pygame.event.clear(IGNORE_EVENTS)
     for evt in events:
-        if evt.type == KEYDOWN and evt.key == K_ESCAPE:
+        if evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
             return ('normal', None, None)
-        if evt.type == QUIT:
+        if evt.type == pygame.QUIT:
             return (mode, 'quit', None)
         if mode == 'normal':
-            if evt.type == KEYDOWN:
+            if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'Q':
                     return (mode, 'quit', None)
                 if evt.unicode == '/':
@@ -61,34 +60,34 @@ def get(mode='normal'):
                 if evt.unicode == 't':
                     return (mode, 'target', 1)
                 if evt.unicode == 'f':
-                    return (mode, 'fire', 1)
+                    return (mode, 'int_fire', 1)
                 if evt.unicode == ',':
                     return (mode, 'pickup', (0, 0))
                 if evt.unicode == 'i':
                     return (mode, 'inventory', 1)
+        if mode == 'pilot':
+            if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'F':
-                    return (mode, 'fly', 1)
-        if mode == 'ship':
-            if evt.type == KEYDOWN:
-                if evt.unicode == 'F':
-                    return (mode, 'fly', 1)
+                    return ('normal', 'fly', 1)
                 if evt.unicode == 'h':
                     return (mode, 'rotate', 1)
                 if evt.unicode == 'l':
                     return (mode, 'rotate', 0)
                 if evt.unicode == 'k':
-                    return (mode, 'accelerate', 1)
+                    return (mode, 'accelerate', 0.1)
                 if evt.unicode == 'j':
-                    return (mode, 'accelerate', -1)
+                    return (mode, 'accelerate', -0.1)
+                if evt.unicode == 'f':
+                    return (mode, 'ext_fire', 1)
         if mode == 'insert':
-            if evt.type == KEYDOWN:
-                if evt.key == K_BACKSPACE:
+            if evt.type == pygame.KEYDOWN:
+                if evt.key == pygame.K_BACKSPACE:
                     return (mode, 'backspace', 1)
-                if evt.key == K_RETURN:
+                if evt.key == pygame.K_RETURN:
                     return (mode, 'return', 1)
                 return (mode, 'insert', evt.unicode)
         if mode == 'direction':
-            if evt.type == KEYDOWN:
+            if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'h':
                     return ('normal', 'arg', (-1, 0))
                 if evt.unicode == 'j':
