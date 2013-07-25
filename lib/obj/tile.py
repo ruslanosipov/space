@@ -11,6 +11,7 @@ class Tile(object):
         self.block_view = block_view
         self.pickupable = False
         self.moveable = False
+        self.level = None
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -20,6 +21,9 @@ class Tile(object):
 
     def get_char(self):
         return self.char
+
+    def get_level(self):
+        return self.level
 
     def get_name(self):
         return self.name
@@ -35,3 +39,6 @@ class Tile(object):
 
     def is_view_blocker(self):
         return self.block_view
+
+    def set_level(self, level):
+        self.level = level

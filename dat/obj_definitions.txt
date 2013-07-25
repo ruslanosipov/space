@@ -8,3 +8,4 @@ c|Console
 .|Floor
 0|Glass
 n|NavigationConsole
+T|TeleportPlatform

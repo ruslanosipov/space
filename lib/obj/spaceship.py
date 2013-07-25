@@ -22,6 +22,7 @@ class Spaceship(object):
         self.interior = None
         self.players = []
         self.spawn_point = (0, 0)
+        self.exterior = None
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -98,6 +99,14 @@ class Spaceship(object):
         else:
             self.pointer += i
 
+    #--------------------------------------------------------------------------
+    # higher order functions
+
+    def get_adjacent_spaceships(self):
+        return self.exterior.get_adjacent_spaceships(self.get_coords())
+
+    def teleport_player_out(self, player, spaceship):
+        self.exterior.teleport_player(player, spaceship, self)
 
     #--------------------------------------------------------------------------
     # players operations
@@ -107,6 +116,10 @@ class Spaceship(object):
         self.interior.add_object((x, y), player)
         player.set_coords((x, y))
         player.set_spaceship(self)
+
+    def remove_player(self, player):
+        del self.players[self.players.index(player)]
+        self.interior.remove_object(player.get_coords(), player)
 
     #--------------------------------------------------------------------------
     # accessors
@@ -145,6 +158,9 @@ class Spaceship(object):
 
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)
+
+    def set_exterior(self, exterior):
+        self.exterior = exterior
 
     def set_interior(self, interior):
         self.interior = interior

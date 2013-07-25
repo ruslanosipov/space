@@ -43,6 +43,10 @@ class Level5D(object):
                 if (x, y) not in self.levels.keys():
                     self.levels[(x, y)] = RandomLevel(25)
 
+    def teleport_player(self, player, receiver, sender):
+        sender.remove_player(player)
+        receiver.add_player(player, receiver.get_spawn_point())
+
     #--------------------------------------------------------------------------
     # update
 
@@ -123,6 +127,7 @@ class Level5D(object):
         """
         spaceship = Spaceship('@', name)
         spaceship.set_coords(coords)
+        spaceship.set_exterior(self)
         self.spaceships[spaceship] = spaceship.get_coords()
         self.add_object(coords, spaceship)
         return spaceship
@@ -157,6 +162,25 @@ class Level5D(object):
 
     #--------------------------------------------------------------------------
     # bulk object accessors
+
+    @_validate
+    def get_adjacent_spaceships(self, (p, q, x0, y0)):
+        """
+        >>> level = Level5D()
+        >>> _ = level.add_spaceship('Enterprise', (0, -1, 0, 24))
+        >>> _ = level.add_spaceship('Galactica', (0, 0, 1, 0))
+        >>> level.get_adjacent_spaceships((0, 0, 0, 0))
+        [<class 'Spaceship'> Enterprise, <class 'Spaceship'> Galactica]
+        """
+        spaceships = []
+        for y in xrange(y0 - 1, y0 + 2):
+            for x in xrange(x0 - 1, x0 + 2):
+                if x == x0 and y == y0:
+                    continue
+                spaceship = self.get_spaceship((p, q, x, y))
+                if spaceship:
+                    spaceships.append(spaceship)
+        return spaceships
 
     @_validate
     def get_objects(self, (p, q, x, y)):

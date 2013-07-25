@@ -112,7 +112,7 @@ def interior_fire(player, level, chat):
         hostile = level.get_player(target)
         hostile.receive_damage(50)
         msg = 'You shoot at %s.' % hostile.get_name()
-        hostile_msg = '%s shoots at you.'
+        hostile_msg = '%s shoots at you.' % player.get_name()
         if not hostile.is_alive():
             level.remove_object(target, hostile)
             level.add_object(target, Corpse(hostile.get_name()))
@@ -199,12 +199,13 @@ def look((x, y), level):
     >>> from lib.interior.level3d import Level3D
     >>> level = Level3D([[['.', 'c']]], {'.': 'Floor', 'c': 'Console'})
     >>> look((0, 0), level)
-    'You see: floor, console.'
+    'You see: console, floor.'
     """
     objects = level.get_objects((x, y))
-    for i, obj in enumerate(objects):
-        objects[i] = obj.get_name()
-    msg = 'You see: %s.' % ', '.join(objects)
+    names = []
+    for obj in objects[::-1]:
+        names.append(obj.get_name())
+    msg = 'You see: %s.' % ', '.join(names)
     return msg
 
 
@@ -277,7 +278,9 @@ def add_spaceship(name, coords, spawn, level):
     int_level = Level3D(level_definition, obj_definitions)
     int_view = InteriorView(int_level)
     spaceship = level.add_spaceship(name, coords)
+    spaceship.set_exterior(level)
     spaceship.set_interior(int_level)
+    spaceship.get_interior().set_spaceship(spaceship)
     spaceship.set_view(int_view)
     spaceship.set_spawn_point(spawn)
     return spaceship
