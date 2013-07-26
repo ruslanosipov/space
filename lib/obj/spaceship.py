@@ -1,15 +1,21 @@
 from lib.utl import bresenham
+from lib.interior.level3d import Level3D
 
 
 class Spaceship(object):
 
-    def __init__(self, char, name):
+    #--------------------------------------------------------------------------
+    # setup
+
+    def __init__(self, char, name, coords, exterior=None):
         """
-        >>> Spaceship('@', 'Enterprise')
-        <class 'Spaceship'> Enterprise
+        >>> Spaceship('@', 'Galactica', (0, 0, 0, 0))
+        <class 'Spaceship'> Galactica
         """
         self.char = char
         self.name = name
+        self.coords = coords
+        self.exterior = exterior
         self.movement = 0.0
         self.pointers = [(0, -2), (1, -2), (2, -1), (2, 0), (2, 1), (1, 2),
                         (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
@@ -18,18 +24,23 @@ class Spaceship(object):
         self.speed_max = 1.0
         self.health = self.health_max = 100
         self.alive = True
-        self.coords = (0, 0, 0, 0)
         self.interior = None
         self.players = []
         self.spawn_point = (0, 0)
-        self.exterior = None
+        self.teleport_point = None
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
+    def load_interior(self, level, obj_data):
+        self.interior = Level3D(level, obj_data, spaceship=self)
+
+    #--------------------------------------------------------------------------
+    # movement
+
     def accelerate(self, acceleration):
         """
-        >>> spaceship = Spaceship('@', 'Enterprise')
+        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
         >>> spaceship.accelerate(1.0)
         >>> spaceship.move()
         (0, -1)
@@ -44,7 +55,7 @@ class Spaceship(object):
         """
         Returns relative movement.
 
-        >>> spaceship = Spaceship('@', 'Enterprise')
+        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
         >>> spaceship.accelerate(0.7)
         >>> spaceship.move()
         (0, 0)
@@ -58,26 +69,12 @@ class Spaceship(object):
             return (x, y)
         return (0, 0)
 
-    def receive_damage(self, damage):
-        """
-        >>> spaceship = Spaceship('@', 'Enterprise')
-        >>> spaceship.receive_damage(10)
-        >>> spaceship.is_alive()
-        True
-        >>> spaceship.receive_damage(200)
-        >>> spaceship.is_alive()
-        False
-        """
-        self.health -= damage
-        if self.health <= 0:
-            self.alive = False
-
     def rotate_pointer(self, reverse=False):
         """
         Pointer is an equivalent of a steering wheel. Reverse is
         counter-clockwise.
 
-        >>> spaceship = Spaceship('@', 'Enterprise')
+        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
         >>> spaceship.get_pointer()
         (0, -2)
         >>> spaceship.rotate_pointer()
@@ -100,26 +97,21 @@ class Spaceship(object):
             self.pointer += i
 
     #--------------------------------------------------------------------------
-    # higher order functions
+    # combat
 
-    def get_adjacent_spaceships(self):
-        return self.exterior.get_adjacent_spaceships(self.get_coords())
-
-    def teleport_player_out(self, player, spaceship):
-        self.exterior.teleport_player(player, spaceship, self)
-
-    #--------------------------------------------------------------------------
-    # players operations
-
-    def add_player(self, player, (x, y)):
-        self.players.append(player)
-        self.interior.add_object((x, y), player)
-        player.set_coords((x, y))
-        player.set_spaceship(self)
-
-    def remove_player(self, player):
-        del self.players[self.players.index(player)]
-        self.interior.remove_object(player.get_coords(), player)
+    def receive_damage(self, damage):
+        """
+        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
+        >>> spaceship.receive_damage(10)
+        >>> spaceship.is_alive()
+        True
+        >>> spaceship.receive_damage(200)
+        >>> spaceship.is_alive()
+        False
+        """
+        self.health -= damage
+        if self.health <= 0:
+            self.alive = False
 
     #--------------------------------------------------------------------------
     # accessors
@@ -138,17 +130,20 @@ class Spaceship(object):
     def get_coords(self):
         return self.coords
 
+    def get_exterior(self):
+        return self.exterior
+
     def get_interior(self):
         return self.interior
 
     def get_name(self):
         return self.name
 
-    def get_players(self):
-        return self.players
-
     def get_spawn_point(self):
         return self.spawn_point
+
+    def get_teleport_point(self):
+        return self.teleport_point
 
     def get_pointer(self):
         return self.pointers[self.pointer]
@@ -159,14 +154,11 @@ class Spaceship(object):
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)
 
-    def set_exterior(self, exterior):
-        self.exterior = exterior
-
-    def set_interior(self, interior):
-        self.interior = interior
-
     def set_spawn_point(self, (x, y)):
         self.spawn_point = (x, y)
+
+    def set_teleport_point(self, (x, y)):
+        self.teleport_point = (x, y)
 
     def set_view(self, view):
         self.view = view

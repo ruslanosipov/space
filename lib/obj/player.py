@@ -11,8 +11,8 @@ class Player(Mob):
         super(Player, self).__init__('@', name, 11)
         self.inventory = []
         self.target = None
-        self.spaceship = None
         self.pilot = False
+        self.interior = None
 
     def inventory_add(self, item):
         """
@@ -36,8 +36,8 @@ class Player(Mob):
     def get_inventory(self):
         return self.inventory
 
-    def get_spaceship(self):
-        return self.spaceship
+    def get_interior(self):
+        return self.interior
 
     def get_target(self):
         return self.target
@@ -45,8 +45,8 @@ class Player(Mob):
     def set_pilot(self):
         self.pilot = False if self.pilot else True
 
-    def set_spaceship(self, spaceship=None):
-        self.spaceship = spaceship
+    def set_interior(self, interior=None):
+        self.interior = interior
 
     def set_target(self, target=None):
         self.target = target

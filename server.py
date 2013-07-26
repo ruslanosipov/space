@@ -53,10 +53,10 @@ try:
                     spaceship = spaceships[spaceship]
                     player = misc.add_player(name, spaceship)
                     players[s] = player
-                spaceship = player.get_spaceship()
+                spaceship = player.get_interior().get_spaceship()
                 if not player.is_alive():
                     continue
-                int_level = player.get_spaceship().get_interior()
+                int_level = player.get_interior()
                 if player.is_pilot() and not spaceship.is_alive():
                     continue
                 if evt == 'activate':
@@ -105,11 +105,12 @@ try:
         # Generate views for players
         for s in data.keys():
             player = players[s]
-            spaceship = player.get_spaceship()
+            spaceship = player.get_interior().get_spaceship()
             int_radius = 11
             ext_radius = 12
             if not player.is_pilot():
-                view = player.get_spaceship().get_view().generate(
+                view = player.get_interior().get_spaceship().get_view()
+                view = view.generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),

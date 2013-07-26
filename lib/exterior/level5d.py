@@ -30,8 +30,8 @@ class Level5D(object):
         <class 'Level5D'>
         """
         self.levels = {}
-        self.projectiles = {}
-        self.spaceships = {}
+        self.projectiles = []
+        self.spaceships = []
         self._populate_area((0, 0))
 
     def __repr__(self):
@@ -44,8 +44,9 @@ class Level5D(object):
                     self.levels[(x, y)] = RandomLevel(25)
 
     def teleport_player(self, player, receiver, sender):
-        sender.remove_player(player)
-        receiver.add_player(player, receiver.get_spawn_point())
+        sender.get_interior().remove_player(player)
+        receiver.get_interior().add_player(
+            player, receiver.get_teleport_point())
 
     #--------------------------------------------------------------------------
     # update
@@ -66,13 +67,15 @@ class Level5D(object):
         >>> level.get_objects((0, 0, 13, 13))[-1].is_alive()
         False
         """
-        for projectile, coords in self.projectiles.items():
+        remove = []
+        for i, projectile in enumerate(self.projectiles):
+            coords = projectile.get_coords()
             dx, dy = projectile.move()
             if (dx, dy) != (0, 0):
                 p, q, x, y = coords
                 coords = self._validate_coordinates(p, q, x + dx, y + dy)
                 projectile.set_coords(coords)
-                self.projectiles[projectile] = coords
+                self.projectiles.append(projectile)
                 self.move_object((p, q, x, y), coords, projectile)
             spaceship = self.get_spaceship(coords)
             if spaceship:
@@ -81,14 +84,16 @@ class Level5D(object):
                     spaceship.accelerate(-1)
             if not projectile.is_alive() or spaceship:
                 self.remove_object(coords, projectile)
-                del self.projectiles[projectile]
-        for spaceship, coords in self.spaceships.items():
+                remove.append(i)
+        self.projectiles = \
+            [p for i, p in enumerate(self.projectiles) if i not in remove]
+        for spaceship in self.spaceships:
+            coords = spaceship.get_coords()
             dx, dy = spaceship.move()
             if (dx, dy) != (0, 0):
                 p, q, x, y = coords
                 coords = self._validate_coordinates(p, q, x + dx, y + dy)
                 spaceship.set_coords(coords)
-                self.spaceships[spaceship] = coords
                 self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
@@ -116,19 +121,16 @@ class Level5D(object):
         # TODO: validate coordinates
         projectile = Projectile(pointer, dmg, spd, rng)
         projectile.set_coords((p, q, x, y))
-        self.projectiles[projectile] = (p, q, x, y)
+        self.projectiles.append(projectile)
         self.add_object((p, q, x, y), projectile)
 
     def add_spaceship(self, name, coords):
         """
-        >>> level = Level5D()
-        >>> level.add_spaceship('USS Enterprise', (0, 0, 0, 0))
-        <class 'Spaceship'> USS Enterprise
+        >>> Level5D().add_spaceship('Enterprise', (0, 0, 0, 0))
+        <class 'Spaceship'> Enterprise
         """
-        spaceship = Spaceship('@', name)
-        spaceship.set_coords(coords)
-        spaceship.set_exterior(self)
-        self.spaceships[spaceship] = spaceship.get_coords()
+        spaceship = Spaceship('@', name, coords=coords, exterior=self)
+        self.spaceships.append(spaceship)
         self.add_object(coords, spaceship)
         return spaceship
 
@@ -166,10 +168,10 @@ class Level5D(object):
     @_validate
     def get_adjacent_spaceships(self, (p, q, x0, y0)):
         """
-        >>> level = Level5D()
-        >>> _ = level.add_spaceship('Enterprise', (0, -1, 0, 24))
-        >>> _ = level.add_spaceship('Galactica', (0, 0, 1, 0))
-        >>> level.get_adjacent_spaceships((0, 0, 0, 0))
+        >>> exterior = Level5D()
+        >>> _ = exterior.add_spaceship('Enterprise', (0, -1, 0, 24))
+        >>> _ = exterior.add_spaceship('Galactica', (0, 0, 1, 0))
+        >>> exterior.get_adjacent_spaceships((0, 0, 0, 0))
         [<class 'Spaceship'> Enterprise, <class 'Spaceship'> Galactica]
         """
         spaceships = []
@@ -185,8 +187,7 @@ class Level5D(object):
     @_validate
     def get_objects(self, (p, q, x, y)):
         """
-        >>> level = Level5D()
-        >>> level.get_objects((0, 0, 0, 0))
+        >>> Level5D().get_objects((0, 0, 0, 0))
         [<class 'Space'>]
         """
         return self.levels[(p, q)].get_objects((x, y))

@@ -1,3 +1,6 @@
+from tests.mocks import exterior_with_adjacent_spaceships
+
+
 from lib.obj.stationary import Stationary
 
 
@@ -13,30 +16,22 @@ class TeleportPlatform(Stationary):
 
     def activate(self):
         """
-        >>> from lib.interior.level3d import Level3D
-        >>> from lib.exterior.level5d import Level5D
-        >>> from lib.obj.spaceship import Spaceship
-        >>> from lib.obj.player import Player
-        >>> ext_level = Level5D()
-        >>> spaceship = ext_level.add_spaceship('Enterprise', (0, 0, 0, 0))
-        >>> mothership = ext_level.add_spaceship('Exterminator', (0, 0, 1, 1))
-        >>> spaceship.set_interior(Level3D([[['.']]], {'.': 'Floor'}))
-        >>> mothership.set_interior(Level3D([[['.']]], {'.': 'Floor'}))
-        >>> spaceship.get_interior().set_spaceship(spaceship)
-        >>> mothership.get_interior().set_spaceship(mothership)
-        >>> player = Player('Mike')
-        >>> spaceship.add_player(player, (0, 0))
-        >>> teleport = TeleportPlatform()
-        >>> teleport.set_level(spaceship.get_interior())
+        >>> exterior = exterior_with_adjacent_spaceships()
+        >>> interior = exterior.get_spaceships()[0].get_interior()
+        >>> teleport = interior.get_objects((1, 0))[-1]
+        >>> player = interior.get_player((0, 0))
         >>> teleport.set_player(player)
         >>> teleport.activate()
         'Teleport platform makes a weird noise...'
         """
-        spaceships = self.get_level().get_spaceship().get_adjacent_spaceships()
+        spaceship = self.get_interior().get_spaceship()
+        spaceships = spaceship.get_exterior().get_adjacent_spaceships(
+            spaceship.get_coords())
         if spaceships:
-            self.get_level().get_spaceship().teleport_player_out(
+            spaceship.get_exterior().teleport_player(
                 self.player,
-                spaceships[0])
+                spaceships[0],
+                spaceship)
             msg = "Teleport platform makes a weird noise..."
         else:
             msg = "No spaceships in teleport radius are detected..."
@@ -45,3 +40,7 @@ class TeleportPlatform(Stationary):
 
     def set_player(self, player=None):
         self.player = player
+
+    def set_interior(self, interior):
+        super(TeleportPlatform, self).set_interior(interior)
+        self.interior.get_spaceship().set_teleport_point(self.get_coords())

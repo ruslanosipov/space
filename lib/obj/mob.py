@@ -11,6 +11,7 @@ class Mob(object):
         self.alive = True
         self.health = self.health_max = 100
         self.coords = (0, 0)
+        self.level = None
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -47,6 +48,9 @@ class Mob(object):
     def get_coords(self):
         return self.coords
 
+    def get_level(self):
+        return self.level
+
     def get_name(self):
         return self.name
 
@@ -55,3 +59,6 @@ class Mob(object):
 
     def set_coords(self, (x, y)):
         self.coords = (x, y)
+
+    def set_level(self, level):
+        self.level = level
