@@ -6,6 +6,11 @@ class Level3D(Level):
     The interior Level class.
     """
 
+    def __init__(self, level_definition, obj_definitions, spaceship=None):
+        self.spaceship = spaceship
+        self._load_level(level_definition, obj_definitions)
+        self.players = []
+
     #--------------------------------------------------------------------------
     # bulk object accessors
 
@@ -59,3 +64,28 @@ class Level3D(Level):
             if obj.__class__.__name__ == 'Player':
                 return obj
         return False
+
+    #--------------------------------------------------------------------------
+    # object operations
+
+    def add_player(self, player, (x, y)):
+        self.players.append(player)
+        self.add_object((x, y), player)
+
+    def add_object(self, (x, y), obj):
+        if super(Level3D, self).add_object((x, y), obj) is not False:
+            obj.set_coords((x, y))
+            obj.set_interior(self)
+
+    def remove_player(self, player):
+        self.players.remove(player)
+        self.remove_object(player.get_coords(), player)
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_players(self):
+        return self.players
+
+    def get_spaceship(self):
+        return self.spaceship

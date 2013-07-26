@@ -1,3 +1,5 @@
+from tests import mocks
+
 from lib.obj.player import Player
 from lib.obj.corpse import Corpse
 from lib.obj.spaceship import Spaceship
@@ -71,20 +73,17 @@ def activate_obj((x, y), level, player=None):
 
 def add_player(name, spaceship, coords=None):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.spaceship import Spaceship
-    >>> spaceship = Spaceship('@', 'USS Enterprise')
-    >>> spaceship.set_interior(Level3D([[['.']]], {'.': 'Floor'}))
+    >>> spaceship = mocks.spaceship()
     >>> player = add_player('Mike', spaceship, (0, 0))
     >>> player
     <class 'Player'> Mike
-    >>> player.get_spaceship()
-    <class 'Spaceship'> USS Enterprise
+    >>> player.get_interior().get_spaceship()
+    <class 'Spaceship'> Galactica
     """
     player = Player(name)
     if coords is None:
         coords = spaceship.get_spawn_point()
-    spaceship.add_player(player, coords)
+    spaceship.get_interior().add_player(player, coords)
     return player
 
 
@@ -112,7 +111,7 @@ def interior_fire(player, level, chat):
         hostile = level.get_player(target)
         hostile.receive_damage(50)
         msg = 'You shoot at %s.' % hostile.get_name()
-        hostile_msg = '%s shoots at you.'
+        hostile_msg = '%s shoots at you.' % player.get_name()
         if not hostile.is_alive():
             level.remove_object(target, hostile)
             level.add_object(target, Corpse(hostile.get_name()))
@@ -147,25 +146,18 @@ def inventory(player):
 
 def move(player, (x, y), level, chat):
     """
-    >>> from lib.obj.player import Player
-    >>> from lib.interior.level3d import Level3D
     >>> from lib.chatserver import ChatServer
-    >>> from lib.obj.spaceship import Spaceship
-    >>> spaceship = Spaceship('@', 'USS Enterprise')
-    >>> l = [[['.'], ['#']], [['.'], ['.']]]
-    >>> spaceship.set_interior(Level3D(l, {'.': 'Floor', '#': 'Wall'}))
-    >>> player = add_player('Mike', spaceship, (0, 0))
-    >>> hostile = add_player('Josh', spaceship, (1, 1))
     >>> chat = ChatServer()
-    >>> level = spaceship.get_interior()
-    >>> move(player, (1, 0), level, chat)
-    'Your path is obstructed by the wall...'
-    >>> move(player, (0, 1), level, chat)
-    >>> move(player, (1, 1), level, chat)
+    >>> spaceship = mocks.spaceship_with_two_players()
+    >>> player = spaceship.get_interior().get_objects((0, 0))[-1]
+    >>> move(player, (1, 0), spaceship.get_interior(), chat)
+    'Your path is obstructed by the door...'
+    >>> move(player, (0, 1), spaceship.get_interior(), chat)
+    >>> move(player, (1, 1), spaceship.get_interior(), chat)
     'You attack Josh.'
     >>> for _ in xrange(0, 2):
-    ...     _ = move(player, (1, 1), level, chat)
-    >>> move(player, (1, 1), level, chat)
+    ...     _ = move(player, (1, 1), spaceship.get_interior(), chat)
+    >>> move(player, (1, 1), spaceship.get_interior(), chat)
     'You attack Josh. Josh is dead.'
     """
     msg = None
@@ -199,12 +191,13 @@ def look((x, y), level):
     >>> from lib.interior.level3d import Level3D
     >>> level = Level3D([[['.', 'c']]], {'.': 'Floor', 'c': 'Console'})
     >>> look((0, 0), level)
-    'You see: floor, console.'
+    'You see: console, floor.'
     """
     objects = level.get_objects((x, y))
-    for i, obj in enumerate(objects):
-        objects[i] = obj.get_name()
-    msg = 'You see: %s.' % ', '.join(objects)
+    names = []
+    for obj in objects[::-1]:
+        names.append(obj.get_name())
+    msg = 'You see: %s.' % ', '.join(names)
     return msg
 
 
@@ -263,7 +256,7 @@ def set_target(player, level):
 # spaceship (exterior)
 
 
-def add_spaceship(name, coords, spawn, level):
+def add_spaceship(name, coords, spawn, exterior):
     """
     >>> from lib.exterior.level5d import Level5D
     >>> add_spaceship('Galactica', (0, 0, 0, 0), (8, 3), Level5D())
@@ -274,11 +267,9 @@ def add_spaceship(name, coords, spawn, level):
     level_definition = load_interior_level(tiles_map, items_map)
     txt = open('dat/obj_definitions.txt', 'rb').read()
     obj_definitions = load_obj_definitions(txt)
-    int_level = Level3D(level_definition, obj_definitions)
-    int_view = InteriorView(int_level)
-    spaceship = level.add_spaceship(name, coords)
-    spaceship.set_interior(int_level)
-    spaceship.set_view(int_view)
+    spaceship = exterior.add_spaceship(name, coords)
+    spaceship.load_interior(level_definition, obj_definitions)
+    spaceship.set_view(InteriorView(spaceship.get_interior()))
     spaceship.set_spawn_point(spawn)
     return spaceship
 
@@ -287,7 +278,7 @@ def exterior_fire(coords, pointer, level):
     """
     >>> from lib.exterior.level5d import Level5D
     >>> from lib.obj.spaceship import Spaceship
-    >>> s = Spaceship('@', 'USS Enterprise')
+    >>> s = Spaceship('@', 'USS Enterprise', (0, 0, 0, 0))
     >>> exterior_fire(s.get_coords(), s.get_pointer(), Level5D())
     """
     level.add_projectile(coords, pointer, 50, 1.0, 10)

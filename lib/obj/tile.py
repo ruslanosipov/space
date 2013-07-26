@@ -11,6 +11,8 @@ class Tile(object):
         self.block_view = block_view
         self.pickupable = False
         self.moveable = False
+        self.interior = None
+        self.coords = None
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -20,6 +22,12 @@ class Tile(object):
 
     def get_char(self):
         return self.char
+
+    def get_coords(self):
+        return self.coords
+
+    def get_interior(self):
+        return self.interior
 
     def get_name(self):
         return self.name
@@ -35,3 +43,9 @@ class Tile(object):
 
     def is_view_blocker(self):
         return self.block_view
+
+    def set_coords(self, coords):
+        self.coords = coords
+
+    def set_interior(self, interior):
+        self.interior = interior

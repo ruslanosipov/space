@@ -33,6 +33,14 @@ class Level(object):
                         module = name.lower()
                         exec("from lib.obj.%s import %s" % (module, name))
                         exec("obj = %s()" % name)
+                        try:
+                            obj.set_coords((x, y))
+                        except AttributeError:
+                            pass
+                        try:
+                            obj.set_interior(self)
+                        except AttributeError:
+                            pass
                         level[y][x].append(obj)
                     except ImportError:
                         pass
