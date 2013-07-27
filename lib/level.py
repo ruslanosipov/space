@@ -1,178 +1,182 @@
-class Level:
+class Level(object):
 
-    def __init__(self, name):
-        """
-        name -- string, file name without extension or path
-        """
-        self.map_dir = 'dat/maps/'
-        self.map_ext = '.map'
-        self.load_objects_data()
-        self.level = self.load_level(name)
+    #--------------------------------------------------------------------------
+    # setup
 
-    def load_level(self, name):
+    def __init__(self, level_definition, obj_definitions):
         """
-        name -- string, file
+        >>> o = {'.': 'Floor', '#': 'Door'}
+        >>> Level([[['.'], ['#']], [['.'], ['#']]], o)
+        <class 'Level'>
 
-        Returns 3-dimensional list
+        level_definition -- list of lists of lists of chars
+        obj_definitions -- dict
         """
-        name = self.map_dir + name
-        level = self._load_stationary(name + '0' + self.map_ext)
-        level = self._load_items(level, name + '1' + self.map_ext)
-        return level
+        self._load_level(level_definition, obj_definitions)
+
+    def __repr__(self):
+        return "<class '%s'>" % self.__class__.__name__
+
+    def _load_level(self, level_definition, obj_definitions):
+        """
+        level_definition -- list of lists of lists of chars
+        obj_definitions -- dict
+        """
+        level = []
+        for y, line in enumerate(level_definition):
+            level.append([])
+            for x, chars in enumerate(line):
+                level[y].append([])
+                for char in chars:
+                    name = obj_definitions[char]
+                    try:
+                        module = name.lower()
+                        exec("from lib.obj.%s import %s" % (module, name))
+                        f = eval(name)
+                        obj = f()
+                        try:
+                            obj.set_coords((x, y))
+                        except AttributeError:
+                            pass
+                        try:
+                            obj.set_interior(self)
+                        except AttributeError:
+                            pass
+                        level[y][x].append(obj)
+                    except ImportError:
+                        pass
+        self.level = level
+
+    #--------------------------------------------------------------------------
+    # object operations
+
+    def add_object(self, (x, y), obj):
+        """
+        >>> level = Level([[['.']]], {'.': 'Floor'})
+        >>> from lib.obj.door import Door
+        >>> level.add_object((0, 0), Door())
+        >>> level.get_objects((0, 0))
+        [<class 'Floor'>, <class 'Door'>]
+        >>> level.add_object((7, 9), Door())
+        False
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            return False
+        self.level[y][x].append(obj)
+
+    def move_object(self, (x0, y0), (x1, y1), obj):
+        """
+        >>> level = Level([[['.'], ['.']]], {'.': 'Floor'})
+        >>> from lib.obj.player import Player
+        >>> player = Player('Mike')
+        >>> level.add_object((0, 0), player)
+        >>> level.move_object((0, 0), (1, 0), player)
+        >>> level.get_objects((1, 0))
+        [<class 'Floor'>, <class 'Player'> Mike]
+        >>> level.move_object((2, 8), (7, 9), player)
+        False
+        """
+        for x, y in [(x0, y0), (x1, y1)]:
+            if not (0 <= y < self.get_height() or 0 <= x < self.get_width(y)):
+                return False
+        self.remove_object((x0, y0), obj)
+        self.add_object((x1, y1), obj)
+
+    def remove_object(self, (x, y), obj):
+        """
+        >>> level = Level([[['.']]], {'.': 'Floor'})
+        >>> from lib.obj.door import Door
+        >>> door = Door()
+        >>> level.add_object((0, 0), door)
+        >>> level.remove_object((0, 0), door)
+        >>> level.get_objects((0, 0))
+        [<class 'Floor'>]
+        >>> level.remove_object((0, 0), door)
+        False
+        >>> level.remove_object((7, 9), door)
+        False
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            return False
+        if obj not in self.level[y][x]:
+            return False
+        del self.level[y][x][self.level[y][x].index(obj)]
+
+    #--------------------------------------------------------------------------
+    # bulk object accessors
+
+    def get_objects(self, (x, y)):
+        """
+        >>> level = Level([[['.', '+']]], {'.': 'Floor', '+': 'Door'})
+        >>> level.get_objects((0, 0))
+        [<class 'Floor'>, <class 'Door'>]
+        >>> level.get_objects((7, 9))
+        False
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            return False
+        if len(self.level[y][x]):
+            return self.level[y][x]
+        return False
+
+    def is_path_blocker(self, (x, y)):
+        """
+        >>> level = Level([[['.'], ['#']]], {'.': 'Floor', '#': 'Wall'})
+        >>> level.is_path_blocker((7, 8))
+        False
+        >>> level.is_path_blocker((0, 0))
+        False
+        >>> level.is_path_blocker((1, 0))
+        True
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            return False
+        for obj in self.level[y][x]:
+            if obj.is_path_blocker():
+                return True
+        return False
+
+    def is_view_blocker(self, (x, y)):
+        """
+        >>> level = Level([[['.'], ['#']]], {'.': 'Floor', '#': 'Wall'})
+        >>> level.is_view_blocker((7, 8))
+        False
+        >>> level.is_view_blocker((0, 0))
+        False
+        >>> level.is_view_blocker((1, 0))
+        True
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            return False
+        for obj in self.level[y][x]:
+            if obj.is_view_blocker():
+                return True
+        return False
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_height(self):
+        """
+        >>> o = {'.': 'Floor', '#': 'Door'}
+        >>> level = Level([[['.'], ['#']], [['.'], ['#']]], o)
+        >>> level.get_height()
+        2
+        """
+        return len(self.level)
 
     def get_level(self):
-        """
-        Returns list of lists
-        """
         return self.level
 
-    def add_object(self, symbol, (x, y)):
+    def get_width(self, y):
         """
-        symbol -- char
-        x, y -- int
+        >>> o = {'.': 'Floor', '#': 'Door'}
+        >>> level = Level([[['.'], ['#']], [['.'], ['#']]], o)
+        >>> level.get_width(1)
+        2
+        >>> level.get_width(7)
+        False
         """
-        self.level[y][x].append(symbol)
-
-    def remove_object(self, symbol, (x, y)):
-        """
-        symbol -- chat
-        x, y -- int
-        """
-        del self.level[y][x][self.level[y][x].index(symbol)]
-
-    def load_objects_data(self):
-        stationary = open('dat/objects/stationary.txt', 'rb').read()
-        self.stationary = {}
-        for line in stationary.split('\n'):
-            if line:
-                symbol, id, is_blocker, view_obstr = line.split('|')
-                self.stationary[symbol] = (id, int(is_blocker),
-                                           int(view_obstr))
-        items = open('dat/objects/items.txt', 'rb').read()
-        self.items = {}
-        for line in items.split('\n'):
-            if line:
-                symbol, id, is_blocker, view_obstr, stationary = \
-                        line.split('|')
-                self.items[symbol] = (id, int(is_blocker),
-                                      int(view_obstr), int(stationary))
-        mobs = open('dat/objects/mobs.txt', 'rb').read()
-        self.mobs = {}
-        for line in mobs.split('\n'):
-            if line:
-                symbol, id = line.split('|')
-                self.mobs[symbol] = (id, )
-
-    def is_blocker(self, (x, y)):
-        """
-        x, y -- int
-        """
-        for symbol in self.level[y][x]:
-            if symbol in self.stationary and self.stationary[symbol][1] or \
-                    symbol in self.items and self.items[symbol][1] or \
-                    symbol in self.mobs:
-                return True
-        return False
-
-    def is_view_obstructor(self, (x, y)):
-        """
-        x, y -- int
-        """
-        for symbol in self.level[y][x]:
-            if symbol in self.stationary and self.stationary[symbol][2] or \
-                    symbol in self.items and self.items[symbol][2]:
-                return True
-        return False
-
-    def can_be_picked_up(self, symbol):
-        """
-        symbol -- char
-        """
-        if symbol in self.items.keys() and not self.items[symbol][3]:
-            return True
-        return False
-
-
-    def get_top_item(self, (x, y)):
-        """
-        x, y -- int
-        """
-        for i in xrange(1, len(self.level[y][x])):
-            i = - i
-            if self.level[y][x][i] in self.items:
-                return self.level[y][x][i]
-        return False
-
-    def get_object_ids(self, (x, y)):
-        """
-        x, y -- int
-
-        Returns list of object IDs
-        """
-        names = []
-        for obj in self.level[y][x]:
-            if obj in self.stationary.keys():
-                names.append(self.stationary[obj][0])
-            if obj in self.items:
-                names.append(self.items[obj][0])
-            if obj in self.mobs:
-                names.append(self.mobs[obj][0])
-        return names
-
-    def get_mob(self, (x, y)):
-        """
-        x, y -- int
-        """
-        for obj in self.level[y][x]:
-            if obj in self.mobs.keys():
-                return self.mobs[obj]
-        return False
-
-    def get_item_name(self, symbol):
-        """
-        symbol -- char
-        """
-        return self.items[symbol][0]
-
-    def _load_stationary(self, name):
-        """
-        name -- filename with relative path and extension
-        """
-        f = open(name, 'rb')
-        level = []
-        length = 0
-        while 1:
-            line = f.readline()
-            if len(line) == 0:
-                break
-            if len(line) > length:
-                length = len(line)
-            line = line[:-1]
-            level.append([])
-            for char in line:
-                level[-1].append([char])
-        for y, line in enumerate(level):
-            if len(line) < length:
-                appendix = [[' '] for i in xrange(0, length - len(line) + 1)]
-                level[y] = line + appendix
-        return level
-
-    def _load_items(self, level, name):
-        """
-        level -- list of lists of lists
-        name -- filename with relative path and extension
-        """
-        f = open(name, 'rb')
-        y = 0
-        while 1:
-            line = f.readline()
-            if len(line) == 0:
-                break
-            line = line[:-1]
-            x = 0
-            for char in line:
-                if char not in self.stationary.keys():
-                    level[y][x].append(char)
-                x += 1
-            y += 1
-        return level
+        if y >= len(self.level):
+            return False
+        return len(self.level[y])

@@ -1,7 +1,7 @@
 import pygame
 
 
-class Display:
+class Display(object):
 
     def __init__(self):
         pygame.init()

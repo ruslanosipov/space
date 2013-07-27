@@ -3,6 +3,12 @@ SEPARATOR_ESC = '\\|'
 
 
 def net_eval(data):
+    """
+    >>> net_eval("{'foo': 'bar'}|")
+    [{'foo': 'bar'}]
+    >>> net_eval("'foo'|'bar'")
+    ['foo', 'bar']
+    """
     data = data.split(DATA_SEPARATOR)
     if not data[:-1]:
         data.pop()
@@ -18,5 +24,9 @@ def net_eval(data):
 
 
 def net_repr(data):
+    """
+    >>> net_repr({'foo': 'bar'})
+    "{'foo': 'bar'}|"
+    """
     data = repr(data).replace(DATA_SEPARATOR, SEPARATOR_ESC)
     return data + DATA_SEPARATOR

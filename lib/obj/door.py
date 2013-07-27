@@ -1,13 +1,36 @@
-from lib.obj.itemtemplate import ItemTemplate
+from lib.obj.stationary import Stationary
 
 
-class Item(ItemTemplate):
+class Door(Stationary):
+
+    def __init__(self, is_open=False):
+        """
+        >>> Door()
+        <class 'Door'>
+        """
+        if is_open:
+            super(Door, self).__init__('/', 'door')
+        else:
+            super(Door, self).__init__('+', 'door', True, True)
 
     def activate(self):
-        if self.symbol == '+':
-            self.symbol = '/'
-            msg = "You open the door"
+        """
+        >>> door = Door(True)
+        >>> door.activate()
+        'You close the door...'
+        >>> door.is_path_blocker()
+        True
+        >>> door.is_view_blocker()
+        True
+        >>> door.get_char()
+        '+'
+        """
+        if self.block_path:
+            self.char = '/'
+            self.block_path, self.block_view = False, False
+            msg = "You open the door..."
         else:
-            self.symbol = '+'
-            msg = "You close the door"
+            self.char = '+'
+            self.block_path, self.block_view = True, True
+            msg = "You close the door..."
         return msg
