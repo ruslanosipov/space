@@ -1,4 +1,4 @@
-# Space v0.1.0-alpha
+# Space v0.2.0-alpha
 
 Space is a multiplayer roguelike game with ship vs ship and crew vs crew
 battles. 
