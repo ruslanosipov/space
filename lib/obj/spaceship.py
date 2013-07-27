@@ -42,7 +42,9 @@ class Spaceship(object):
     def accelerate(self, acceleration):
         """
         >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(1000)
+        >>> spaceship.accelerate(500)
+        >>> spaceship.move()
+        []
         >>> spaceship.move()
         [(0, -1)]
         """
