@@ -16,12 +16,12 @@ class Spaceship(object):
         self.name = name
         self.coords = coords
         self.exterior = exterior
-        self.movement = 0.0
+        self.movement = 0
         self.pointers = [(0, -2), (1, -2), (2, -1), (2, 0), (2, 1), (1, 2),
                         (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
         self.pointer = 0
-        self.speed = 0.0
-        self.speed_max = 1.0
+        self.speed = 0
+        self.speed_max = 10
         self.health = self.health_max = 100
         self.alive = True
         self.interior = None
@@ -41,7 +41,7 @@ class Spaceship(object):
     def accelerate(self, acceleration):
         """
         >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(1.0)
+        >>> spaceship.accelerate(10)
         >>> spaceship.move()
         (0, -1)
         """
@@ -56,15 +56,15 @@ class Spaceship(object):
         Returns relative movement.
 
         >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(0.7)
+        >>> spaceship.accelerate(7)
         >>> spaceship.move()
         (0, 0)
         >>> spaceship.move()
         (0, -1)
         """
         self.movement += self.speed
-        if self.movement >= 1.0:
-            self.movement -= 1.0
+        if self.movement >= 10:
+            self.movement -= 10
             x, y = bresenham.get_line((0, 0), self.pointers[self.pointer])[1]
             return (x, y)
         return (0, 0)
@@ -141,6 +141,9 @@ class Spaceship(object):
 
     def get_spawn_point(self):
         return self.spawn_point
+
+    def get_speed(self):
+        return self.speed
 
     def get_teleport_point(self):
         return self.teleport_point

@@ -81,7 +81,7 @@ class Level5D(object):
             if spaceship:
                 spaceship.receive_damage(projectile.get_damage())
                 if not spaceship.is_alive():
-                    spaceship.accelerate(-1)
+                    spaceship.accelerate(-10)
             if not projectile.is_alive() or spaceship:
                 self.remove_object(coords, projectile)
                 remove.append(i)

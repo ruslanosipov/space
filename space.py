@@ -29,7 +29,7 @@ while True:
     if action and not require_arg:
         client.send(action)
         action = False
-    view_field, chat_msgs, is_pilot = client.receive()[-1]
+    view_field, chat_msgs, is_pilot, status_bar = client.receive()[-1]
     if is_pilot:
         evt_mode = 'pilot'
     view_field = view_field.split('\n')
@@ -63,6 +63,8 @@ while True:
     elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)
 
-    surface = ui.compose(view_field, chat.get_log(), prompt, evt_mode)
+    surface = ui.compose(
+        view_field, chat.get_log(),
+        prompt, evt_mode, status_bar)
     display.draw(surface)
     display.update()

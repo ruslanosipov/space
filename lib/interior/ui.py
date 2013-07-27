@@ -1,11 +1,12 @@
 class UI(object):
 
-    def compose(self, view, chat_log, prompt, evt_mode):
+    def compose(self, view, chat_log, prompt, evt_mode, status_bar):
         """
         view -- list of strings
         chat_log -- list of strings
         prompt -- str
         evt_mode -- str
+        status_bar -- str
 
         Returns list of strings, the "text wall" ready to be rendered
         """
@@ -22,5 +23,6 @@ class UI(object):
             evt_mode = ' ' * 12
         else:
             evt_mode = '-- %s --' % evt_mode[:6].upper()
+        evt_mode += ' %s' % status_bar
         surface.append(evt_mode)
         return surface
