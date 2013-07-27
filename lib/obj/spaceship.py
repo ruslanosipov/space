@@ -16,18 +16,19 @@ class Spaceship(object):
         self.name = name
         self.coords = coords
         self.exterior = exterior
-        self.movement = 0
         self.pointers = [(0, -2), (1, -2), (2, -1), (2, 0), (2, 1), (1, 2),
                         (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
         self.pointer = 0
         self.speed = 0
-        self.speed_max = 10
+        self.speed_max = 500
+        self.inertia = {}
         self.health = self.health_max = 100
         self.alive = True
         self.interior = None
         self.players = []
         self.spawn_point = (0, 0)
         self.teleport_point = None
+        self.control = 5
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -41,9 +42,9 @@ class Spaceship(object):
     def accelerate(self, acceleration):
         """
         >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(10)
+        >>> spaceship.accelerate(1000)
         >>> spaceship.move()
-        (0, -1)
+        [(0, -1)]
         """
         self.speed += acceleration
         if self.speed < 0:
@@ -56,18 +57,31 @@ class Spaceship(object):
         Returns relative movement.
 
         >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(7)
+        >>> spaceship.accelerate(700)
         >>> spaceship.move()
-        (0, 0)
+        []
         >>> spaceship.move()
-        (0, -1)
+        [(0, -1)]
         """
-        self.movement += self.speed
-        if self.movement >= 10:
-            self.movement -= 10
-            x, y = bresenham.get_line((0, 0), self.pointers[self.pointer])[1]
-            return (x, y)
-        return (0, 0)
+        directions = []
+        if self.pointer not in self.inertia.keys():
+            self.inertia[self.pointer] = [self.speed, self.speed, 0]
+        for pointer, (speed, inertia, movement) in self.inertia.items():
+            speed = self.speed if pointer == self.pointer else 0
+            self.inertia[pointer][0] = speed
+            if inertia > speed:
+                inertia -= self.control
+            elif inertia < speed:
+                inertia += self.control
+            self.inertia[pointer][1] = inertia
+            movement += inertia
+            if movement >= 1000:
+                movement -= 1000
+                path = bresenham.get_line((0, 0), self.pointers[pointer])
+                x, y = path[1]
+                directions.append((x, y))
+            self.inertia[pointer][2] = movement
+        return directions
 
     def rotate_pointer(self, reverse=False):
         """
