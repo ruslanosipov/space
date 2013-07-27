@@ -32,7 +32,8 @@ class Level(object):
                     try:
                         module = name.lower()
                         exec("from lib.obj.%s import %s" % (module, name))
-                        exec("obj = %s()" % name)
+                        f = eval(name)
+                        obj = f()
                         try:
                             obj.set_coords((x, y))
                         except AttributeError:

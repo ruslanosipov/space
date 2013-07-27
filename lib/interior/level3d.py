@@ -1,4 +1,5 @@
 from lib.level import Level
+from lib.obj.space import Space
 
 
 class Level3D(Level):
@@ -10,6 +11,7 @@ class Level3D(Level):
         self.spaceship = spaceship
         self._load_level(level_definition, obj_definitions)
         self.players = []
+        self.extra_tiles = {}
 
     #--------------------------------------------------------------------------
     # bulk object accessors
@@ -80,6 +82,25 @@ class Level3D(Level):
     def remove_player(self, player):
         self.players.remove(player)
         self.remove_object(player.get_coords(), player)
+
+    #--------------------------------------------------------------------------
+    # bulk object accessors
+
+    def get_objects(self, (x, y)):
+        """
+        >>> level = Level3D([[['.', '+']]], {'.': 'Floor', '+': 'Door'})
+        >>> level.get_objects((0, 0))
+        [<class 'Floor'>, <class 'Door'>]
+        >>> level.get_objects((7, 9))
+        [<class 'Space'>]
+        """
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            if (x, y) not in self.extra_tiles.keys():
+                self.extra_tiles[(x, y)] = Space()
+            return [self.extra_tiles[(x, y)]]
+        if len(self.level[y][x]):
+            return self.level[y][x]
+        return False
 
     #--------------------------------------------------------------------------
     # accessors

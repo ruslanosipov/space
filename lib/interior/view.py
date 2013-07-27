@@ -23,11 +23,9 @@ class InteriorView(View):
                 line = [' ' for _ in xrange(0, r * 2 + 1)]
                 view.append(line)
         for y in xrange(y0 - r, y0 + r + 1):
-            if y0 - eyesight <= y <= y0 + eyesight \
-                    and l.get_height() >= y + 1 and y >= 0:
+            if y0 - eyesight <= y <= y0 + eyesight:
                 for x in xrange(x0 - r, x0 + r + 1):
-                    if (x0 - eyesight <= x <= x0 + eyesight) \
-                            and l.get_width(y) >= x + 1 and x >= 0:
+                    if (x0 - eyesight <= x <= x0 + eyesight):
                         line = bresenham.get_line((x0, y0), (x, y))
                         is_blocker = False
                         for (ix, iy) in line:
