@@ -81,7 +81,7 @@ class Level5D(object):
             if spaceship:
                 spaceship.receive_damage(projectile.get_damage())
                 if not spaceship.is_alive():
-                    spaceship.accelerate(-1)
+                    spaceship.accelerate(-10)
             if not projectile.is_alive() or spaceship:
                 self.remove_object(coords, projectile)
                 remove.append(i)
@@ -89,12 +89,13 @@ class Level5D(object):
             [p for i, p in enumerate(self.projectiles) if i not in remove]
         for spaceship in self.spaceships:
             coords = spaceship.get_coords()
-            dx, dy = spaceship.move()
-            if (dx, dy) != (0, 0):
-                p, q, x, y = coords
-                coords = self._validate_coordinates(p, q, x + dx, y + dy)
-                spaceship.set_coords(coords)
-                self.move_object((p, q, x, y), coords, spaceship)
+            directions = spaceship.move()
+            for (dx, dy) in directions:
+                if (dx, dy) != (0, 0):
+                    p, q, x, y = coords
+                    coords = self._validate_coordinates(p, q, x + dx, y + dy)
+                    spaceship.set_coords(coords)
+                    self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
     # object operations

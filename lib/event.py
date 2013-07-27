@@ -74,9 +74,9 @@ def get(mode='normal'):
                 if evt.key == pygame.K_RIGHT:
                     return (mode, 'rotate', 0)
                 if evt.key == pygame.K_UP:
-                    return (mode, 'accelerate', 0.1)
+                    return (mode, 'accelerate', 100)
                 if evt.key == pygame.K_DOWN:
-                    return (mode, 'accelerate', -0.1)
+                    return (mode, 'accelerate', -100)
                 if evt.unicode == 'f':
                     return (mode, 'ext_fire', 1)
         if mode == 'insert':

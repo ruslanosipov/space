@@ -79,7 +79,7 @@ try:
                 elif evt == 'rotate':
                     spaceship.rotate_pointer(int(arg))
                 elif evt == 'accelerate':
-                    spaceship.accelerate(float(arg))
+                    spaceship.accelerate(arg)
                 elif evt == 'ext_fire':
                     misc.exterior_fire(
                         spaceship.get_coords(),
@@ -107,7 +107,7 @@ try:
             player = players[s]
             spaceship = player.get_interior().get_spaceship()
             int_radius = 11
-            ext_radius = 12
+            ext_radius = 11
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
                 view = view.generate(
@@ -115,17 +115,20 @@ try:
                     int_radius,
                     player.get_sight(),
                     player.get_target())
+                status_bar = ""
             else:
                 view = ext_view.generate(
                     spaceship.get_coords(),
                     ext_radius,
                     ext_radius,
                     spaceship.get_abs_pointer())
+                status_bar = "SPD: %s" % spaceship.get_speed()
             chat_log = chat.get_recent(player.get_name())
             new_data[s] = (
                 '\n'.join(view),
                 '\n'.join(chat_log),
-                player.is_pilot())
+                player.is_pilot(),
+                status_bar)
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)
         server.send()
