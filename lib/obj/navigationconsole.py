@@ -27,5 +27,8 @@ class NavigationConsole(Stationary):
         msg = "You are piloting the spaceship now..."
         return msg
 
+    #--------------------------------------------------------------------------
+    # accessors
+
     def set_player(self, player=None):
         self.player = player

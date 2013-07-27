@@ -5,7 +5,7 @@ from ConfigParser import ConfigParser
 from lib.chatclient import ChatClient
 from lib.client import Client
 from lib.display import Display
-from lib.interior.ui import UI
+from lib.ui import UI
 from lib import event
 
 config = ConfigParser()

@@ -43,11 +43,6 @@ class Level5D(object):
                 if (x, y) not in self.levels.keys():
                     self.levels[(x, y)] = RandomLevel(25)
 
-    def teleport_player(self, player, receiver, sender):
-        sender.get_interior().remove_player(player)
-        receiver.get_interior().add_player(
-            player, receiver.get_teleport_point())
-
     #--------------------------------------------------------------------------
     # update
 
@@ -162,6 +157,11 @@ class Level5D(object):
         [<class 'Space'>]
         """
         return self.levels[(p, q)].remove_object((x, y), obj)
+
+    def teleport_player(self, player, receiver, sender):
+        sender.get_interior().remove_player(player)
+        receiver.get_interior().add_player(
+            player, receiver.get_teleport_point())
 
     #--------------------------------------------------------------------------
     # bulk object accessors
