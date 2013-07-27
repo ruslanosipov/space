@@ -99,7 +99,7 @@ try:
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
                 if msg is not None:
-                    chat.add_single(player.get_name(), msg)
+                    chat.add_single(player, msg)
         # Let the world process one step
         ext_level.update()
         # Generate views for players
@@ -123,7 +123,7 @@ try:
                     ext_radius,
                     spaceship.get_abs_pointer())
                 status_bar = "SPD: %s" % spaceship.get_speed()
-            chat_log = chat.get_recent(player.get_name())
+            chat_log = chat.get_recent(player)
             new_data[s] = (
                 '\n'.join(view),
                 '\n'.join(chat_log),

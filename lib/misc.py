@@ -118,7 +118,7 @@ def interior_fire(player, level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile.get_name(), hostile_msg)
+        chat.add_single(hostile, hostile_msg)
     else:
         msg = 'Target is not set...'
     return msg
@@ -162,7 +162,6 @@ def move(player, (x, y), level, chat):
     """
     msg = None
     hostile = level.get_player((x, y))
-    # TODO: Change ChatServer() behavior
     if not level.is_path_blocker((x, y)):
         level.move_object(player.get_coords(), (x, y), player)
         player.set_coords((x, y))
@@ -176,7 +175,7 @@ def move(player, (x, y), level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile.get_name(), hostile_msg)
+        chat.add_single(hostile, hostile_msg)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:

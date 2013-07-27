@@ -18,10 +18,13 @@ class ChatServer(object):
         """
         Returns list of latest chat messages
 
+        >>> from lib.obj.player import Player
         >>> chat = ChatServer()
-        >>> chat.add_single('foo', 'bar')
-        >>> chat.get_recent('foo')
-        ['bar']
+        >>> player = Player('Mike')
+        >>> chat.add_single(player, 'bar')
+        >>> chat.add_single('all', 'foo')
+        >>> chat.get_recent(player)
+        ['bar', 'foo']
 
         recipient -- str, who reads the log
         """
@@ -39,9 +42,11 @@ class ChatServer(object):
         """
         Add single message to chat log meant for recepient.
 
+        >>> from lib.obj.player import Player
         >>> chat = ChatServer()
-        >>> chat.add_single('foo', 'bar')
-        >>> chat.get_recent('foo')
+        >>> player = Player('Mike')
+        >>> chat.add_single(player, 'bar')
+        >>> chat.get_recent(player)
         ['bar']
         """
         if len(self.log) > 1000:
