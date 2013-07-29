@@ -9,4 +9,3 @@ class Glass(Tile):
         <class 'Glass'>
         """
         super(Glass, self).__init__('0', 'glass', True, False)
-        self.set_color((102, 255, 204))

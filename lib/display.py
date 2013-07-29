@@ -20,12 +20,8 @@ class Display(object):
         """
         self.window.fill((0, 0, 0))
         for i, line in enumerate(view):
-            line_len = 0
-            for (charset, color) in line:
-                surface = self.font.render(charset, True, color, (0, 0, 0))
-                width = (line_len) * self.symbol_width
-                self.window.blit(surface, (width, i * self.symbol_height))
-                line_len += len(charset)
+            surface = self.font.render(line, True, (255, 255, 255), (0, 0, 0))
+            self.window.blit(surface, (0, i * self.symbol_height))
 
     def update(self):
         pygame.display.update()

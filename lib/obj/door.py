@@ -12,7 +12,6 @@ class Door(Stationary):
             super(Door, self).__init__('/', 'door')
         else:
             super(Door, self).__init__('+', 'door', True, True)
-        self.set_color((255, 204, 102))
 
     def activate(self):
         """

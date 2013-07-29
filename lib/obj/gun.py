@@ -9,4 +9,3 @@ class Gun(Item):
         <class 'Gun'>
         """
         super(Gun, self).__init__('}', 'gun')
-        self.set_color((190, 190, 190))

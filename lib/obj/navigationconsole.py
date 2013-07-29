@@ -13,7 +13,6 @@ class NavigationConsole(Stationary):
             'navigation console',
             True)
         self.player = None
-        self.set_color((0, 0, 204))
 
     def activate(self):
         """

@@ -29,7 +29,6 @@ class Spaceship(object):
         self.spawn_point = (0, 0)
         self.teleport_point = None
         self.control = 5
-        self.color = (255, 255, 255)
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -147,9 +146,6 @@ class Spaceship(object):
     def get_coords(self):
         return self.coords
 
-    def get_color(self):
-        return self.color
-
     def get_exterior(self):
         return self.exterior
 
@@ -176,9 +172,6 @@ class Spaceship(object):
 
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)
-
-    def set_color(self, color):
-        self.color = color
 
     def set_spawn_point(self, (x, y)):
         self.spawn_point = (x, y)

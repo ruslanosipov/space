@@ -12,17 +12,17 @@ class UI(object):
         """
         surface = []
         for i, line in enumerate(view):
-            line.append(['|', (255, 255, 255)])
+            line += '|'
             if len(chat_log) >= i + 1:
-                line.append([chat_log[i], (255, 255, 255)])
+                line += chat_log[i]
             if i == len(view) - 1:
-                line.append(['> ' + prompt, (255, 255, 255)])
+                line += '> ' + prompt
             surface.append(line)
-        surface.append([['-' * 23 + '+' + '-' * 56, (255, 255, 255)]])
+        surface.append('-' * 23 + '+' + '-' * 56)
         if evt_mode == 'normal':
             evt_mode = ' ' * 12
         else:
             evt_mode = '-- %s --' % evt_mode[:6].upper()
         evt_mode += ' %s' % status_bar
-        surface.append([[evt_mode, (255, 255, 255)]])
+        surface.append(evt_mode)
         return surface

@@ -12,4 +12,3 @@ class Corpse(Stationary):
             'corpse of Mike'
             """
             super(Corpse, self).__init__('%', "corpse of %s" % name)
-            self.set_color((255, 153, 102))
