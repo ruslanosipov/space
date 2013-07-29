@@ -125,7 +125,7 @@ try:
                 status_bar = "SPD: %s" % spaceship.get_speed()
             chat_log = chat.get_recent(player)
             new_data[s] = (
-                '\n'.join(view),
+                view,
                 '\n'.join(chat_log),
                 player.is_pilot(),
                 status_bar)

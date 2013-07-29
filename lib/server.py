@@ -13,7 +13,7 @@ class Server(object):
         self.host = ''
         self.port = port
         self.backlog = 5
-        self.size = 8192
+        self.size = 16384
         self.inp = []
         self.out = []
         self.err = []

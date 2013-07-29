@@ -32,7 +32,6 @@ while True:
     view_field, chat_msgs, is_pilot, status_bar = client.receive()[-1]
     if is_pilot:
         evt_mode = 'pilot'
-    view_field = view_field.split('\n')
     chat_msgs = chat_msgs.split('\n')
     if len(chat_msgs[0]):
         chat.add_multiple(chat_msgs)

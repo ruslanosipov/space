@@ -12,7 +12,7 @@ class Client(object):
         """
         self.host = host
         self.port = port
-        self.size = 8192
+        self.size = 16384
         self.connect()
 
     def connect(self):
