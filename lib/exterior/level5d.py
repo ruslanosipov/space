@@ -116,9 +116,10 @@ class Level5D(object):
         """
         # TODO: validate coordinates
         projectile = Projectile(pointer, dmg, spd, rng)
-        projectile.set_coords((p, q, x, y))
+        dx, dy = projectile.get_direction()
+        projectile.set_coords((p, q, x + dx, y + dy))
         self.projectiles.append(projectile)
-        self.add_object((p, q, x, y), projectile)
+        self.add_object((p, q, x + dx, y + dy), projectile)
 
     def add_spaceship(self, name, coords):
         """

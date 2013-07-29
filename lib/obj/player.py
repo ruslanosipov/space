@@ -13,6 +13,7 @@ class Player(Mob):
         self.target = None
         self.pilot = False
         self.interior = None
+        self.set_color((255, 122, 202))
 
     def inventory_add(self, item):
         """

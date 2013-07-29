@@ -9,6 +9,7 @@ class Console(Stationary):
         <class 'Console'>
         """
         super(Console, self).__init__('c', 'console', True)
+        self.set_color((153, 51, 51))
 
     def activate(self):
         """

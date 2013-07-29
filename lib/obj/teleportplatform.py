@@ -13,6 +13,7 @@ class TeleportPlatform(Stationary):
         """
         super(TeleportPlatform, self).__init__('T', 'teleport platform')
         self.player = None
+        self.set_color((0, 51, 153))
 
     def activate(self):
         """
