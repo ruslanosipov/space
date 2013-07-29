@@ -280,4 +280,4 @@ def exterior_fire(coords, pointer, level):
     >>> s = Spaceship('@', 'USS Enterprise', (0, 0, 0, 0))
     >>> exterior_fire(s.get_coords(), s.get_pointer(), Level5D())
     """
-    level.add_projectile(coords, pointer, 50, 1.0, 10)
+    level.add_projectile(coords, pointer, 50, 1000, 10)

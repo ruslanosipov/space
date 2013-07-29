@@ -49,7 +49,7 @@ class Level5D(object):
     def update(self):
         """
         >>> level = Level5D()
-        >>> level.add_projectile((0, 0, 12, 13), (2, 0), 100, 0.8, 2)
+        >>> level.add_projectile((0, 0, 12, 13), (2, 0), 100, 800, 2)
         >>> _ = level.add_spaceship('USS Enterprise', (0, 0, 13, 13))
         >>> level.get_objects((0, 0, 12, 13))
         [<class 'Space'>, <class 'Projectile'>]
@@ -70,7 +70,6 @@ class Level5D(object):
                 p, q, x, y = coords
                 coords = self._validate_coordinates(p, q, x + dx, y + dy)
                 projectile.set_coords(coords)
-                self.projectiles.append(projectile)
                 self.move_object((p, q, x, y), coords, projectile)
             spaceship = self.get_spaceship(coords)
             if spaceship:
@@ -100,7 +99,7 @@ class Level5D(object):
         """
         >>> level = Level5D()
         >>> from lib.obj.projectile import Projectile
-        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> projectile = Projectile((0, 2), 7, 10, 700)
         >>> level.add_object((0, 0, 0, 0), projectile)
         >>> level.get_objects((0, 0, 0, 0))
         [<class 'Space'>, <class 'Projectile'>]
@@ -110,7 +109,7 @@ class Level5D(object):
     def add_projectile(self, (p, q, x, y), pointer, dmg, spd, rng):
         """
         >>> level = Level5D()
-        >>> level.add_projectile((0, 0, 1, 1), (-2, 0), 17, 0.7, 4)
+        >>> level.add_projectile((0, 0, 1, 1), (-2, 0), 17, 700, 4)
         >>> level.get_objects((0, 0, 1, 1))
         [<class 'Space'>, <class 'Projectile'>]
         """
@@ -134,7 +133,7 @@ class Level5D(object):
         """
         >>> level = Level5D()
         >>> from lib.obj.projectile import Projectile
-        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> projectile = Projectile((0, 2), 7, 10, 700)
         >>> level.add_object((0, 0, 0, 0), projectile)
         >>> level.move_object((0, 0, 0, 0), (0, 0, 1, 1), projectile)
         >>> level.get_objects((0, 0, 1, 1))
@@ -148,7 +147,7 @@ class Level5D(object):
         """
         >>> level = Level5D()
         >>> from lib.obj.projectile import Projectile
-        >>> projectile = Projectile((0, 2), 7, 10, 0.7)
+        >>> projectile = Projectile((0, 2), 7, 10, 700)
         >>> level.add_object((0, 0, 0, 0), projectile)
         >>> level.get_objects((0, 0, 0, 0))
         [<class 'Space'>, <class 'Projectile'>]
