@@ -5,7 +5,7 @@ class Projectile:
 
     def __init__(self, direction, damage, speed, lifespan):
         """
-        >>> Projectile((-2, 0), 8, 10, 0.8)
+        >>> Projectile((-2, 0), 8, 800, 10)
         <class 'Projectile'>
         """
         self.char = '*'
@@ -15,7 +15,7 @@ class Projectile:
         self.lifespan = lifespan
         self.damage = damage
         self.speed = speed
-        self.movement = 0.0
+        self.movement = 0
         self.alive = True
         self.coords = (0, 0, 0, 0)
 
@@ -27,7 +27,7 @@ class Projectile:
         Move projectile by self.speed. Return True if object changes
         coordinates, False otherwise.
 
-        >>> projectile = Projectile((1, 1), 10, 0.8, 2)
+        >>> projectile = Projectile((1, 1), 10, 800, 2)
         >>> projectile.move()
         (0, 0)
         >>> projectile.move()
@@ -38,9 +38,9 @@ class Projectile:
         False
         """
         self.movement += self.speed
-        if self.movement >= 1.0:
+        if self.movement >= 1000:
             self.lifestep += 1
-            self.movement -= 1.0
+            self.movement -= 1000
             if self.lifestep >= self.lifespan:
                 self.alive = False
             self._increment_position
