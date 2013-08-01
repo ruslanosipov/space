@@ -1,13 +1,13 @@
-+|(255, 255, 255)|Door
-/|(255, 255, 255)|Door
-%|(255, 255, 255)|Corpse
-}|(255, 255, 255)|Gun
-c|(255, 255, 255)|Console
-@|(255, 255, 255)|Player
++|(160,  82,  45)|Door
+/|(160,  82,  45)|Door
+%|(233, 150, 122)|Corpse
+}|(105, 105, 105)|Gun
+c|(  0,   0, 205)|Console
+@|(147, 112, 219)|Player
  |(255, 255, 255)|Space
-#|(100, 100, 100)|Wall
-.|(100, 100, 100)|Floor
-0|(255, 255, 255)|Glass
-n|(255, 255, 255)|NavigationConsole
-T|(255, 255, 255)|TeleportPlatform
+#|(165,  42,  42)|Wall
+.|(165,  42,  42)|Floor
+0|( 70, 130, 180)|Glass
+n|(  0,   0, 205)|NavigationConsole
+T|( 72,  61, 139)|TeleportPlatform
 x|(255,   0,   0)|target
