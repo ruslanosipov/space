@@ -39,12 +39,12 @@ def exterior_with_adjacent_spaceships():
         name='Galactica',
         coords=(0, 0, 0, 0))
     galactica.load_interior(level_definition, obj_definitions)
-    galactica.get_interior().add_player(Player('Mike'), (0, 0))
+    galactica.get_interior().add_player((0, 0), Player('Mike'))
     enterprise = exterior.add_spaceship(
         name='Enterprise',
         coords=(0, 0, 1, 0))
     enterprise.load_interior(level_definition, obj_definitions)
-    enterprise.get_interior().add_player(Player('Josh'), (0, 0))
+    enterprise.get_interior().add_player((0, 0), Player('Josh'))
 
     return exterior
 
@@ -75,6 +75,6 @@ def spaceship_with_two_players():
         '.': 'Floor',
         '+': 'Door'}
     galactica.load_interior(level_definition, obj_definitions)
-    galactica.get_interior().add_player(Player('Mike'), (0, 0))
-    galactica.get_interior().add_player(Player('Josh'), (1, 1))
+    galactica.get_interior().add_player((0, 0), Player('Mike'))
+    galactica.get_interior().add_player((1, 1), Player('Josh'))
     return galactica

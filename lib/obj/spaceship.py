@@ -29,7 +29,7 @@ class Spaceship(object):
         self.spawn_point = (0, 0)
         self.teleport_point = None
         self.control = 5
-        self.color = (255, 255, 255)
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -143,6 +143,9 @@ class Spaceship(object):
     def is_alive(self):
         return self.alive
 
+    def is_default_color(self):
+        return self.default_color
+
     def get_char(self):
         return self.char
 
@@ -177,6 +180,7 @@ class Spaceship(object):
         return self.view
 
     def set_color(self, color):
+        self.default_color = False
         self.color = color
 
     def set_coords(self, (p, q, x, y)):

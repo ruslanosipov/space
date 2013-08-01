@@ -110,14 +110,14 @@ try:
             ext_radius = 11
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
-                view = view.generate(
+                view, colors = view.generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),
                     player.get_target())
                 status_bar = ""
             else:
-                view = ext_view.generate(
+                view, colors = ext_view.generate(
                     spaceship.get_coords(),
                     ext_radius,
                     ext_radius,

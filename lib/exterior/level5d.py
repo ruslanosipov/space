@@ -161,7 +161,7 @@ class Level5D(object):
     def teleport_player(self, player, receiver, sender):
         sender.get_interior().remove_player(player)
         receiver.get_interior().add_player(
-            player, receiver.get_teleport_point())
+            receiver.get_teleport_point(), player)
 
     #--------------------------------------------------------------------------
     # bulk object accessors

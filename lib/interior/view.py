@@ -9,7 +9,7 @@ class InteriorView(View):
 
     def generate(self, (x0, y0), r, sight, pointer=None):
         l = self.level
-        view = []
+        view, colors = [], {}
         for _ in xrange(0, r * 2 + 1):
                 line = [' ' for _ in xrange(0, r * 2 + 1)]
                 view.append(line)
@@ -26,8 +26,10 @@ class InteriorView(View):
                             elif not is_blocker and view[ny][nx] == ' ':
                                 obj = l.get_objects((ix, iy))[-1]
                                 view[ny][nx] = obj.get_char()
+                                if not obj.is_default_color():
+                                    colors[(nx, ny)] = obj.get_color()
                             if l.is_view_blocker((ix, iy)):
                                 is_blocker = True
         for y, line in enumerate(view):
             view[y] = ''.join(line)
-        return view
+        return view, colors

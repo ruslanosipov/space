@@ -29,19 +29,19 @@ def load_interior_level(tiles_map, items_map):
 
 def load_obj_definitions(txt, separator='|'):
     r"""
-    >>> txt = '.|Floor\n#|Wall'
+    >>> txt = '.|(255, 255, 255)|Floor\n#|(255, 255, 255)|Wall'
     >>> d = load_obj_definitions(txt)
     >>> d['.']
     'Floor'
     >>> d['#']
     'Wall'
     """
-    obj_definitions = []
+    obj_defs = {}
     for line in txt.split('\n'):
         if line:
-            obj_definitions.append(line.split(separator))
-    obj_definitions = dict((char, name) for char, name in obj_definitions)
-    return obj_definitions
+            char, color, name = line.split(separator)
+            obj_defs[char] = name
+    return obj_defs
 
 #------------------------------------------------------------------------------
 # player (interior)
@@ -85,7 +85,7 @@ def add_player(name, spaceship, coords=None):
     player = Player(name)
     if coords is None:
         coords = spaceship.get_spawn_point()
-    spaceship.get_interior().add_player(player, coords)
+    spaceship.get_interior().add_player(coords, player)
     return player
 
 
@@ -272,7 +272,7 @@ def add_spaceship(name, coords, spawn, exterior):
     tiles_map = open('dat/maps/%s_tiles.txt' % name.lower(), 'rb').read()
     items_map = open('dat/maps/%s_items.txt' % name.lower(), 'rb').read()
     level_definition = load_interior_level(tiles_map, items_map)
-    txt = open('dat/obj_definitions.txt', 'rb').read()
+    txt = open('dat/obj_defs.txt', 'rb').read()
     obj_definitions = load_obj_definitions(txt)
     spaceship = exterior.add_spaceship(name, coords)
     spaceship.load_interior(level_definition, obj_definitions)

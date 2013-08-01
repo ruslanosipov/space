@@ -12,6 +12,7 @@ class Mob(object):
         self.health = self.health_max = 100
         self.coords = (0, 0)
         self.level = None
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -35,6 +36,9 @@ class Mob(object):
 
     def is_alive(self):
         return self.alive
+
+    def is_default_color(self):
+        return self.default_color
 
     def is_path_blocker(self):
         return True
@@ -61,6 +65,7 @@ class Mob(object):
         return self.sight
 
     def set_color(self, color):
+        self.default_color = False
         self.color = color
 
     def set_coords(self, (x, y)):

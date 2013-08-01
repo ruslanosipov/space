@@ -18,7 +18,7 @@ class Projectile:
         self.movement = 0.0
         self.alive = True
         self.coords = (0, 0, 0, 0)
-        self.color = (255, 255, 255)
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -60,6 +60,9 @@ class Projectile:
     def is_alive(self):
         return self.alive
 
+    def is_default_color(self):
+        return self.default_color
+
     def get_color(self):
         return self.color
 
@@ -73,6 +76,7 @@ class Projectile:
         return self.damage
 
     def set_color(self, color):
+        self.default_color = False
         self.color = color
 
     def set_coords(self, (p, q, x, y)):

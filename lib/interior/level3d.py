@@ -91,7 +91,7 @@ class Level3D(Level):
     #--------------------------------------------------------------------------
     # object operations
 
-    def add_player(self, player, (x, y)):
+    def add_player(self, (x, y), player):
         self.players.append(player)
         self.add_object((x, y), player)
 
