@@ -7,11 +7,30 @@ class Level3D(Level):
     The interior Level class.
     """
 
-    def __init__(self, level_definition, obj_definitions, spaceship=None):
-        self.spaceship = spaceship
-        self._load_level(level_definition, obj_definitions)
+    #--------------------------------------------------------------------------
+    # setup
+
+    def __init__(self):
         self.players = []
         self.extra_tiles = {}
+        self.spaceship = None
+
+    def load_char_map(self, tiles_map, items_map, obj_defs):
+        char_map = self._convert_char_map(tiles_map, items_map)
+        self._load_level(char_map, obj_defs)
+
+    def load_converted_char_map(self, char_map, obj_defs):
+        self._load_level(char_map, obj_defs)
+
+    def _convert_char_map(self, tiles_map, items_map):
+        char_map = []
+        for y, line in enumerate(tiles_map):
+            char_map.append([])
+            for x, tile in enumerate(line):
+                char_map[y].append([tile])
+                if items_map[y][x] != tile:
+                    char_map[y][x].append(items_map[y][x])
+        return char_map
 
     #--------------------------------------------------------------------------
     # bulk object accessors
@@ -20,7 +39,8 @@ class Level3D(Level):
         """
         >>> o = {'.': 'Floor'}
         >>> l = [[['.'], ['.']], [['.'], ['.']], [['.'], ['.']]]
-        >>> level = Level3D(l, o)
+        >>> level = Level3D()
+        >>> level.load_converted_char_map(l, o)
         >>> from lib.obj.player import Player
         >>> mike = Player('Mike')
         >>> josh = Player('Josh')
@@ -49,7 +69,8 @@ class Level3D(Level):
 
     def get_player(self, (x, y)):
         """
-        >>> level = Level3D([[['.'], ['.']]], {'.': 'Floor'})
+        >>> level = Level3D()
+        >>> level.load_converted_char_map([[['.'], ['.']]], {'.': 'Floor'})
         >>> from lib.obj.player import Player
         >>> mike = Player('Mike')
         >>> level.add_object((0, 0), mike)
@@ -88,7 +109,9 @@ class Level3D(Level):
 
     def get_objects(self, (x, y)):
         """
-        >>> level = Level3D([[['.', '+']]], {'.': 'Floor', '+': 'Door'})
+        >>> level = Level3D()
+        >>> level.load_converted_char_map([[['.', '+']]],
+        ...                               {'.': 'Floor', '+': 'Door'})
         >>> level.get_objects((0, 0))
         [<class 'Floor'>, <class 'Door'>]
         >>> level.get_objects((7, 9))
@@ -110,3 +133,6 @@ class Level3D(Level):
 
     def get_spaceship(self):
         return self.spaceship
+
+    def set_spaceship(self, spaceship):
+        self.spaceship = spaceship

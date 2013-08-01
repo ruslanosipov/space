@@ -50,7 +50,9 @@ def load_obj_definitions(txt, separator='|'):
 def activate_obj((x, y), level, player=None):
     """
     >>> from lib.interior.level3d import Level3D
-    >>> level = Level3D([[['.', '+'], ['.']]], {'.': 'Floor', '+': 'Door'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', '+'], ['.']]],
+    ...                               {'.': 'Floor', '+': 'Door'})
     >>> activate_obj((0, 0), level)
     'You open the door...'
     >>> activate_obj((1, 0), level)
@@ -95,7 +97,8 @@ def interior_fire(player, level, chat):
     >>> chat = ChatServer()
     >>> player = Player('Mike')
     >>> hostile = Player('Josh')
-    >>> level = Level3D([[['.'], ['.']]], {'.': 'Floor'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.'], ['.']]], {'.': 'Floor'})
     >>> level.add_object((0, 0), player)
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
@@ -188,7 +191,9 @@ def move(player, (x, y), level, chat):
 def look((x, y), level):
     """
     >>> from lib.interior.level3d import Level3D
-    >>> level = Level3D([[['.', 'c']]], {'.': 'Floor', 'c': 'Console'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', 'c']]],
+    ...                               {'.': 'Floor', 'c': 'Console'})
     >>> look((0, 0), level)
     'You see: console, floor.'
     """
@@ -205,7 +210,9 @@ def pick_up_obj(player, (x, y), level):
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
     >>> player = Player('Mike')
-    >>> level = Level3D([[['.', '}'], ['.']]], {'.': 'Floor', '}': 'Gun'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', '}'], ['.']]],
+    ...                               {'.': 'Floor', '}': 'Gun'})
     >>> pick_up_obj(player, (0, 0), level)
     'You pick up a gun...'
     >>> pick_up_obj(player, (1, 0), level)
@@ -231,7 +238,8 @@ def set_target(player, level):
     >>> from lib.obj.player import Player
     >>> player = Player('Mike')
     >>> l = [[['.'], ['.']], [['.'], ['.']]]
-    >>> level = Level3D(l, {'.': 'Floor'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map(l, {'.': 'Floor'})
     >>> level.add_object((0, 0), player)
     >>> set_target(player, level)
     'No suitable target found...'

@@ -45,6 +45,9 @@ class Mob(object):
     def get_char(self):
         return self.char
 
+    def get_color(self):
+        return self.color
+
     def get_coords(self):
         return self.coords
 
@@ -56,6 +59,9 @@ class Mob(object):
 
     def get_sight(self):
         return self.sight
+
+    def set_color(self, color):
+        self.color = color
 
     def set_coords(self, (x, y)):
         self.coords = (x, y)
