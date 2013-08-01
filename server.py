@@ -126,6 +126,7 @@ try:
             chat_log = chat.get_recent(player)
             new_data[s] = (
                 '\n'.join(view),
+                colors,
                 '\n'.join(chat_log),
                 player.is_pilot(),
                 status_bar)
