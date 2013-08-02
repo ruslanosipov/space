@@ -43,7 +43,12 @@ class Player(Mob):
         return self.target
 
     def set_pilot(self):
-        self.pilot = False if self.pilot else True
+        if self.pilot:
+            self.pilot = False
+            self.get_interior().get_spaceship().set_pilot()
+        else:
+            self.pilot = True
+            self.get_interior().get_spaceship().set_pilot(self)
 
     def set_interior(self, interior=None):
         self.interior = interior

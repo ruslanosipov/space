@@ -30,6 +30,7 @@ class Spaceship(object):
         self.teleport_point = None
         self.control = 5
         self.default_color = True
+        self.pilot = None
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -130,6 +131,8 @@ class Spaceship(object):
         """
         self.health -= damage
         if self.health <= 0:
+            if self.get_pilot():
+                self.get_pilot().set_pilot()
             self.alive = False
 
     #--------------------------------------------------------------------------
@@ -164,6 +167,9 @@ class Spaceship(object):
     def get_name(self):
         return self.name
 
+    def get_pilot(self):
+        return self.pilot
+
     def get_spawn_point(self):
         return self.spawn_point
 
@@ -185,6 +191,9 @@ class Spaceship(object):
 
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)
+
+    def set_pilot(self, player=None):
+        self.pilot = player
 
     def set_spawn_point(self, (x, y)):
         self.spawn_point = (x, y)
