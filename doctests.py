@@ -3,6 +3,7 @@
 import unittest
 import doctest
 import os
+import sys
 
 
 files = []
@@ -25,4 +26,6 @@ for module in files:
         suite.addTest(doctest.DocTestSuite(module))
     except ValueError:
         pass
-unittest.TextTestRunner(verbosity=1).run(suite)
+result = unittest.TextTestRunner(verbosity=1).run(suite)
+if not result.wasSuccessful():
+    sys.exit(1)
