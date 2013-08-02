@@ -20,12 +20,18 @@ client = Client(host, port)
 display = Display()
 ui = UI()
 
-obj_defs, colors = open('dat/obj_defs.txt', 'rb').read().split('\n'), {}
+int_colors, ext_colors = {}, {}
+obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
 for line in obj_defs:
     if len(line):
-        (char, color, _) = line.split('|')
-        colors[char] = eval(color)
-ui.set_default_colors(colors)
+        char, color = line.split('|')
+        int_colors[char] = eval(color)
+obj_defs = open('dat/ext_obj_colors.txt', 'rb').read().split('\n')
+for line in obj_defs:
+    if len(line):
+        char, color = line.split('|')
+        ext_colors[char] = eval(color)
+ui.set_default_colors(int_colors, ext_colors)
 
 evt_mode = 'normal'
 action = ('connect', (name, spaceship))

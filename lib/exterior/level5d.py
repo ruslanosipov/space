@@ -50,7 +50,7 @@ class Level5D(object):
         """
         >>> level = Level5D()
         >>> level.add_projectile((0, 0, 12, 13), (2, 0), 100, 0.8, 2)
-        >>> _ = level.add_spaceship('USS Enterprise', (0, 0, 13, 13))
+        >>> _ = level.add_spaceship((0, 0, 13, 13), 'USS Enterprise')
         >>> level.get_objects((0, 0, 12, 13))
         [<class 'Space'>, <class 'Projectile'>]
         >>> level.update()
@@ -120,9 +120,9 @@ class Level5D(object):
         self.projectiles.append(projectile)
         self.add_object((p, q, x, y), projectile)
 
-    def add_spaceship(self, name, coords):
+    def add_spaceship(self, coords, name):
         """
-        >>> Level5D().add_spaceship('Enterprise', (0, 0, 0, 0))
+        >>> Level5D().add_spaceship((0, 0, 0, 0), 'Enterprise')
         <class 'Spaceship'> Enterprise
         """
         spaceship = Spaceship('@', name, coords=coords, exterior=self)
@@ -170,8 +170,8 @@ class Level5D(object):
     def get_adjacent_spaceships(self, (p, q, x0, y0)):
         """
         >>> exterior = Level5D()
-        >>> _ = exterior.add_spaceship('Enterprise', (0, -1, 0, 24))
-        >>> _ = exterior.add_spaceship('Galactica', (0, 0, 1, 0))
+        >>> _ = exterior.add_spaceship((0, -1, 0, 24), 'Enterprise')
+        >>> _ = exterior.add_spaceship((0, 0, 1, 0), 'Galactica')
         >>> exterior.get_adjacent_spaceships((0, 0, 0, 0))
         [<class 'Spaceship'> Enterprise, <class 'Spaceship'> Galactica]
         """

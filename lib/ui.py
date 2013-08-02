@@ -1,6 +1,10 @@
 class UI(object):
 
     def compose(self, view, colors, chat_log, prompt, evt_mode, status_bar):
+        if evt_mode == 'pilot':
+            default_colors = self.ext_colors
+        else:
+            default_colors = self.int_colors
         surface = []
         for y, line in enumerate(view):
             new_line = []
@@ -8,7 +12,7 @@ class UI(object):
                 if (x, y) in colors.keys():
                     color = colors[(x, y)]
                 else:
-                    color = self.default_colors[char]
+                    color = default_colors[char]
                 if len(new_line) and new_line[-1][1] == color:
                     new_line[-1][0] += char
                 else:
@@ -28,5 +32,6 @@ class UI(object):
         surface.append([[evt_mode, (0, 255, 255)]])
         return surface
 
-    def set_default_colors(self, colors):
-        self.default_colors = colors
+    def set_default_colors(self, int_colors, ext_colors):
+        self.int_colors = int_colors
+        self.ext_colors = ext_colors

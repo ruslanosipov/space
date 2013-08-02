@@ -36,13 +36,13 @@ def exterior_with_adjacent_spaceships():
 
     exterior = Level5D()
     galactica = exterior.add_spaceship(
-        name='Galactica',
-        coords=(0, 0, 0, 0))
+        coords=(0, 0, 0, 0),
+        name='Galactica')
     galactica.load_interior(level_definition, obj_definitions)
     galactica.get_interior().add_player((0, 0), Player('Mike'))
     enterprise = exterior.add_spaceship(
-        name='Enterprise',
-        coords=(0, 0, 1, 0))
+        coords=(0, 0, 1, 0),
+        name='Enterprise')
     enterprise.load_interior(level_definition, obj_definitions)
     enterprise.get_interior().add_player((0, 0), Player('Josh'))
 
@@ -54,7 +54,7 @@ def spaceship():
     >>> spaceship()
     <class 'Spaceship'> Galactica
     """
-    galactica = Level5D().add_spaceship('Galactica', (0, 0, 0, 0))
+    galactica = Level5D().add_spaceship((0, 0, 0, 0), 'Galactica')
     galactica.load_interior([[['.']]], {'.': 'Floor'})
     return galactica
 
@@ -67,7 +67,7 @@ def spaceship_with_two_players():
     >>> spaceship.get_interior().get_players()
     [<class 'Player'> Mike, <class 'Player'> Josh]
     """
-    galactica = Level5D().add_spaceship('Galactica', (0, 0, 0, 0))
+    galactica = Level5D().add_spaceship((0, 0, 0, 0), 'Galactica')
     level_definition = [
         [['.'], ['.', '+']],
         [['.'], ['.']]]
