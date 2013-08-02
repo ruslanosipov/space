@@ -46,8 +46,7 @@ while True:
     if is_pilot:
         evt_mode = 'pilot'
     view_field = view_field.split('\n')
-    chat_msgs = chat_msgs.split('\n')
-    if len(chat_msgs[0]):
+    if len(chat_msgs):
         chat.add_multiple(chat_msgs)
 
     events = event.get(evt_mode)

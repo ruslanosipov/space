@@ -1,4 +1,11 @@
+MSG_COLORS = {
+    0: (100, 255, 100),
+    1: (100, 100, 100),
+    2: (200, 200, 200)}
+
+
 class UI(object):
+    global MSG_COLORS
 
     def compose(self, view, colors, chat_log, prompt, evt_mode, status_bar):
         if evt_mode == 'pilot':
@@ -19,7 +26,8 @@ class UI(object):
                     new_line.append([char, color])
             new_line.append(['|', (0, 255, 255)])
             if len(chat_log) >= y + 1:
-                new_line.append([chat_log[y], (255, 255, 255)])
+                msg, msg_type = chat_log[y]
+                new_line.append([msg, MSG_COLORS[msg_type]])
             if y == len(view) - 1:
                 new_line.append(['> ' + prompt, (255, 255, 255)])
             surface.append(new_line)

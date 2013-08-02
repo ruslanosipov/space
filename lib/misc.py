@@ -121,7 +121,7 @@ def interior_fire(player, level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg)
+        chat.add_single(hostile, hostile_msg, 2)
     else:
         msg = 'Target is not set...'
     return msg
@@ -178,7 +178,7 @@ def move(player, (x, y), level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg)
+        chat.add_single(hostile, hostile_msg, 2)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:

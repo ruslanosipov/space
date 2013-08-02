@@ -90,7 +90,7 @@ try:
                 elif evt == 'int_fire':
                     msg = misc.interior_fire(player, int_level, chat)
                 elif evt == 'say':
-                    chat.add_single('all', arg, name=player.get_name())
+                    chat.add_single('public', "%s: %s" % (name, arg), 0)
                 elif evt == 'look':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
@@ -99,7 +99,7 @@ try:
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
                 if msg is not None:
-                    chat.add_single(player, msg)
+                    chat.add_single(player, msg, 1)
         # Let the world process one step
         ext_level.update()
         # Generate views for players
@@ -123,11 +123,11 @@ try:
                     ext_radius,
                     spaceship.get_abs_pointer())
                 status_bar = "SPD: %s" % spaceship.get_speed()
-            chat_log = chat.get_recent(player)
+            chat_log = chat.get_recent_for_recipient(player)
             new_data[s] = (
                 '\n'.join(view),
                 colors,
-                '\n'.join(chat_log),
+                chat_log,
                 player.is_pilot(),
                 status_bar)
         server.set_data(new_data)
