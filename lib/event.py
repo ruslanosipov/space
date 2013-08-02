@@ -34,6 +34,16 @@ def get(mode='normal'):
         return
     events = pygame.event.get(TRACK_EVENTS)
     pygame.event.clear(IGNORE_EVENTS)
+    if mode == 'insert':
+        text = ""
+        for evt in events:
+            if evt.type == pygame.KEYDOWN:
+                if evt.key == pygame.K_BACKSPACE:
+                    return (mode, 'backspace', 1)
+                if evt.key == pygame.K_RETURN:
+                    return (mode, 'return', 1)
+                text += evt.unicode
+        return (mode, 'insert', text)
     for evt in events:
         if evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
             return ('normal', None, None)
@@ -79,13 +89,6 @@ def get(mode='normal'):
                     return (mode, 'accelerate', -100)
                 if evt.unicode == 'f':
                     return (mode, 'ext_fire', 1)
-        if mode == 'insert':
-            if evt.type == pygame.KEYDOWN:
-                if evt.key == pygame.K_BACKSPACE:
-                    return (mode, 'backspace', 1)
-                if evt.key == pygame.K_RETURN:
-                    return (mode, 'return', 1)
-                return (mode, 'insert', evt.unicode)
         if mode == 'direction':
             if evt.type == pygame.KEYDOWN:
                 if evt.key == pygame.K_LEFT:

@@ -16,12 +16,13 @@ class ChatClient(object):
         else:
             log = self.log[len(self.log) - size:]
         formatted_log = []
-        for entry in log:
-            if len(entry) <= self.width:
-                formatted_log.append(entry)
+        for msg, msg_type in log:
+            if len(msg) <= self.width:
+                formatted_log.append((msg, msg_type))
             else:
-                chunk, w = len(entry), self.width
-                formatted_log += [entry[i:i + w] for i in xrange(0, chunk, w)]
+                chunk, w = len(msg), self.width
+                formatted_log += \
+                    [(msg[i:i + w], msg_type) for i in xrange(0, chunk, w)]
         if len(formatted_log) <= size:
             return formatted_log
         return formatted_log[len(formatted_log) - size:]
