@@ -29,12 +29,15 @@ class Spaceship(object):
         self.spawn_point = (0, 0)
         self.teleport_point = None
         self.control = 5
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
     def load_interior(self, level, obj_data):
-        self.interior = Level3D(level, obj_data, spaceship=self)
+        self.interior = Level3D()
+        self.interior.set_spaceship(self)
+        self.interior.load_converted_char_map(level, obj_data)
 
     #--------------------------------------------------------------------------
     # movement
@@ -140,8 +143,14 @@ class Spaceship(object):
     def is_alive(self):
         return self.alive
 
+    def is_default_color(self):
+        return self.default_color
+
     def get_char(self):
         return self.char
+
+    def get_color(self):
+        return self.color
 
     def get_coords(self):
         return self.coords
@@ -169,6 +178,10 @@ class Spaceship(object):
 
     def get_view(self):
         return self.view
+
+    def set_color(self, color):
+        self.default_color = False
+        self.color = color
 
     def set_coords(self, (p, q, x, y)):
         self.coords = (p, q, x, y)

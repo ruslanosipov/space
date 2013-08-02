@@ -20,6 +20,19 @@ client = Client(host, port)
 display = Display()
 ui = UI()
 
+int_colors, ext_colors = {}, {}
+obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
+for line in obj_defs:
+    if len(line):
+        char, color = line.split('|')
+        int_colors[char] = eval(color)
+obj_defs = open('dat/ext_obj_colors.txt', 'rb').read().split('\n')
+for line in obj_defs:
+    if len(line):
+        char, color = line.split('|')
+        ext_colors[char] = eval(color)
+ui.set_default_colors(int_colors, ext_colors)
+
 evt_mode = 'normal'
 action = ('connect', (name, spaceship))
 require_arg = False
@@ -29,12 +42,11 @@ while True:
     if action and not require_arg:
         client.send(action)
         action = False
-    view_field, chat_msgs, is_pilot, status_bar = client.receive()[-1]
+    view_field, colors, chat_msgs, is_pilot, status_bar = client.receive()[-1]
     if is_pilot:
         evt_mode = 'pilot'
     view_field = view_field.split('\n')
-    chat_msgs = chat_msgs.split('\n')
-    if len(chat_msgs[0]):
+    if len(chat_msgs):
         chat.add_multiple(chat_msgs)
 
     events = event.get(evt_mode)
@@ -64,7 +76,7 @@ while True:
         action = (evt, evt_arg)
 
     surface = ui.compose(
-        view_field, chat.get_log(),
+        view_field, colors, chat.get_log(),
         prompt, evt_mode, status_bar)
     display.draw(surface)
     display.update()

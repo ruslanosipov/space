@@ -15,13 +15,14 @@ class Display(object):
         self.window = pygame.display.set_mode((screen_width, screen_height))
 
     def draw(self, view):
-        """
-        view -- 2d list of strings
-        """
         self.window.fill((0, 0, 0))
         for i, line in enumerate(view):
-            surface = self.font.render(line, True, (255, 255, 255), (0, 0, 0))
-            self.window.blit(surface, (0, i * self.symbol_height))
+            x = 0
+            for char_seq, color in line:
+                surface = self.font.render(char_seq, True, color, (0, 0, 0))
+                self.window.blit(surface, (x * self.symbol_width,
+                                           i * self.symbol_height))
+                x += len(char_seq)
 
     def update(self):
         pygame.display.update()

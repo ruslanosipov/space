@@ -1,4 +1,5 @@
 +|Door
+/|Door
 %|Corpse
 }|Gun
 c|Console

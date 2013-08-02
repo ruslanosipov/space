@@ -36,12 +36,12 @@ def load_obj_definitions(txt, separator='|'):
     >>> d['#']
     'Wall'
     """
-    obj_definitions = []
+    obj_defs = {}
     for line in txt.split('\n'):
         if line:
-            obj_definitions.append(line.split(separator))
-    obj_definitions = dict((char, name) for char, name in obj_definitions)
-    return obj_definitions
+            char, name = line.split(separator)
+            obj_defs[char] = name
+    return obj_defs
 
 #------------------------------------------------------------------------------
 # player (interior)
@@ -50,7 +50,9 @@ def load_obj_definitions(txt, separator='|'):
 def activate_obj((x, y), level, player=None):
     """
     >>> from lib.interior.level3d import Level3D
-    >>> level = Level3D([[['.', '+'], ['.']]], {'.': 'Floor', '+': 'Door'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', '+'], ['.']]],
+    ...                               {'.': 'Floor', '+': 'Door'})
     >>> activate_obj((0, 0), level)
     'You open the door...'
     >>> activate_obj((1, 0), level)
@@ -83,7 +85,7 @@ def add_player(name, spaceship, coords=None):
     player = Player(name)
     if coords is None:
         coords = spaceship.get_spawn_point()
-    spaceship.get_interior().add_player(player, coords)
+    spaceship.get_interior().add_player(coords, player)
     return player
 
 
@@ -95,7 +97,8 @@ def interior_fire(player, level, chat):
     >>> chat = ChatServer()
     >>> player = Player('Mike')
     >>> hostile = Player('Josh')
-    >>> level = Level3D([[['.'], ['.']]], {'.': 'Floor'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.'], ['.']]], {'.': 'Floor'})
     >>> level.add_object((0, 0), player)
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
@@ -118,7 +121,7 @@ def interior_fire(player, level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg)
+        chat.add_single(hostile, hostile_msg, 2)
     else:
         msg = 'Target is not set...'
     return msg
@@ -175,7 +178,7 @@ def move(player, (x, y), level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg)
+        chat.add_single(hostile, hostile_msg, 2)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:
@@ -188,7 +191,9 @@ def move(player, (x, y), level, chat):
 def look((x, y), level):
     """
     >>> from lib.interior.level3d import Level3D
-    >>> level = Level3D([[['.', 'c']]], {'.': 'Floor', 'c': 'Console'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', 'c']]],
+    ...                               {'.': 'Floor', 'c': 'Console'})
     >>> look((0, 0), level)
     'You see: console, floor.'
     """
@@ -205,7 +210,9 @@ def pick_up_obj(player, (x, y), level):
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
     >>> player = Player('Mike')
-    >>> level = Level3D([[['.', '}'], ['.']]], {'.': 'Floor', '}': 'Gun'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map([[['.', '}'], ['.']]],
+    ...                               {'.': 'Floor', '}': 'Gun'})
     >>> pick_up_obj(player, (0, 0), level)
     'You pick up a gun...'
     >>> pick_up_obj(player, (1, 0), level)
@@ -231,7 +238,8 @@ def set_target(player, level):
     >>> from lib.obj.player import Player
     >>> player = Player('Mike')
     >>> l = [[['.'], ['.']], [['.'], ['.']]]
-    >>> level = Level3D(l, {'.': 'Floor'})
+    >>> level = Level3D()
+    >>> level.load_converted_char_map(l, {'.': 'Floor'})
     >>> level.add_object((0, 0), player)
     >>> set_target(player, level)
     'No suitable target found...'
@@ -264,9 +272,9 @@ def add_spaceship(name, coords, spawn, exterior):
     tiles_map = open('dat/maps/%s_tiles.txt' % name.lower(), 'rb').read()
     items_map = open('dat/maps/%s_items.txt' % name.lower(), 'rb').read()
     level_definition = load_interior_level(tiles_map, items_map)
-    txt = open('dat/obj_definitions.txt', 'rb').read()
+    txt = open('dat/obj_defs.txt', 'rb').read()
     obj_definitions = load_obj_definitions(txt)
-    spaceship = exterior.add_spaceship(name, coords)
+    spaceship = exterior.add_spaceship(coords, name)
     spaceship.load_interior(level_definition, obj_definitions)
     spaceship.set_view(InteriorView(spaceship.get_interior()))
     spaceship.set_spawn_point(spawn)

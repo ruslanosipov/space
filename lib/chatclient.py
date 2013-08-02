@@ -4,10 +4,6 @@ class ChatClient(object):
     """
 
     def __init__(self):
-        """
-        >>> ChatClient()
-        <class 'ChatClient'>
-        """
         self.log = []
         self.width = 56
 
@@ -15,16 +11,6 @@ class ChatClient(object):
         return "<class '%s'>" % self.__class__.__name__
 
     def get_log(self, size=22):
-        """
-        Cut chat log to screen width.
-
-        >>> chat = ChatClient()
-        >>> chat.add_multiple(['foo', 'bar'])
-        >>> chat.get_log()
-        ['foo', 'bar']
-
-        size -- int
-        """
         if len(self.log) <= size:
             log = self.log
         else:
@@ -41,14 +27,6 @@ class ChatClient(object):
         return formatted_log[len(formatted_log) - size:]
 
     def add_multiple(self, msgs):
-        """
-        Add messages to a chat log.
-
-        >>> chat = ChatClient()
-        >>> chat.add_multiple(['foo'])
-        >>> chat.get_log()
-        ['foo']
-        """
         if len(self.log) > 1000:
             # TODO: save in a text file
             self.log = self.log[len(self.log) - 100:]
