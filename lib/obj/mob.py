@@ -17,9 +17,6 @@ class Mob(object):
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
     def receive_damage(self, damage):
         """
         >>> mob = Mob('@', 'Mike')

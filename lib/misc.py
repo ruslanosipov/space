@@ -165,7 +165,7 @@ def move(player, (x, y), level, chat):
     'Your path is obstructed by the door...'
     >>> move(player, (0, 1), spaceship.get_interior(), chat)
     >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You attack Josh.'
+    'You punch Josh.'
     """
     msg = None
     hostile = level.get_player((x, y))
@@ -174,8 +174,7 @@ def move(player, (x, y), level, chat):
         player.set_coords((x, y))
     elif hostile:
         hostile.receive_damage(player.get_melee_damage())
-        msg = 'You attack %s.' % hostile.get_name()
-        hostile_msg = '%s attacks you!' % player.get_name()
+        msg, hostile_msg = player.get_melee_attack_messages(hostile.get_name())
         if not hostile.is_alive():
             level.remove_object((x, y), hostile)
             level.add_object((x, y), Corpse(hostile.get_name()))

@@ -14,6 +14,9 @@ class Item(Tile):
         self.melee_damage = 5
         self.ranged_weapon = False
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     #--------------------------------------------------------------------------
     # accessors
 

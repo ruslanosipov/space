@@ -35,9 +35,6 @@ class Spaceship(object):
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
     def load_interior(self, level, obj_data):
         self.interior = Level3D()
         self.interior.set_spaceship(self)
