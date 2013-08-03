@@ -74,7 +74,7 @@ while True:
         action = (queued_evt, prompt)
         queued_evt = None
         prompt, evt_mode = '', 'normal'
-    elif evt in ['say', 'equip']:
+    elif evt in ['say', 'equip', 'drop']:
         queued_evt = evt
     elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)

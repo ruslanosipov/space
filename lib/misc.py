@@ -89,6 +89,29 @@ def add_player(name, spaceship, coords=None):
     return player
 
 
+def drop_item(player, item_name):
+    """
+    >>> from lib.obj.gun import Gun
+    >>> spaceship = mocks.spaceship()
+    >>> player = add_player('Mike', spaceship, (0, 0))
+    >>> drop_item(player, 'helmet')
+    'You do not have such an item.'
+    >>> player.inventory_add(Gun())
+    >>> drop_item(player, 'gun')
+    'You drop a gun.'
+    >>> player.get_inventory()
+    {}
+    >>> player.get_interior().get_objects((0, 0))[-2]
+    <class 'Gun'>
+    """
+    item = player.inventory_remove_by_name(item_name)
+    if item:
+        player.get_interior().add_object(player.get_coords(), item, 1)
+        return "You drop a %s." % item_name
+    else:
+        return "You do not have such an item."
+
+
 def equip_item(player, item_name):
     """
     >>> from lib.obj.player import Player
