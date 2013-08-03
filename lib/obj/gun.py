@@ -10,7 +10,7 @@ class Gun(Item):
         """
         super(Gun, self).__init__('}', 'gun')
         self.ranged_weapon = True
-        self.ranged_damage = 30
+        self.ranged_damage = (25, 40)
 
     #--------------------------------------------------------------------------
     # accessors

@@ -24,7 +24,7 @@ class Player(Mob):
         self.target = None
         self.pilot = False
         self.interior = None
-        self.unarmed_damage = 10
+        self.unarmed_damage = (5, 15)
         self.equipment = {
             'hands': None,
             'torso': None,
@@ -102,17 +102,19 @@ class Player(Mob):
         return self.interior
 
     def get_melee_damage(self):
-        if self.equipment is None:
-            return self.unarmed_damage
-        try:
-            damage = self.equipment['hands'].get_melee_damage()
-        except AttributeError:
-            damage = self.unarmed_damage + 5
-        return damage
+        if self.equipment['hands'] is None:
+            dmg_min, dmg_max = self.unarmed_damage
+        else:
+            try:
+                dmg_min, dmg_max = self.equipment['hands'].get_melee_damage()
+            except AttributeError:
+                dmg_min, dmg_max = map(lambda x: x + 5, self.unarmed_damage)
+        return random.randint(dmg_min, dmg_max)
 
     def get_ranged_damage(self):
         try:
-            return self.equipment['hands'].get_ranged_damage()
+            dmg_min, dmg_max = self.equipment['hands'].get_ranged_damage()
+            return random.randint(dmg_min, dmg_max)
         except AttributeError:
             return False
 

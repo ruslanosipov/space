@@ -9,4 +9,4 @@ class Knife(Item):
         <class 'Knife'>
         """
         super(Knife, self).__init__(')', 'knife')
-        self.melee_damage = 20
+        self.melee_damage = (20, 30)
