@@ -308,6 +308,32 @@ def set_target(player, level):
         msg = 'No suitable target found...'
     return msg
 
+
+def unequip_item(player, slot):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.gun import Gun
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Gun())
+    >>> equip_item(player, 'gun')
+    'You equip a gun.'
+    >>> player.get_inventory()
+    {}
+    >>> unequip_item(player, 'toe')
+    'You do not have item in this slot.'
+    >>> unequip_item(player, 'hands')
+    'You unequip a gun.'
+    >>> player.get_inventory()
+    {<class 'Gun'>: 1}
+    """
+    item = player.unequip(slot)
+    if item:
+        player.inventory_add(item)
+        msg = "You unequip a %s." % item.get_name()
+    else:
+        msg = "You do not have item in this slot."
+    return msg
+
 #------------------------------------------------------------------------------
 # spaceship (exterior)
 

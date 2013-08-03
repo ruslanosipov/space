@@ -77,6 +77,8 @@ def get(mode='normal'):
                     return (mode, 'inventory', 1)
                 if evt.unicode == 'e':
                     return ('insert', 'equip', 1)
+                if evt.unicode == 'u':
+                    return ('insert', 'unequip', 1)
                 if evt.unicode == 'd':
                     return ('insert', 'drop', 1)
         if mode == 'pilot':

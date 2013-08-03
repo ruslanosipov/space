@@ -49,6 +49,13 @@ class Player(Mob):
                     return item
         return False
 
+    def unequip(self, slot='hands'):
+        if slot not in self.equipment.keys() or self.equipment[slot] is None:
+            return False
+        item = self.equipment[slot]
+        self.equipment[slot] = None
+        return item
+
     #--------------------------------------------------------------------------
     # messages
 
