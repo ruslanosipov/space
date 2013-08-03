@@ -36,6 +36,7 @@ ui.set_default_colors(int_colors, ext_colors)
 evt_mode = 'normal'
 action = ('connect', (name, spaceship))
 require_arg = False
+queued_evt = False
 prompt = ''
 
 while True:
@@ -70,10 +71,11 @@ while True:
     elif evt == 'backspace' and prompt:
         prompt = prompt[: - evt_arg]
     elif evt == 'return' and prompt:
-        action = ('say', prompt)
+        action = (queued_evt, prompt)
+        queued_evt = None
         prompt, evt_mode = '', 'normal'
-    elif evt == 'say':
-        continue
+    elif evt in ['say', 'equip']:
+        queued_evt = evt
     elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)
 

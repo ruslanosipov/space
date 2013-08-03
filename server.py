@@ -98,6 +98,8 @@ try:
                 elif evt == 'unpilot':
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
+                elif evt == 'equip':
+                    msg = misc.equip_item(player, arg)
                 if msg is not None:
                     chat.add_single(player, msg, 1)
         # Let the world process one step

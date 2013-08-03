@@ -89,6 +89,28 @@ def add_player(name, spaceship, coords=None):
     return player
 
 
+def equip_item(player, item_name):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.gun import Gun
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Gun())
+    >>> equip_item(player, 'helmet')
+    'Can not equip a helmet, item not in inventory.'
+    >>> equip_item(player, 'gun')
+    'You equip a gun.'
+    >>> player.get_inventory()
+    {}
+    """
+    item = player.inventory_remove_by_name(item_name)
+    if item:
+        player.equip(item)
+        msg = "You equip a %s." % item_name
+    else:
+        msg = "Can not equip a %s, item not in inventory." % item_name
+    return msg
+
+
 def interior_fire(player, level, chat):
     """
     >>> from lib.interior.level3d import Level3D
@@ -226,6 +248,7 @@ def pick_up_obj(player, (x, y), level):
     for obj in objects[::-1]:
         try:
             if obj.is_pickupable():
+                obj.set_coords(None)
                 player.inventory_add(obj)
                 level.remove_object((x, y), obj)
                 msg = "You pick up a %s..." % obj.get_name()

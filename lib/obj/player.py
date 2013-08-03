@@ -26,6 +26,8 @@ class Player(Mob):
     def equip(self, item=None, slot='hands'):
         if slot not in self.equipment.keys():
             return False
+        if self.equipment[slot] is not None:
+            self.inventory_add(self.equipment[slot])
         self.equipment[slot] = item
 
     def inventory_add(self, item, qty=1):

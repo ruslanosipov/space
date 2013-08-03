@@ -75,6 +75,8 @@ def get(mode='normal'):
                     return (mode, 'pickup', (0, 0))
                 if evt.unicode == 'i':
                     return (mode, 'inventory', 1)
+                if evt.unicode == 'e':
+                    return ('insert', 'equip', 1)
         if mode == 'pilot':
             if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'Q':
