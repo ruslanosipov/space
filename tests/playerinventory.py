@@ -62,3 +62,14 @@ class TestPlayerInventory(unittest.TestCase):
         self.player.receive_damage(100)
         self.assertTrue(self.player.is_alive(),
                          "armor should reduce received damage")
+
+    def test_armor_changes_player_char(self):
+        default_char = self.player.get_char()
+        armor = Armor()
+        self.player.equip(armor, 'torso')
+        self.assertEqual(self.player.get_char(), armor.get_player_char(),
+                         "equipping armor should change player char")
+        self.player.unequip('torso')
+        self.assertEqual(self.player.get_char(), default_char,
+                         ("player char should reset after unequipping the "
+                          "armor: %s" % self.player.get_char()))

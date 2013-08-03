@@ -29,6 +29,7 @@ class Player(Mob):
             'hands': None,
             'torso': None,
             'head': None}
+        self.set_color((147, 112, 219))
 
     #--------------------------------------------------------------------------
     # equipment and inventory
@@ -41,6 +42,8 @@ class Player(Mob):
         if slot not in item.get_slots():
             raise ItemCanNotBeEquippedInSlot
         self.equipment[slot] = item
+        if slot == 'torso':
+            self.char = item.get_player_char()
 
     def inventory_add(self, item, qty=1):
         for obj in self.inventory:
@@ -66,6 +69,8 @@ class Player(Mob):
             return False
         item = self.equipment[slot]
         self.equipment[slot] = None
+        if slot == 'torso':
+            self.char = '@'
         return item
 
     #--------------------------------------------------------------------------
