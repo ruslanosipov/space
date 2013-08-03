@@ -10,3 +10,4 @@ c|Console
 0|Glass
 n|NavigationConsole
 T|TeleportPlatform
+)|Knife

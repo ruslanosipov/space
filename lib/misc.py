@@ -94,6 +94,7 @@ def interior_fire(player, level, chat):
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
     >>> from lib.chatserver import ChatServer
+    >>> from lib.obj.gun import Gun
     >>> chat = ChatServer()
     >>> player = Player('Mike')
     >>> hostile = Player('Josh')
@@ -102,17 +103,20 @@ def interior_fire(player, level, chat):
     >>> level.add_object((0, 0), player)
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
+    'You have no weapon to fire from...'
+    >>> player.equip(Gun())
+    >>> interior_fire(player, level, chat)
     'Target is not set...'
     >>> set_target(player, level)
     >>> interior_fire(player, level, chat)
     'You shoot at Josh.'
-    >>> interior_fire(player, level, chat)
-    'You shoot at Josh. Josh is dead.'
     """
     target = player.get_target()
+    if not player.is_gunman():
+        return "You have no weapon to fire from..."
     if target:
         hostile = level.get_player(target)
-        hostile.receive_damage(50)
+        hostile.receive_damage(player.get_ranged_damage())
         msg = 'You shoot at %s.' % hostile.get_name()
         hostile_msg = '%s shoots at you.' % player.get_name()
         if not hostile.is_alive():
@@ -141,9 +145,13 @@ def inventory(player):
     inv = player.get_inventory()
     if not len(inv):
         return "You do not own anything at the moment..."
-    for i, item in enumerate(inv):
-        inv[i] = item.get_name()
-    msg = 'Inventory contents: %s.' % ', '.join(inv)
+    contents = []
+    for item, qty in inv.items():
+        item = item.get_name()
+        if qty > 1:
+            item += " (%d)" % qty
+        contents.append(item)
+    msg = 'Inventory contents: %s.' % ', '.join(contents)
     return msg
 
 
@@ -158,10 +166,6 @@ def move(player, (x, y), level, chat):
     >>> move(player, (0, 1), spaceship.get_interior(), chat)
     >>> move(player, (1, 1), spaceship.get_interior(), chat)
     'You attack Josh.'
-    >>> for _ in xrange(0, 2):
-    ...     _ = move(player, (1, 1), spaceship.get_interior(), chat)
-    >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You attack Josh. Josh is dead.'
     """
     msg = None
     hostile = level.get_player((x, y))
@@ -169,7 +173,7 @@ def move(player, (x, y), level, chat):
         level.move_object(player.get_coords(), (x, y), player)
         player.set_coords((x, y))
     elif hostile:
-        hostile.receive_damage(25)
+        hostile.receive_damage(player.get_melee_damage())
         msg = 'You attack %s.' % hostile.get_name()
         hostile_msg = '%s attacks you!' % player.get_name()
         if not hostile.is_alive():

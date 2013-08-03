@@ -18,6 +18,9 @@ class Tile(object):
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     #--------------------------------------------------------------------------
     # accessors
 

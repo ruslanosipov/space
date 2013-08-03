@@ -9,3 +9,11 @@ class Gun(Item):
         <class 'Gun'>
         """
         super(Gun, self).__init__('}', 'gun')
+        self.ranged_weapon = True
+        self.ranged_damage = 30
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_ranged_damage(self):
+        return self.ranged_damage

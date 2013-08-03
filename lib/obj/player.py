@@ -1,3 +1,6 @@
+import random
+import copy
+
 from lib.obj.mob import Mob
 
 
@@ -9,23 +12,40 @@ class Player(Mob):
         <class 'Player'> Mike
         """
         super(Player, self).__init__('@', name, 11)
-        self.inventory = []
+        self.inventory = {}
         self.target = None
         self.pilot = False
         self.interior = None
+        self.unarmed_damage = 10
+        self.equipment = {
+            'hands': None}
 
-    def inventory_add(self, item):
-        """
-        >>> from lib.obj.gun import Gun
-        >>> player = Player('Mike')
-        >>> player.inventory_add(Gun())
-        >>> player.get_inventory()
-        [<class 'Gun'>]
-        >>> player.inventory_add(Gun())
-        >>> player.get_inventory()
-        [<class 'Gun'>, <class 'Gun'>]
-        """
-        self.inventory.append(item)
+    #--------------------------------------------------------------------------
+    # equipment and inventory
+
+    def equip(self, item=None, slot='hands'):
+        if slot not in self.equipment.keys():
+            return False
+        self.equipment[slot] = item
+
+    def inventory_add(self, item, qty=1):
+        for obj in self.inventory:
+            if item == obj:
+                self.inventory[obj] += qty
+                break
+        else:
+            self.inventory[item] = qty
+
+    def inventory_remove_by_name(self, name):
+        for item, qty in self.inventory.items():
+            if item.get_name() == name:
+                if qty > 1:
+                    self.inventory[item] -= 1
+                    return copy.deepcopy(item)
+                else:
+                    del self.inventory[item]
+                    return item
+        return False
 
     #--------------------------------------------------------------------------
     # accessors
@@ -39,8 +59,31 @@ class Player(Mob):
     def get_interior(self):
         return self.interior
 
+    def get_melee_damage(self):
+        if self.equipment is None:
+            return self.unarmed_damage
+        try:
+            damage = self.equipment['hands'].get_melee_damage()
+        except AttributeError:
+            damage = self.unarmed_damage + 5
+        return damage
+
+    def get_ranged_damage(self):
+        try:
+            return self.equipment['hands'].get_ranged_damage()
+        except AttributeError:
+            return False
+
     def get_target(self):
         return self.target
+
+    def is_gunman(self):
+        if self.equipment['hands'] is None:
+            return False
+        try:
+            return self.equipment['hands'].is_ranged_weapon()
+        except AttributeError:
+            return False
 
     def set_pilot(self):
         if self.pilot:
