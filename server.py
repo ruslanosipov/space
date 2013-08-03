@@ -72,6 +72,8 @@ try:
                     msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
                 elif evt == 'inventory':
                     msg = misc.inventory(player)
+                elif evt == 'equipment':
+                    msg = misc.equipment(player)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()

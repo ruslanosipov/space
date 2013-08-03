@@ -81,6 +81,8 @@ def get(mode='normal'):
                     return ('insert', 'unequip', 1)
                 if evt.unicode == 'd':
                     return ('insert', 'drop', 1)
+                if evt.unicode == 'E':
+                    return (mode, 'equipment', 1)
         if mode == 'pilot':
             if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'Q':

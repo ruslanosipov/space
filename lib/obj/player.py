@@ -87,6 +87,9 @@ class Player(Mob):
     def is_pilot(self):
         return self.pilot
 
+    def get_equipment(self):
+        return self.equipment
+
     def get_inventory(self):
         return self.inventory
 

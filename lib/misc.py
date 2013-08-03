@@ -113,6 +113,28 @@ def drop_item(player, item_name):
         return "You do not have such an item."
 
 
+def equipment(player):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.armor import Armor
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Armor())
+    >>> equipment(player)
+    'You do not have anything equipped at the moment.'
+    >>> _ = equip_item(player, 'armor', 'torso')
+    >>> equipment(player)
+    'Equipment: armor (torso).'
+    """
+    equipment = player.get_equipment()
+    contents = []
+    for k, v in equipment.items():
+        if v is not None:
+            contents.append("%s (%s)" % (v.get_name(), k))
+    if not len(contents):
+        return "You do not have anything equipped at the moment."
+    return "Equipment: %s." % ', '.join(contents)
+
+
 def equip_item(player, item_name, slot='hands'):
     """
     >>> from lib.obj.player import Player
