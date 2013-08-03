@@ -27,6 +27,12 @@ class Mob(object):
         >>> mob.is_alive()
         False
         """
+        try:
+            for slot in ['torso', 'head']:
+                if self.equipment[slot] is not None:
+                    damage -= self.equipment[slot].get_damage_absorption()
+        except AttributeError:
+            pass
         self.health -= damage
         if self.health <= 0:
             self.alive = False

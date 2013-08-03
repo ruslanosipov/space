@@ -3,6 +3,7 @@ import unittest
 from lib.obj.player import Player
 from lib.obj.gun import Gun
 from lib.obj.knife import Knife
+from lib.obj.armor import Armor
 
 
 class TestPlayerInventory(unittest.TestCase):
@@ -50,3 +51,14 @@ class TestPlayerInventory(unittest.TestCase):
                         "player should be able to shoot after equiping a gun")
         self.assertGreater(self.player.get_ranged_damage(), 0,
                            "damage should be non-negative integer")
+
+    def test_unarmored_player_does_not_alter_damage(self):
+        self.player.receive_damage(100)
+        self.assertFalse(self.player.is_alive(),
+                         "player without armor should not alter damage")
+
+    def test_armor_affects_received_damage(self):
+        self.player.equip(Armor(), 'torso')
+        self.player.receive_damage(100)
+        self.assertTrue(self.player.is_alive(),
+                         "armor should reduce received damage")
