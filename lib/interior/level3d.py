@@ -95,8 +95,8 @@ class Level3D(Level):
         self.players.append(player)
         self.add_object((x, y), player)
 
-    def add_object(self, (x, y), obj):
-        if super(Level3D, self).add_object((x, y), obj) is not False:
+    def add_object(self, (x, y), obj, position=0):
+        if super(Level3D, self).add_object((x, y), obj, position) is not False:
             obj.set_coords((x, y))
             obj.set_interior(self)
 

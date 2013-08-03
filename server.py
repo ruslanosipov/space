@@ -72,6 +72,8 @@ try:
                     msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
                 elif evt == 'inventory':
                     msg = misc.inventory(player)
+                elif evt == 'equipment':
+                    msg = misc.equipment(player)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
@@ -98,6 +100,16 @@ try:
                 elif evt == 'unpilot':
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
+                elif evt == 'equip':
+                    if ', ' in arg:
+                        item, slot = arg.split(', ')
+                    else:
+                        item, slot = arg, 'hands'
+                    msg = misc.equip_item(player, item, slot)
+                elif evt == 'unequip':
+                    msg = misc.unequip_item(player, arg)
+                elif evt == 'drop':
+                    msg = misc.drop_item(player, arg)
                 if msg is not None:
                     chat.add_single(player, msg, 1)
         # Let the world process one step

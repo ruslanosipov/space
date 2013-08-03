@@ -50,7 +50,7 @@ class Level(object):
     #--------------------------------------------------------------------------
     # object operations
 
-    def add_object(self, (x, y), obj):
+    def add_object(self, (x, y), obj, position=0):
         """
         >>> level = Level([[['.']]], {'.': 'Floor'})
         >>> from lib.obj.door import Door
@@ -62,7 +62,11 @@ class Level(object):
         """
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             return False
-        self.level[y][x].append(obj)
+        if position > 0:
+            position = - position
+            self.level[y][x].insert(position, obj)
+        else:
+            self.level[y][x].append(obj)
 
     def move_object(self, (x0, y0), (x1, y1), obj):
         """

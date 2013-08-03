@@ -1,7 +1,7 @@
 import unittest
 
-
 from lib.chatserver import ChatServer
+
 
 class TestChatServer(unittest.TestCase):
 

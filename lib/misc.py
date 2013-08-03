@@ -1,6 +1,7 @@
 from tests import mocks
 
 from lib.obj.player import Player
+from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
 from lib.obj.corpse import Corpse
 from lib.obj.spaceship import Spaceship
 from lib.interior.level3d import Level3D
@@ -89,11 +90,92 @@ def add_player(name, spaceship, coords=None):
     return player
 
 
+def drop_item(player, item_name):
+    """
+    >>> from lib.obj.gun import Gun
+    >>> spaceship = mocks.spaceship()
+    >>> player = add_player('Mike', spaceship, (0, 0))
+    >>> drop_item(player, 'helmet')
+    'You do not have such an item.'
+    >>> player.inventory_add(Gun())
+    >>> drop_item(player, 'gun')
+    'You drop a gun.'
+    >>> player.get_inventory()
+    {}
+    >>> player.get_interior().get_objects((0, 0))[-2]
+    <class 'Gun'>
+    """
+    item = player.inventory_remove_by_name(item_name)
+    if item:
+        player.get_interior().add_object(player.get_coords(), item, 1)
+        return "You drop a %s." % item_name
+    else:
+        return "You do not have such an item."
+
+
+def equipment(player):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.armor import Armor
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Armor())
+    >>> equipment(player)
+    'You do not have anything equipped at the moment.'
+    >>> _ = equip_item(player, 'armor', 'torso')
+    >>> equipment(player)
+    'Equipment: armor (torso).'
+    """
+    equipment = player.get_equipment()
+    contents = []
+    for k, v in equipment.items():
+        if v is not None:
+            contents.append("%s (%s)" % (v.get_name(), k))
+    if not len(contents):
+        return "You do not have anything equipped at the moment."
+    return "Equipment: %s." % ', '.join(contents)
+
+
+def equip_item(player, item_name, slot='hands'):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.gun import Gun
+    >>> from lib.obj.armor import Armor
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Gun())
+    >>> player.inventory_add(Armor())
+    >>> equip_item(player, 'helmet', 'head')
+    'Can not equip a helmet, item not in inventory.'
+    >>> equip_item(player, 'gun', 'toe')
+    'Incorrect equipment slot name.'
+    >>> equip_item(player, 'gun')
+    'You equip a gun.'
+    >>> equip_item(player, 'armor', 'torso')
+    'You equip a armor.'
+    >>> player.get_inventory()
+    {}
+    """
+    item = player.inventory_remove_by_name(item_name)
+    if item:
+        try:
+            player.equip(item, slot)
+        except IncorrectSlotName:
+            player.inventory_add(item)
+            return "Incorrect equipment slot name."
+        except ItemCanNotBeEquippedInSlot:
+            player.inventory_add(item)
+            return "Item can not be equipped in selected slot."
+        msg = "You equip a %s." % item_name
+    else:
+        msg = "Can not equip a %s, item not in inventory." % item_name
+    return msg
+
+
 def interior_fire(player, level, chat):
     """
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
     >>> from lib.chatserver import ChatServer
+    >>> from lib.obj.gun import Gun
     >>> chat = ChatServer()
     >>> player = Player('Mike')
     >>> hostile = Player('Josh')
@@ -102,17 +184,20 @@ def interior_fire(player, level, chat):
     >>> level.add_object((0, 0), player)
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
+    'You have no weapon to fire from...'
+    >>> _ = player.equip(Gun())
+    >>> interior_fire(player, level, chat)
     'Target is not set...'
     >>> set_target(player, level)
     >>> interior_fire(player, level, chat)
     'You shoot at Josh.'
-    >>> interior_fire(player, level, chat)
-    'You shoot at Josh. Josh is dead.'
     """
     target = player.get_target()
+    if not player.is_gunman():
+        return "You have no weapon to fire from..."
     if target:
         hostile = level.get_player(target)
-        hostile.receive_damage(50)
+        hostile.receive_damage(player.get_ranged_damage())
         msg = 'You shoot at %s.' % hostile.get_name()
         hostile_msg = '%s shoots at you.' % player.get_name()
         if not hostile.is_alive():
@@ -141,9 +226,13 @@ def inventory(player):
     inv = player.get_inventory()
     if not len(inv):
         return "You do not own anything at the moment..."
-    for i, item in enumerate(inv):
-        inv[i] = item.get_name()
-    msg = 'Inventory contents: %s.' % ', '.join(inv)
+    contents = []
+    for item, qty in inv.items():
+        item = item.get_name()
+        if qty > 1:
+            item += " (%d)" % qty
+        contents.append(item)
+    msg = 'Inventory contents: %s.' % ', '.join(contents)
     return msg
 
 
@@ -157,11 +246,7 @@ def move(player, (x, y), level, chat):
     'Your path is obstructed by the door...'
     >>> move(player, (0, 1), spaceship.get_interior(), chat)
     >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You attack Josh.'
-    >>> for _ in xrange(0, 2):
-    ...     _ = move(player, (1, 1), spaceship.get_interior(), chat)
-    >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You attack Josh. Josh is dead.'
+    'You punch Josh.'
     """
     msg = None
     hostile = level.get_player((x, y))
@@ -169,9 +254,8 @@ def move(player, (x, y), level, chat):
         level.move_object(player.get_coords(), (x, y), player)
         player.set_coords((x, y))
     elif hostile:
-        hostile.receive_damage(25)
-        msg = 'You attack %s.' % hostile.get_name()
-        hostile_msg = '%s attacks you!' % player.get_name()
+        hostile.receive_damage(player.get_melee_damage())
+        msg, hostile_msg = player.get_melee_attack_messages(hostile.get_name())
         if not hostile.is_alive():
             level.remove_object((x, y), hostile)
             level.add_object((x, y), Corpse(hostile.get_name()))
@@ -223,6 +307,7 @@ def pick_up_obj(player, (x, y), level):
     for obj in objects[::-1]:
         try:
             if obj.is_pickupable():
+                obj.set_coords(None)
                 player.inventory_add(obj)
                 level.remove_object((x, y), obj)
                 msg = "You pick up a %s..." % obj.get_name()
@@ -257,6 +342,32 @@ def set_target(player, level):
         player.set_target((x, y))
     else:
         msg = 'No suitable target found...'
+    return msg
+
+
+def unequip_item(player, slot):
+    """
+    >>> from lib.obj.player import Player
+    >>> from lib.obj.gun import Gun
+    >>> player = Player('Mike')
+    >>> player.inventory_add(Gun())
+    >>> equip_item(player, 'gun')
+    'You equip a gun.'
+    >>> player.get_inventory()
+    {}
+    >>> unequip_item(player, 'toe')
+    'You do not have item in this slot.'
+    >>> unequip_item(player, 'hands')
+    'You unequip a gun.'
+    >>> player.get_inventory()
+    {<class 'Gun'>: 1}
+    """
+    item = player.unequip(slot)
+    if item:
+        player.inventory_add(item)
+        msg = "You unequip a %s." % item.get_name()
+    else:
+        msg = "You do not have item in this slot."
     return msg
 
 #------------------------------------------------------------------------------
