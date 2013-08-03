@@ -63,7 +63,8 @@ class Level(object):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             return False
         if position > 0:
-            self.level[y][x].insert(-position, obj)
+            position = - position
+            self.level[y][x].insert(position, obj)
         else:
             self.level[y][x].append(obj)
 

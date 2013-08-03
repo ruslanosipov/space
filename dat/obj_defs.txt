@@ -11,3 +11,4 @@ c|Console
 n|NavigationConsole
 T|TeleportPlatform
 )|Knife
+]|Armor

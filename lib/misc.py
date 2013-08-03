@@ -1,6 +1,7 @@
 from tests import mocks
 
 from lib.obj.player import Player
+from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
 from lib.obj.corpse import Corpse
 from lib.obj.spaceship import Spaceship
 from lib.interior.level3d import Level3D
@@ -112,22 +113,35 @@ def drop_item(player, item_name):
         return "You do not have such an item."
 
 
-def equip_item(player, item_name):
+def equip_item(player, item_name, slot='hands'):
     """
     >>> from lib.obj.player import Player
     >>> from lib.obj.gun import Gun
+    >>> from lib.obj.armor import Armor
     >>> player = Player('Mike')
     >>> player.inventory_add(Gun())
-    >>> equip_item(player, 'helmet')
+    >>> player.inventory_add(Armor())
+    >>> equip_item(player, 'helmet', 'head')
     'Can not equip a helmet, item not in inventory.'
+    >>> equip_item(player, 'gun', 'toe')
+    'Incorrect equipment slot name.'
     >>> equip_item(player, 'gun')
     'You equip a gun.'
+    >>> equip_item(player, 'armor', 'torso')
+    'You equip a armor.'
     >>> player.get_inventory()
     {}
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
-        player.equip(item)
+        try:
+            player.equip(item, slot)
+        except IncorrectSlotName:
+            player.inventory_add(item)
+            return "Incorrect equipment slot name."
+        except ItemCanNotBeEquippedInSlot:
+            player.inventory_add(item)
+            return "Item can not be equipped in selected slot."
         msg = "You equip a %s." % item_name
     else:
         msg = "Can not equip a %s, item not in inventory." % item_name
@@ -149,7 +163,7 @@ def interior_fire(player, level, chat):
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
     'You have no weapon to fire from...'
-    >>> player.equip(Gun())
+    >>> _ = player.equip(Gun())
     >>> interior_fire(player, level, chat)
     'Target is not set...'
     >>> set_target(player, level)

@@ -37,7 +37,7 @@ class TestPlayerInventory(unittest.TestCase):
         self.assertGreaterEqual(self.player.get_melee_damage(),
                                 unarmed_damage,
                                 "melee weapon should affect damage")
-        self.player.equip()
+        self.player.unequip()
         self.assertEqual(self.player.get_melee_damage(), unarmed_damage,
                          "unwielding melee weapon should reset unarmed damage")
 

@@ -99,7 +99,11 @@ try:
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
                 elif evt == 'equip':
-                    msg = misc.equip_item(player, arg)
+                    if ', ' in arg:
+                        item, slot = arg.split(', ')
+                    else:
+                        item, slot = arg, 'hands'
+                    msg = misc.equip_item(player, item, slot)
                 elif evt == 'unequip':
                     msg = misc.unequip_item(player, arg)
                 elif evt == 'drop':

@@ -13,6 +13,7 @@ class Item(Tile):
         self.moveable = False
         self.melee_damage = 5
         self.ranged_weapon = False
+        self.slots = ['hands']
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -25,3 +26,6 @@ class Item(Tile):
 
     def get_melee_damage(self):
         return self.damage
+
+    def get_slots(self):
+        return self.slots

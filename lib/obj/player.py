@@ -4,6 +4,14 @@ import copy
 from lib.obj.mob import Mob
 
 
+class IncorrectSlotName(Exception):
+    pass
+
+
+class ItemCanNotBeEquippedInSlot(Exception):
+    pass
+
+
 class Player(Mob):
 
     def __init__(self, name):
@@ -18,16 +26,20 @@ class Player(Mob):
         self.interior = None
         self.unarmed_damage = 10
         self.equipment = {
-            'hands': None}
+            'hands': None,
+            'torso': None,
+            'head': None}
 
     #--------------------------------------------------------------------------
     # equipment and inventory
 
-    def equip(self, item=None, slot='hands'):
+    def equip(self, item, slot='hands'):
         if slot not in self.equipment.keys():
-            return False
+            raise IncorrectSlotName
         if self.equipment[slot] is not None:
             self.inventory_add(self.equipment[slot])
+        if slot not in item.get_slots():
+            raise ItemCanNotBeEquippedInSlot
         self.equipment[slot] = item
 
     def inventory_add(self, item, qty=1):
