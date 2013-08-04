@@ -47,8 +47,6 @@ def get(mode='normal'):
                 text += evt.unicode
         return (mode, 'insert', text)
     for evt in events:
-        if evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
-            return ('normal', None, None)
         if evt.type == pygame.QUIT:
             return (mode, 'quit', None)
         if mode == 'normal':
@@ -60,7 +58,7 @@ def get(mode='normal'):
                 if evt.unicode == 'a':
                     return ('direction', 'activate', 1)
                 if evt.unicode == 'v':
-                    return ('direction', 'look', 1)
+                    return ('look', 'look', 1)
                 if evt.key == pygame.K_LEFT:
                     return (mode, 'move', (-1, 0))
                 if evt.key == pygame.K_DOWN:
@@ -109,4 +107,18 @@ def get(mode='normal'):
                     return ('normal', 'arg', (0, -1))
                 if evt.key == pygame.K_RIGHT:
                     return ('normal', 'arg', (1, 0))
+                if evt.unicode == '.':
+                    return ('normal', 'arg', (0, 0))
             return ('normal', 'arg', None)
+        if mode == 'look':
+            if evt.type == pygame.KEYDOWN:
+                if evt.key == pygame.K_LEFT:
+                    return ('look', 'look_dir', (-1, 0))
+                if evt.key == pygame.K_DOWN:
+                    return ('look', 'look_dir', (0, 1))
+                if evt.key == pygame.K_UP:
+                    return ('look', 'look_dir', (0, -1))
+                if evt.key == pygame.K_RIGHT:
+                    return ('look', 'look_dir', (1, 0))
+                if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
+                    return ('normal', 'look_done', 1)

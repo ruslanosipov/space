@@ -29,6 +29,8 @@ class Player(Mob):
             'hands': None,
             'torso': None,
             'head': None}
+        self.look_coords = None
+        self.looking = False
         self.set_color((147, 112, 219))
 
     #--------------------------------------------------------------------------
@@ -89,6 +91,9 @@ class Player(Mob):
     #--------------------------------------------------------------------------
     # accessors
 
+    def is_looking(self):
+        return self.looking
+
     def is_pilot(self):
         return self.pilot
 
@@ -105,6 +110,9 @@ class Player(Mob):
 
     def get_interior(self):
         return self.interior
+
+    def get_look_coords(self):
+        return self.look_coords
 
     def get_melee_damage(self):
         if self.equipment['hands'] is None:
@@ -133,6 +141,12 @@ class Player(Mob):
             return self.equipment['hands'].is_ranged_weapon()
         except AttributeError:
             return False
+
+    def set_look_coords(self, (x, y)):
+        self.look_coords = (x, y)
+
+    def set_looking(self):
+        self.looking = False if self.looking else True
 
     def set_pilot(self):
         if self.pilot:

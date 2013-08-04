@@ -34,8 +34,11 @@ spaceship = misc.add_spaceship(
     (7, 2), ext_level)
 spaceships['Galactica'] = spaceship
 
+oscillator = True
+
 try:
     while True:
+        oscillator = False if oscillator else True
         clock = time.clock()
         server.receive()
         data = server.get_data()
@@ -70,10 +73,6 @@ try:
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
                     msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
-                elif evt == 'inventory':
-                    msg = misc.inventory(player)
-                elif evt == 'equipment':
-                    msg = misc.equipment(player)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
@@ -87,16 +86,10 @@ try:
                         spaceship.get_coords(),
                         spaceship.get_pointer(),
                         ext_level)
-                elif evt == 'target':
-                    msg = misc.set_target(player, int_level)
                 elif evt == 'int_fire':
                     msg = misc.interior_fire(player, int_level, chat)
                 elif evt == 'say':
                     chat.add_single('public', "%s: %s" % (name, arg), 0)
-                elif evt == 'look':
-                    dx, dy = map(int, arg)
-                    x, y = player.get_coords()
-                    msg = misc.look((x + dx, y + dy), int_level)
                 elif evt == 'unpilot':
                     msg = "You are done piloting the spaceship..."
                     player.set_pilot()
@@ -114,19 +107,46 @@ try:
                     chat.add_single(player, msg, 1)
         # Let the world process one step
         ext_level.update()
-        # Generate views for players
         for s in data.keys():
-            player = players[s]
-            spaceship = player.get_interior().get_spaceship()
-            int_radius = 11
-            ext_radius = 11
+            for evt, arg in data[s]:
+                msg = None
+                player = players[s]
+                int_radius = 11
+                ext_radius = 11
+                if not player.is_pilot():
+                    view = player.get_interior().get_spaceship().get_view()
+                    visible_tiles = view.visible_tiles(
+                        player.get_coords(),
+                        int_radius,
+                        player.get_sight())
+                spaceship = player.get_interior().get_spaceship()
+                int_level = player.get_interior()
+                if evt == 'inventory':
+                    msg = misc.inventory(player)
+                elif evt == 'equipment':
+                    msg = misc.equipment(player)
+                elif evt == 'target':
+                    msg = misc.set_target(player, int_level)
+                elif evt == 'look':
+                    msg = misc.look(player, (0, 0), int_level, visible_tiles)
+                elif evt == 'look_dir':
+                    dx, dy = map(int, arg)
+                    msg = misc.look(player, (dx, dy), int_level, visible_tiles)
+                elif evt == 'look_done':
+                    player.set_looking()
+                if msg is not None:
+                    chat.add_single(player, msg, 1)
+            # Generate views for players
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
                 view, colors = view.generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),
-                    player.get_target())
+                    visible_tiles,
+                    player.get_target() if oscillator else None,
+                    player.get_look_coords() if player.is_looking() \
+                        and oscillator else None)
                 # create status bar
                 health = str(player.get_health())
                 status_bar = "HP %s%s " % (' ' * (3 - len(health)), health)
@@ -160,3 +180,7 @@ except KeyboardInterrupt:
     print "Keyboard interrupt detected, exiting..."
     server.close()
     sys.exit(0)
+except:
+    print "Caught error, exiting..."
+    server.close()
+    raise

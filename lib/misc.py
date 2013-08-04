@@ -272,15 +272,30 @@ def move(player, (x, y), level, chat):
     return msg
 
 
-def look((x, y), level):
+def look(player, (dx, dy), level, visible_tiles):
     """
     >>> from lib.interior.level3d import Level3D
+    >>> from lib.obj.player import Player
     >>> level = Level3D()
     >>> level.load_converted_char_map([[['.', 'c']]],
     ...                               {'.': 'Floor', 'c': 'Console'})
-    >>> look((0, 0), level)
+    >>> player = Player('Mike')
+    >>> look(player, (0, 0), level, [(0, 0)])
     'You see: console, floor.'
+    >>> look(player, (0, 1), level, [(0, 0)])
+    "You can't see anything."
     """
+    if not player.is_looking():
+        player.set_looking()
+        player.set_look_coords(player.get_coords())
+    x, y = player.get_look_coords()
+    x, y = x + dx, y + dy
+    px, py = player.get_coords()
+    if abs(px - x) >= 12 or abs(py - y) >= 12:
+        return None
+    player.set_look_coords((x, y))
+    if (x, y) not in visible_tiles:
+        return "You can't see anything."
     objects = level.get_objects((x, y))
     names = []
     for obj in objects[::-1]:
