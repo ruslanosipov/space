@@ -188,9 +188,9 @@ def interior_fire(player, level, chat):
     >>> _ = player.equip(Gun())
     >>> interior_fire(player, level, chat)
     'Target is not set...'
-    >>> set_target(player, level)
+    >>> _ = set_target(player, level)
     >>> interior_fire(player, level, chat)
-    'You shoot at Josh.'
+    ''
     """
     target = player.get_target()
     if not player.is_gunman():
@@ -206,10 +206,10 @@ def interior_fire(player, level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg, 2)
-    else:
-        msg = 'Target is not set...'
-    return msg
+        chat.add_single(player, msg, 3)
+        chat.add_single(hostile, hostile_msg, 3)
+        return ''
+    return 'Target is not set...'
 
 
 def inventory(player):
@@ -349,8 +349,9 @@ def set_target(player, level):
     >>> hostile = Player('Josh')
     >>> level.add_object((1, 1), hostile)
     >>> set_target(player, level)
+    ''
     """
-    msg = None
+    status = ''
     targets = level.get_nearest_mobs_coords(
         player.get_coords(),
         player.get_sight())
@@ -359,8 +360,8 @@ def set_target(player, level):
         x, y = targets[0]
         player.set_target((x, y))
     else:
-        msg = 'No suitable target found...'
-    return msg
+        status = 'No suitable target found...'
+    return status
 
 
 def unequip_item(player, slot):

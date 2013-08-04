@@ -33,7 +33,7 @@ class UI(object):
                 msg, msg_type = chat_log[y]
                 new_line.append([' ' + msg, MSG_COLORS[msg_type]])
             if y == len(view) - 1:
-                new_line.append(['> ' + prompt, UI_COLOR])
+                new_line.append([' > ' + prompt, UI_COLOR])
             surface.append(new_line)
         if not len(evt_mode_desc):
             evt_mode_desc = ' ' * 24

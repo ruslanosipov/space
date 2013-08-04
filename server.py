@@ -48,7 +48,6 @@ try:
             if not data[s]:
                 continue
             for evt, arg in data[s]:
-                msg = None
                 status = ''
                 if s in players:
                     player = players[s]
@@ -90,7 +89,7 @@ try:
                         spaceship.get_pointer(),
                         ext_level)
                 elif evt == 'int_fire':
-                    msg = misc.interior_fire(player, int_level, chat)
+                    status = misc.interior_fire(player, int_level, chat)
                 elif evt == 'say':
                     chat.add_single('public', "%s: %s" % (name, arg), 0)
                 elif evt == 'unpilot':
@@ -106,8 +105,6 @@ try:
                     status = misc.unequip_item(player, arg)
                 elif evt == 'drop':
                     status = misc.drop_item(player, arg)
-                if msg is not None:
-                    chat.add_single(player, msg, 1)
         # Let the world process one step
         ext_level.update()
         for s in data.keys():
@@ -129,7 +126,7 @@ try:
                 elif evt == 'equipment':
                     msg = misc.equipment(player)
                 elif evt == 'target':
-                    msg = misc.set_target(player, int_level)
+                    status = misc.set_target(player, int_level)
                 elif evt == 'look':
                     status = misc.look(player, (0, 0),
                                                int_level, visible_tiles)
@@ -169,8 +166,8 @@ try:
                 status_bar = "SPD %s%s " % (' ' * (3 - len(speed)), speed)
                 health = str(spaceship.get_health())
                 status_bar += "HP %s%s " % (' ' * (3 - len(health)), health)
-            ver = "v0.2.1-alpha "
-            status_bar += ' ' * (56 - len(status_bar) - len(ver)) + ver
+            ver = "v0.2.1-alpha"
+            status += ' ' * (80 - len(status) - len(ver)) + ver
             chat_log = chat.get_recent_for_recipient(player)
             new_data[s] = (
                 '\n'.join(view),
