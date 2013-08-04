@@ -188,9 +188,9 @@ def interior_fire(player, level, chat):
     >>> _ = player.equip(Gun())
     >>> interior_fire(player, level, chat)
     'Target is not set...'
-    >>> set_target(player, level)
+    >>> _ = set_target(player, level)
     >>> interior_fire(player, level, chat)
-    'You shoot at Josh.'
+    ''
     """
     target = player.get_target()
     if not player.is_gunman():
@@ -206,10 +206,10 @@ def interior_fire(player, level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg, 2)
-    else:
-        msg = 'Target is not set...'
-    return msg
+        chat.add_single(player, msg, 3)
+        chat.add_single(hostile, hostile_msg, 3)
+        return ''
+    return 'Target is not set...'
 
 
 def inventory(player):
@@ -245,10 +245,11 @@ def move(player, (x, y), level, chat):
     >>> move(player, (1, 0), spaceship.get_interior(), chat)
     'Your path is obstructed by the door...'
     >>> move(player, (0, 1), spaceship.get_interior(), chat)
+    ''
     >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You punch Josh.'
+    ''
     """
-    msg = None
+    status = ''
     hostile = level.get_player((x, y))
     if not level.is_path_blocker((x, y)):
         level.move_object(player.get_coords(), (x, y), player)
@@ -262,14 +263,16 @@ def move(player, (x, y), level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg, 2)
+        chat.add_single(player, msg, 3)
+        chat.add_single(hostile, hostile_msg, 3)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:
             if obj.is_path_blocker():
-                msg = "Your path is obstructed by the %s..." % obj.get_name()
+                status = "Your path is obstructed by the %s..." % \
+                    obj.get_name()
                 break
-    return msg
+    return status
 
 
 def look(player, (dx, dy), level, visible_tiles):
@@ -283,7 +286,7 @@ def look(player, (dx, dy), level, visible_tiles):
     >>> look(player, (0, 0), level, [(0, 0)])
     'You see: console, floor.'
     >>> look(player, (0, 1), level, [(0, 0)])
-    "You can't see anything."
+    "You can't see anything there."
     """
     if not player.is_looking():
         player.set_looking()
@@ -295,7 +298,7 @@ def look(player, (dx, dy), level, visible_tiles):
         return None
     player.set_look_coords((x, y))
     if (x, y) not in visible_tiles:
-        return "You can't see anything."
+        return "You can't see anything there."
     objects = level.get_objects((x, y))
     names = []
     for obj in objects[::-1]:
@@ -346,8 +349,9 @@ def set_target(player, level):
     >>> hostile = Player('Josh')
     >>> level.add_object((1, 1), hostile)
     >>> set_target(player, level)
+    ''
     """
-    msg = None
+    status = ''
     targets = level.get_nearest_mobs_coords(
         player.get_coords(),
         player.get_sight())
@@ -356,8 +360,8 @@ def set_target(player, level):
         x, y = targets[0]
         player.set_target((x, y))
     else:
-        msg = 'No suitable target found...'
-    return msg
+        status = 'No suitable target found...'
+    return status
 
 
 def unequip_item(player, slot):

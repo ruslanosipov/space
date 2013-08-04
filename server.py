@@ -48,7 +48,7 @@ try:
             if not data[s]:
                 continue
             for evt, arg in data[s]:
-                msg = None
+                status = ''
                 if s in players:
                     player = players[s]
                 if evt == 'connect' and s not in players:
@@ -65,18 +65,20 @@ try:
                 if evt == 'activate':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.activate_obj(
+                    status = misc.activate_obj(
                         (x + dx, y + dy),
                         int_level,
                         player)
                 elif evt == 'pickup':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
+                    status = misc.pick_up_obj(player, (x + dx, y + dy), \
+                                              int_level)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.move(player, (x + dx, y + dy), int_level, chat)
+                    status = misc.move(player, (x + dx, y + dy),
+                                       int_level, chat)
                 elif evt == 'rotate':
                     spaceship.rotate_pointer(int(arg))
                 elif evt == 'accelerate':
@@ -87,24 +89,22 @@ try:
                         spaceship.get_pointer(),
                         ext_level)
                 elif evt == 'int_fire':
-                    msg = misc.interior_fire(player, int_level, chat)
+                    status = misc.interior_fire(player, int_level, chat)
                 elif evt == 'say':
                     chat.add_single('public', "%s: %s" % (name, arg), 0)
                 elif evt == 'unpilot':
-                    msg = "You are done piloting the spaceship..."
+                    status = "You are done piloting the spaceship..."
                     player.set_pilot()
                 elif evt == 'equip':
                     if ', ' in arg:
                         item, slot = arg.split(', ')
                     else:
                         item, slot = arg, 'hands'
-                    msg = misc.equip_item(player, item, slot)
+                    status = misc.equip_item(player, item, slot)
                 elif evt == 'unequip':
-                    msg = misc.unequip_item(player, arg)
+                    status = misc.unequip_item(player, arg)
                 elif evt == 'drop':
-                    msg = misc.drop_item(player, arg)
-                if msg is not None:
-                    chat.add_single(player, msg, 1)
+                    status = misc.drop_item(player, arg)
         # Let the world process one step
         ext_level.update()
         for s in data.keys():
@@ -126,12 +126,14 @@ try:
                 elif evt == 'equipment':
                     msg = misc.equipment(player)
                 elif evt == 'target':
-                    msg = misc.set_target(player, int_level)
+                    status = misc.set_target(player, int_level)
                 elif evt == 'look':
-                    msg = misc.look(player, (0, 0), int_level, visible_tiles)
+                    status = misc.look(player, (0, 0),
+                                               int_level, visible_tiles)
                 elif evt == 'look_dir':
                     dx, dy = map(int, arg)
-                    msg = misc.look(player, (dx, dy), int_level, visible_tiles)
+                    status = misc.look(player, (dx, dy),
+                                               int_level, visible_tiles)
                 elif evt == 'look_done':
                     player.set_looking()
                 if msg is not None:
@@ -164,15 +166,16 @@ try:
                 status_bar = "SPD %s%s " % (' ' * (3 - len(speed)), speed)
                 health = str(spaceship.get_health())
                 status_bar += "HP %s%s " % (' ' * (3 - len(health)), health)
-            ver = "v0.2.1-alpha "
-            status_bar += ' ' * (56 - len(status_bar) - len(ver)) + ver
+            ver = "v0.2.1-alpha"
+            status += ' ' * (80 - len(status) - len(ver)) + ver
             chat_log = chat.get_recent_for_recipient(player)
             new_data[s] = (
                 '\n'.join(view),
                 colors,
                 chat_log,
                 player.is_pilot(),
-                status_bar)
+                status_bar,
+                status)
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)
         server.send()
