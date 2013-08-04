@@ -33,7 +33,7 @@ for line in obj_defs:
         ext_colors[char] = eval(color)
 ui.set_default_colors(int_colors, ext_colors)
 
-evt_mode = 'normal'
+evt_mode, evt_mode_desc = 'normal', ''
 action = ('connect', (name, spaceship))
 require_arg = False
 queued_evt = False
@@ -59,12 +59,15 @@ while True:
         break
     elif evt == 'arg' and require_arg:
         action = (action, evt_arg) if evt_arg else 0
+        evt_mode_desc = ''
         require_arg = False
     elif evt == 'activate':
         action = evt
+        evt_mode_desc = 'Activate.. (direction)'
         require_arg = True
     elif evt == 'look':
         action = evt
+        evt_mode_desc = 'Look... (direction)'
         require_arg = True
     elif evt == 'insert':
         prompt += evt_arg
@@ -73,14 +76,22 @@ while True:
     elif evt == 'return' and prompt:
         action = (queued_evt, prompt)
         queued_evt = None
-        prompt, evt_mode = '', 'normal'
+        prompt, evt_mode, evt_mode_desc = '', 'normal', ''
     elif evt in ['say', 'equip', 'drop', 'unequip']:
+        if evt == 'say':
+            evt_mode_desc = 'Say...'
+        elif evt == 'equip':
+            evt_mode_desc = 'Equip... (item, slot)'
+        elif evt == 'drop':
+            evt_mode_desc = 'Drop... (item name)'
+        elif evt == 'unequip':
+            evt_mode_desc = 'Unequip... (slot)'
         queued_evt = evt
     elif (evt, evt_arg) != (None, None):
         action = (evt, evt_arg)
 
     surface = ui.compose(
-        view_field, colors, chat.get_log(),
-        prompt, evt_mode, status_bar)
+        view_field, colors, chat.get_log(), prompt,
+        evt_mode, evt_mode_desc, status_bar)
     display.draw(surface)
     display.update()

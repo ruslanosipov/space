@@ -162,6 +162,9 @@ class Spaceship(object):
     def get_exterior(self):
         return self.exterior
 
+    def get_health(self):
+        return self.health
+
     def get_interior(self):
         return self.interior
 

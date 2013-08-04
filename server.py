@@ -127,14 +127,25 @@ try:
                     int_radius,
                     player.get_sight(),
                     player.get_target())
-                status_bar = ""
+                # create status bar
+                health = str(player.get_health())
+                status_bar = "HP %s%s " % (' ' * (3 - len(health)), health)
+                if player.get_equipment('hands') is not None:
+                    weapon = player.get_equipment('hands').get_name()
+                    status_bar += "(%s) " % weapon
             else:
                 view, colors = ext_view.generate(
                     spaceship.get_coords(),
                     ext_radius,
                     ext_radius,
                     spaceship.get_abs_pointer())
-                status_bar = "SPD: %s" % spaceship.get_speed()
+                # create status bar
+                speed = str(spaceship.get_speed())
+                status_bar = "SPD %s%s " % (' ' * (3 - len(speed)), speed)
+                health = str(spaceship.get_health())
+                status_bar += "HP %s%s " % (' ' * (3 - len(health)), health)
+            ver = "v0.2.1-alpha "
+            status_bar += ' ' * (56 - len(status_bar) - len(ver)) + ver
             chat_log = chat.get_recent_for_recipient(player)
             new_data[s] = (
                 '\n'.join(view),

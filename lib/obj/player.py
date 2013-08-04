@@ -92,8 +92,13 @@ class Player(Mob):
     def is_pilot(self):
         return self.pilot
 
-    def get_equipment(self):
-        return self.equipment
+    def get_equipment(self, slot=None):
+        if slot is None:
+            return self.equipment
+        try:
+            return self.equipment[slot]
+        except KeyError:
+            return False
 
     def get_inventory(self):
         return self.inventory

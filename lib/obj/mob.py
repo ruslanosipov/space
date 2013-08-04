@@ -61,6 +61,9 @@ class Mob(object):
     def get_coords(self):
         return self.coords
 
+    def get_health(self):
+        return self.health
+
     def get_level(self):
         return self.level
 

@@ -38,6 +38,8 @@ def get(mode='normal'):
         text = ""
         for evt in events:
             if evt.type == pygame.KEYDOWN:
+                if evt.key == pygame.K_ESCAPE:
+                    return ('normal', None, None)
                 if evt.key == pygame.K_BACKSPACE:
                     return (mode, 'backspace', 1)
                 if evt.key == pygame.K_RETURN:

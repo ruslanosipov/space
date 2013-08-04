@@ -7,7 +7,8 @@ MSG_COLORS = {
 class UI(object):
     global MSG_COLORS
 
-    def compose(self, view, colors, chat_log, prompt, evt_mode, status_bar):
+    def compose(self, view, colors, chat_log, prompt,
+                evt_mode, evt_mode_desc, status_bar):
         if evt_mode == 'pilot':
             default_colors = self.ext_colors
         else:
@@ -32,12 +33,12 @@ class UI(object):
                 new_line.append(['> ' + prompt, (255, 255, 255)])
             surface.append(new_line)
         surface.append([['-' * 23 + '+' + '-' * 56, (0, 255, 255)]])
-        if evt_mode == 'normal':
-            evt_mode = ' ' * 12
+        if not len(evt_mode_desc):
+            evt_mode_desc = ' ' * 23 + '|'
         else:
-            evt_mode = '-- %s --' % evt_mode[:6].upper()
-        evt_mode += ' %s' % status_bar
-        surface.append([[evt_mode, (0, 255, 255)]])
+            evt_mode_desc += (23 - len(evt_mode_desc)) * ' ' + '|'
+        evt_mode_desc += status_bar
+        surface.append([[evt_mode_desc, (0, 255, 255)]])
         return surface
 
     def set_default_colors(self, int_colors, ext_colors):
