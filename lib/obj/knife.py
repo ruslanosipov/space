@@ -10,3 +10,9 @@ class Knife(Item):
         """
         super(Knife, self).__init__(')', 'knife')
         self.melee_damage = (20, 30)
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_melee_damage(self):
+        return self.melee_damage
