@@ -34,11 +34,11 @@ spaceship = misc.add_spaceship(
     (7, 2), ext_level)
 spaceships['Galactica'] = spaceship
 
-oscillator = True
+oscillator = 0
 
 try:
     while True:
-        oscillator = False if oscillator else True
+        oscillator = oscillator + 1 if oscillator < 10 else 0
         clock = time.clock()
         server.receive()
         data = server.get_data()
@@ -144,9 +144,9 @@ try:
                     int_radius,
                     player.get_sight(),
                     visible_tiles,
-                    player.get_target() if oscillator else None,
+                    player.get_target() if oscillator < 5 else None,
                     player.get_look_coords() if player.is_looking() \
-                        and oscillator else None)
+                        and oscillator < 5 else None)
                 # create status bar
                 health = str(player.get_health())
                 status_bar = "HP %s%s " % (' ' * (3 - len(health)), health)

@@ -21,7 +21,7 @@ class InteriorView(View):
                         nx, ny = x - x0 + r, y - y0 + r
                         if pointer and (x, y) == pointer:
                             view[ny][nx] = 'x'
-                        if look and (x, y) == look:
+                        elif look and (x, y) == look:
                             view[ny][nx] = 'l'
                         elif (x, y) in visible_tiles:
                             obj = l.get_objects((x, y))[-1]
