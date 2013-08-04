@@ -54,6 +54,8 @@ while True:
 
     events = event.get(evt_mode)
     evt_mode, evt, evt_arg = events if events else (evt_mode, None, None)
+    if evt_mode == 'normal' and len(evt_mode_desc):
+        evt_mode_desc = ''
     if evt == 'quit':
         print 'Quiting...'
         break
@@ -66,9 +68,11 @@ while True:
         evt_mode_desc = 'Activate.. (direction)'
         require_arg = True
     elif evt == 'look':
-        action = evt
         evt_mode_desc = 'Look... (direction)'
-        require_arg = True
+        action = (evt, evt_arg)
+    elif evt == 'look_done':
+        evt_mode_desc = ''
+        action = (evt, evt_arg)
     elif evt == 'insert':
         prompt += evt_arg
     elif evt == 'backspace' and prompt:
