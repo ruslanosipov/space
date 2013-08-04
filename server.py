@@ -49,6 +49,7 @@ try:
                 continue
             for evt, arg in data[s]:
                 msg = None
+                status = ''
                 if s in players:
                     player = players[s]
                 if evt == 'connect' and s not in players:
@@ -65,18 +66,20 @@ try:
                 if evt == 'activate':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.activate_obj(
+                    status = misc.activate_obj(
                         (x + dx, y + dy),
                         int_level,
                         player)
                 elif evt == 'pickup':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
+                    status = misc.pick_up_obj(player, (x + dx, y + dy), \
+                                              int_level)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    msg = misc.move(player, (x + dx, y + dy), int_level, chat)
+                    status = misc.move(player, (x + dx, y + dy),
+                                       int_level, chat)
                 elif evt == 'rotate':
                     spaceship.rotate_pointer(int(arg))
                 elif evt == 'accelerate':
@@ -91,18 +94,18 @@ try:
                 elif evt == 'say':
                     chat.add_single('public', "%s: %s" % (name, arg), 0)
                 elif evt == 'unpilot':
-                    msg = "You are done piloting the spaceship..."
+                    status = "You are done piloting the spaceship..."
                     player.set_pilot()
                 elif evt == 'equip':
                     if ', ' in arg:
                         item, slot = arg.split(', ')
                     else:
                         item, slot = arg, 'hands'
-                    msg = misc.equip_item(player, item, slot)
+                    status = misc.equip_item(player, item, slot)
                 elif evt == 'unequip':
-                    msg = misc.unequip_item(player, arg)
+                    status = misc.unequip_item(player, arg)
                 elif evt == 'drop':
-                    msg = misc.drop_item(player, arg)
+                    status = misc.drop_item(player, arg)
                 if msg is not None:
                     chat.add_single(player, msg, 1)
         # Let the world process one step
@@ -128,10 +131,12 @@ try:
                 elif evt == 'target':
                     msg = misc.set_target(player, int_level)
                 elif evt == 'look':
-                    msg = misc.look(player, (0, 0), int_level, visible_tiles)
+                    status = misc.look(player, (0, 0),
+                                               int_level, visible_tiles)
                 elif evt == 'look_dir':
                     dx, dy = map(int, arg)
-                    msg = misc.look(player, (dx, dy), int_level, visible_tiles)
+                    status = misc.look(player, (dx, dy),
+                                               int_level, visible_tiles)
                 elif evt == 'look_done':
                     player.set_looking()
                 if msg is not None:
@@ -172,7 +177,8 @@ try:
                 colors,
                 chat_log,
                 player.is_pilot(),
-                status_bar)
+                status_bar,
+                status)
         server.set_data(new_data)
         time.sleep(time.clock() - clock + 0.02)
         server.send()

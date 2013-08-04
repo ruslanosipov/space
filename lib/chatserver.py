@@ -1,8 +1,8 @@
 MSG_TYPES = [
     0,  # converstaion
     1,  # player action
-    2]  # event in surroundings not caused by player
-
+    2,  # event in surroundings not caused by player
+    3]  # hostile action
 
 class ChatServer(object):
     """

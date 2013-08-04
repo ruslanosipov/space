@@ -245,10 +245,11 @@ def move(player, (x, y), level, chat):
     >>> move(player, (1, 0), spaceship.get_interior(), chat)
     'Your path is obstructed by the door...'
     >>> move(player, (0, 1), spaceship.get_interior(), chat)
+    ''
     >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    'You punch Josh.'
+    ''
     """
-    msg = None
+    status = ''
     hostile = level.get_player((x, y))
     if not level.is_path_blocker((x, y)):
         level.move_object(player.get_coords(), (x, y), player)
@@ -262,14 +263,16 @@ def move(player, (x, y), level, chat):
             player.set_target()
             msg += ' %s is dead.' % hostile.get_name()
             hostile_msg += ' You are dead!'
-        chat.add_single(hostile, hostile_msg, 2)
+        chat.add_single(player, msg, 3)
+        chat.add_single(hostile, hostile_msg, 3)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:
             if obj.is_path_blocker():
-                msg = "Your path is obstructed by the %s..." % obj.get_name()
+                status = "Your path is obstructed by the %s..." % \
+                    obj.get_name()
                 break
-    return msg
+    return status
 
 
 def look(player, (dx, dy), level, visible_tiles):
@@ -283,7 +286,7 @@ def look(player, (dx, dy), level, visible_tiles):
     >>> look(player, (0, 0), level, [(0, 0)])
     'You see: console, floor.'
     >>> look(player, (0, 1), level, [(0, 0)])
-    "You can't see anything."
+    "You can't see anything there."
     """
     if not player.is_looking():
         player.set_looking()
@@ -295,7 +298,7 @@ def look(player, (dx, dy), level, visible_tiles):
         return None
     player.set_look_coords((x, y))
     if (x, y) not in visible_tiles:
-        return "You can't see anything."
+        return "You can't see anything there."
     objects = level.get_objects((x, y))
     names = []
     for obj in objects[::-1]:
