@@ -49,7 +49,6 @@ while True:
         evt_mode = 'pilot'
     elif not is_pilot and evt_mode == 'pilot':
         evt_mode = 'normal'
-    view_field = view_field.split('\n')
     if len(chat_msgs):
         chat.add_multiple(chat_msgs)
 

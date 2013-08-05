@@ -35,10 +35,12 @@ spaceship = misc.add_spaceship(
 spaceships['Galactica'] = spaceship
 
 oscillator = 0
+oscillator_i = 0
 
 try:
     while True:
-        oscillator = oscillator + 1 if oscillator < 10 else 0
+        oscillator = True if not oscillator_i else False
+        oscillator_i = oscillator_i + 1 if oscillator_i < 10 else 0
         clock = time.clock()
         server.receive()
         data = server.get_data()
@@ -72,7 +74,7 @@ try:
                 elif evt == 'pickup':
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
-                    status = misc.pick_up_obj(player, (x + dx, y + dy), \
+                    status = misc.pick_up_obj(player, (x + dx, y + dy),
                                               int_level)
                 elif evt == 'move':
                     dx, dy = map(int, arg)
@@ -108,19 +110,19 @@ try:
         # Let the world process one step
         ext_level.update()
         for s in data.keys():
+            player = players[s]
+            int_radius = 11
+            ext_radius = 11
+            spaceship = player.get_interior().get_spaceship()
+            int_level = player.get_interior()
             for evt, arg in data[s]:
                 msg = None
-                player = players[s]
-                int_radius = 11
-                ext_radius = 11
                 if not player.is_pilot():
                     view = player.get_interior().get_spaceship().get_view()
                     visible_tiles = view.visible_tiles(
                         player.get_coords(),
                         int_radius,
                         player.get_sight())
-                spaceship = player.get_interior().get_spaceship()
-                int_level = player.get_interior()
                 if evt == 'inventory':
                     msg = misc.inventory(player)
                 elif evt == 'equipment':
@@ -129,11 +131,11 @@ try:
                     status = misc.set_target(player, int_level)
                 elif evt == 'look':
                     status = misc.look(player, (0, 0),
-                                               int_level, visible_tiles)
+                                       int_level, visible_tiles)
                 elif evt == 'look_dir':
                     dx, dy = map(int, arg)
                     status = misc.look(player, (dx, dy),
-                                               int_level, visible_tiles)
+                                       int_level, visible_tiles)
                 elif evt == 'look_done':
                     player.set_looking()
                 if msg is not None:
@@ -146,9 +148,8 @@ try:
                     int_radius,
                     player.get_sight(),
                     visible_tiles,
-                    player.get_target() if oscillator < 5 else None,
-                    player.get_look_coords() if player.is_looking() \
-                        and oscillator < 5 else None)
+                    player.get_target() if oscillator else None,
+                    player.get_look_coords() if oscillator else None)
                 # create status bar
                 health = str(player.get_health())
                 status_bar = "HP %s%s " % (' ' * (3 - len(health)), health)
@@ -167,10 +168,11 @@ try:
                 health = str(spaceship.get_health())
                 status_bar += "HP %s%s " % (' ' * (3 - len(health)), health)
             ver = "v0.2.1-alpha"
-            status += ' ' * (80 - len(status) - len(ver)) + ver
+            if status[- len(ver):] != ver:
+                status += ' ' * (80 - len(status) - len(ver)) + ver
             chat_log = chat.get_recent_for_recipient(player)
             new_data[s] = (
-                '\n'.join(view),
+                view,
                 colors,
                 chat_log,
                 player.is_pilot(),

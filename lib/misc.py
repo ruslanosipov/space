@@ -60,18 +60,18 @@ def activate_obj((x, y), level, player=None):
     'Nothing to activate here...'
     """
     objects = level.get_objects((x, y))
-    msg = "Nothing to activate here..."
+    status = "Nothing to activate here..."
     for obj in objects[::-1]:
         try:
             try:
                 obj.set_player(player)
             except AttributeError:
                 pass
-            msg = obj.activate()
+            status = obj.activate()
             break
         except AttributeError:
             pass
-    return msg
+    return status
 
 
 def add_player(name, spaceship, coords=None):

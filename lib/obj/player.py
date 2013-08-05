@@ -147,6 +147,8 @@ class Player(Mob):
 
     def set_looking(self):
         self.looking = False if self.looking else True
+        if not self.looking:
+            self.look_coords = None
 
     def set_pilot(self):
         if self.pilot:
