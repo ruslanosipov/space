@@ -3,99 +3,133 @@
 from ConfigParser import ConfigParser
 
 from lib.chatclient import ChatClient
-from lib.client import Client
 from lib.display import Display
 from lib.ui import UI
 from lib import event
+from lib import client
+import time
+
+
+class GameClient(object):
+
+    def __init__(self, config):
+        name = config.get('player', 'name')
+        spaceship = config.get('player', 'spaceship')
+
+        self.chat = ChatClient()
+        self.display = Display()
+        self.ui = UI()
+        int_colors, ext_colors = {}, {}
+        obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
+        for line in obj_defs:
+            if len(line):
+                char, color = line.split('|')
+                int_colors[char] = eval(color)
+        obj_defs = open('dat/ext_obj_colors.txt', 'rb').read().split('\n')
+        for line in obj_defs:
+            if len(line):
+                char, color = line.split('|')
+                ext_colors[char] = eval(color)
+        self.ui.set_default_colors(int_colors, ext_colors)
+
+        self.evt_mode, self.evt_mode_desc = 'normal', ''
+        self.action = ('connect', (name, spaceship))
+        self.arg_type = 'tuple_of_str'
+        self.require_arg = False
+        self.queued_evt = False
+        self.prompt = ''
+        self.top_status_bar, self.bottom_status_bar = '', ''
+        self.view_field, self.colors = False, {}
+        self.command = None
+
+    def main(self):
+        print 'start', time.time()
+        if self.action and not self.require_arg:
+            command = getattr(self.command, 'queue_' + self.arg_type)
+            command(self.action[0], self.action[1])
+            self.action, self.arg_type = False, False
+        if not self.view_field:
+            return
+        events = event.get(self.evt_mode)
+        if events:
+            self.evt_mode, evt, evt_arg, self.arg_type = events
+        else:
+            evt, evt_arg = None, None
+        if self.evt_mode == 'normal' and len(self.evt_mode_desc):
+            self.evt_mode_desc = ''
+        if evt == 'quit':
+            print 'Quiting...'
+            return
+        elif evt == 'arg' and self.require_arg:
+            self.action = (self.action, evt_arg) if evt_arg else 0
+            self.evt_mode_desc = ''
+            self.require_arg = False
+        elif evt == 'activate':
+            self.action = evt
+            self.evt_mode_desc = 'Activate.. (direction)'
+            self.require_arg = True
+        elif evt == 'look':
+            self.evt_mode_desc = 'Look... (direction)'
+            self.action = (evt, evt_arg)
+        elif evt == 'look_done':
+            self.evt_mode_desc = ''
+            self.action = (evt, evt_arg)
+        elif evt == 'insert':
+            self.prompt += evt_arg
+        elif evt == 'backspace' and self.prompt:
+            self.prompt = self.prompt[: - evt_arg]
+        elif evt == 'return' and self.prompt:
+            self.action = (self.queued_evt, self.prompt)
+            self.queued_evt = False
+            self.prompt, self.evt_mode, self.evt_mode_desc = '', 'normal', ''
+        elif evt in ['say', 'equip', 'drop', 'unequip']:
+            if evt == 'say':
+                self.evt_mode_desc = 'Say...'
+            elif evt == 'equip':
+                self.evt_mode_desc = 'Equip... (item, slot)'
+            elif evt == 'drop':
+                self.evt_mode_desc = 'Drop... (item name)'
+            elif evt == 'unequip':
+                self.evt_mode_desc = 'Unequip... (slot)'
+            self.queued_evt = evt
+        elif (evt, evt_arg) != (None, None):
+            self.action = (evt, evt_arg)
+
+        surface = self.ui.compose(
+            self.view_field, self.colors, self.chat.get_log(), self.prompt,
+            self.evt_mode, self.evt_mode_desc, self.bottom_status_bar,
+            self.top_status_bar)
+        self.display.draw(surface)
+        self.display.update()
+        print 'end', time.time()
+
+    #--------------------------------------------------------------------------
+    # state accessors
+
+    def add_chat_messages(self, messages):
+            self.chat.add_multiple(messages)
+
+    def set_bottom_status_bar(self, text):
+        self.bottom_status_bar = text
+
+    def set_pilot(self, is_pilot):
+        if is_pilot:
+            self.evt_mode = 'pilot'
+        elif not is_pilot and self.evt_mode == 'pilot':
+            self.evt_mode = 'normal'
+
+    def set_top_status_bar(self, text):
+        self.top_status_bar = text
+
+    def set_view(self, view, colors):
+        self.view_field = view
+        self.colors = colors
+
+    def set_command(self, command):
+        self.command = command
 
 config = ConfigParser()
 config.read('config.ini')
 host = config.get('server', 'host')
 port = config.getint('server', 'port')
-name = config.get('player', 'name')
-spaceship = config.get('player', 'spaceship')
-
-chat = ChatClient()
-client = Client(host, port)
-display = Display()
-ui = UI()
-
-int_colors, ext_colors = {}, {}
-obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
-for line in obj_defs:
-    if len(line):
-        char, color = line.split('|')
-        int_colors[char] = eval(color)
-obj_defs = open('dat/ext_obj_colors.txt', 'rb').read().split('\n')
-for line in obj_defs:
-    if len(line):
-        char, color = line.split('|')
-        ext_colors[char] = eval(color)
-ui.set_default_colors(int_colors, ext_colors)
-
-evt_mode, evt_mode_desc = 'normal', ''
-action = ('connect', (name, spaceship))
-require_arg = False
-queued_evt = False
-prompt = ''
-
-while True:
-    if action and not require_arg:
-        client.send(action)
-        action = False
-    view_field, colors, chat_msgs, is_pilot, status_bar, top_status_bar \
-        = client.receive()[-1]
-    if is_pilot:
-        evt_mode = 'pilot'
-    elif not is_pilot and evt_mode == 'pilot':
-        evt_mode = 'normal'
-    if len(chat_msgs):
-        chat.add_multiple(chat_msgs)
-
-    events = event.get(evt_mode)
-    evt_mode, evt, evt_arg = events if events else (evt_mode, None, None)
-    if evt_mode == 'normal' and len(evt_mode_desc):
-        evt_mode_desc = ''
-    if evt == 'quit':
-        print 'Quiting...'
-        break
-    elif evt == 'arg' and require_arg:
-        action = (action, evt_arg) if evt_arg else 0
-        evt_mode_desc = ''
-        require_arg = False
-    elif evt == 'activate':
-        action = evt
-        evt_mode_desc = 'Activate.. (direction)'
-        require_arg = True
-    elif evt == 'look':
-        evt_mode_desc = 'Look... (direction)'
-        action = (evt, evt_arg)
-    elif evt == 'look_done':
-        evt_mode_desc = ''
-        action = (evt, evt_arg)
-    elif evt == 'insert':
-        prompt += evt_arg
-    elif evt == 'backspace' and prompt:
-        prompt = prompt[: - evt_arg]
-    elif evt == 'return' and prompt:
-        action = (queued_evt, prompt)
-        queued_evt = None
-        prompt, evt_mode, evt_mode_desc = '', 'normal', ''
-    elif evt in ['say', 'equip', 'drop', 'unequip']:
-        if evt == 'say':
-            evt_mode_desc = 'Say...'
-        elif evt == 'equip':
-            evt_mode_desc = 'Equip... (item, slot)'
-        elif evt == 'drop':
-            evt_mode_desc = 'Drop... (item name)'
-        elif evt == 'unequip':
-            evt_mode_desc = 'Unequip... (slot)'
-        queued_evt = evt
-    elif (evt, evt_arg) != (None, None):
-        action = (evt, evt_arg)
-
-    surface = ui.compose(
-        view_field, colors, chat.get_log(), prompt,
-        evt_mode, evt_mode_desc, status_bar, top_status_bar)
-    display.draw(surface)
-    display.update()
+client.main(GameClient(config), host, port, timeout=0.02)

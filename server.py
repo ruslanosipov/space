@@ -1,63 +1,60 @@
 #!/usr/bin/env python
 
-import time
-import sys
 from ConfigParser import ConfigParser
 
-from lib.server import Server
 from lib.chatserver import ChatServer
+from lib import server
 from lib import misc
 
 from lib.exterior.level5d import Level5D
 from lib.exterior.view import ExteriorView
 
-config = ConfigParser()
-config.read('config.ini')
-port = config.getint('server', 'port')
 
-ext_level = Level5D()
-ext_view = ExteriorView(ext_level)
-chat = ChatServer()
+class GameServer(object):
 
-server = Server(port)
-server.listen()
+    def __init__(self):
+        self.ext_level = Level5D()
+        self.ext_view = ExteriorView(self.ext_level)
+        self.chat = ChatServer()
 
-players = {}
-spaceships = {}
+        self.clients = {}
+        self.players = {}
+        self.spaceships = {}
 
-spaceship = misc.add_spaceship(
-    'Enterprise', (0, 0, 10, 10),
-    (24, 2), ext_level)
-spaceships['Enterprise'] = spaceship
-spaceship = misc.add_spaceship(
-    'Galactica', (0, 0, 16, 16),
-    (7, 2), ext_level)
-spaceships['Galactica'] = spaceship
+        spaceship = misc.add_spaceship(
+            'Enterprise', (0, 0, 10, 10),
+            (24, 2), self.ext_level)
+        self.spaceships['Enterprise'] = spaceship
+        spaceship = misc.add_spaceship(
+            'Galactica', (0, 0, 16, 16),
+            (7, 2), self.ext_level)
+        self.spaceships['Galactica'] = spaceship
+        self.requests = False
+        self.command_factory = False
 
-oscillator = 0
-oscillator_i = 0
-
-try:
-    while True:
-        oscillator = True if not oscillator_i else False
-        oscillator_i = oscillator_i + 1 if oscillator_i < 10 else 0
-        clock = time.clock()
-        server.receive()
-        data = server.get_data()
-        new_data = {}
-        # Process data received from players
-        for s in data.keys():
-            if not data[s]:
+    def main(self):
+        if not self.requests:
+            return
+        requests = self.requests.get_requests()
+        for client, data in requests.items():
+            if not data:
+                status = self.clients[client]['top_status_bar']
                 continue
-            for evt, arg in data[s]:
-                status = ''
-                if s in players:
-                    player = players[s]
-                if evt == 'connect' and s not in players:
+            for evt, arg in data:
+                if client in self.players:
+                    player = self.players[client]
+                if evt == 'connect' and client not in self.players:
                     name, spaceship = arg
-                    spaceship = spaceships[spaceship]
+                    spaceship = self.spaceships[spaceship]
                     player = misc.add_player(name, spaceship)
-                    players[s] = player
+                    self.players[client] = player
+                    self.clients[client] = {
+                        'view': '',
+                        'colors': {},
+                        'top_status_bar': '',
+                        'bottom_status_bar': '',
+                        'is_pilot': False}
+                    status = ''
                 spaceship = player.get_interior().get_spaceship()
                 if not player.is_alive():
                     continue
@@ -80,7 +77,7 @@ try:
                     dx, dy = map(int, arg)
                     x, y = player.get_coords()
                     status = misc.move(player, (x + dx, y + dy),
-                                       int_level, chat)
+                                       int_level, self.chat)
                 elif evt == 'rotate':
                     spaceship.rotate_pointer(int(arg))
                 elif evt == 'accelerate':
@@ -89,11 +86,11 @@ try:
                     misc.exterior_fire(
                         spaceship.get_coords(),
                         spaceship.get_pointer(),
-                        ext_level)
+                        self.ext_level)
                 elif evt == 'int_fire':
-                    status = misc.interior_fire(player, int_level, chat)
+                    status = misc.interior_fire(player, int_level, self.chat)
                 elif evt == 'say':
-                    chat.add_single('public', "%s: %s" % (name, arg), 0)
+                    self.chat.add_single('public', "%s: %s" % (name, arg), 0)
                 elif evt == 'unpilot':
                     status = "You are done piloting the spaceship..."
                     player.set_pilot()
@@ -108,21 +105,23 @@ try:
                 elif evt == 'drop':
                     status = misc.drop_item(player, arg)
         # Let the world process one step
-        ext_level.update()
-        for s in data.keys():
-            player = players[s]
+        self.ext_level.update()
+        for uid, data in requests.items():
+            if uid not in self.players.keys():
+                continue
+            player = self.players[uid]
             int_radius = 11
             ext_radius = 11
             spaceship = player.get_interior().get_spaceship()
             int_level = player.get_interior()
-            for evt, arg in data[s]:
+            if not player.is_pilot():
+                view = player.get_interior().get_spaceship().get_view()
+                visible_tiles = view.visible_tiles(
+                    player.get_coords(),
+                    int_radius,
+                    player.get_sight())
+            for evt, arg in data:
                 msg = None
-                if not player.is_pilot():
-                    view = player.get_interior().get_spaceship().get_view()
-                    visible_tiles = view.visible_tiles(
-                        player.get_coords(),
-                        int_radius,
-                        player.get_sight())
                 if evt == 'inventory':
                     msg = misc.inventory(player)
                 elif evt == 'equipment':
@@ -139,7 +138,7 @@ try:
                 elif evt == 'look_done':
                     player.set_looking()
                 if msg is not None:
-                    chat.add_single(player, msg, 1)
+                    self.chat.add_single(player, msg, 1)
             # Generate views for players
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
@@ -148,8 +147,8 @@ try:
                     int_radius,
                     player.get_sight(),
                     visible_tiles,
-                    player.get_target() if oscillator else None,
-                    player.get_look_coords() if oscillator else None)
+                    player.get_target(),
+                    player.get_look_coords())
                 # create status bar
                 health = str(player.get_health())
                 status_bar = "HP %s%s " % (' ' * (3 - len(health)), health)
@@ -157,7 +156,7 @@ try:
                     weapon = player.get_equipment('hands').get_name()
                     status_bar += "(%s) " % weapon
             else:
-                view, colors = ext_view.generate(
+                view, colors = self.ext_view.generate(
                     spaceship.get_coords(),
                     ext_radius,
                     ext_radius,
@@ -170,22 +169,36 @@ try:
             ver = "v0.2.1-alpha"
             if status[- len(ver):] != ver:
                 status += ' ' * (80 - len(status) - len(ver)) + ver
-            chat_log = chat.get_recent_for_recipient(player)
-            new_data[s] = (
-                view,
-                colors,
-                chat_log,
-                player.is_pilot(),
-                status_bar,
-                status)
-        server.set_data(new_data)
-        time.sleep(time.clock() - clock + 0.02)
-        server.send()
-except KeyboardInterrupt:
-    print "Keyboard interrupt detected, exiting..."
-    server.close()
-    sys.exit(0)
-except:
-    print "Caught error, exiting..."
-    server.close()
-    raise
+            chat_log = self.chat.get_recent_for_recipient(player)
+            if len(chat_log):
+                self.command_factory.callCommand(uid, 'add_chat_messages',
+                                                 chat_log)
+            if view != self.clients[uid]['view'] or \
+                    colors != self.clients[uid]['colors']:
+                self.clients[uid]['view'] = view
+                self.clients[uid]['colors'] = colors
+                self.command_factory.callCommand(uid, 'set_view', view, colors)
+            if player.is_pilot() != self.clients[uid]['is_pilot']:
+                self.clients[uid]['is_pilot'] = player.is_pilot()
+                self.command_factory.callCommand(uid, 'set_pilot',
+                                                 player.is_pilot())
+            if status_bar != self.clients[uid]['bottom_status_bar']:
+                self.clients[uid]['bottom_status_bar'] = status_bar
+                self.command_factory.callCommand(uid, 'set_bottom_status_bar',
+                                                 status_bar)
+            if status != self.clients[uid]['top_status_bar']:
+                self.clients[uid]['top_status_bar'] = status
+                self.command_factory.callCommand(uid, 'set_top_status_bar',
+                                                 status)
+
+    def set_command_factory(self, command_factory):
+        self.command_factory = command_factory
+
+    def set_requests(self, requests):
+        self.requests = requests
+
+
+config = ConfigParser()
+config.read('config.ini')
+port = config.getint('server', 'port')
+server.main(GameServer(), port, 0.02)
