@@ -1,4 +1,4 @@
-from twisted.protocols.amp import Command, String, Integer, AmpList, Boolean
+from twisted.protocols.amp import Command, Unicode, Integer, AmpList, Boolean
 
 #------------------------------------------------------------------------------
 # server commands
@@ -6,25 +6,25 @@ from twisted.protocols.amp import Command, String, Integer, AmpList, Boolean
 
 class QueueStr(Command):
 
-    arguments = [('action', String()), ('arg', String())]
+    arguments = [('action', Unicode()), ('arg', Unicode())]
     response = []
 
 
 class QueueInt(Command):
 
-    arguments = [('action', String()), ('arg', Integer())]
+    arguments = [('action', Unicode()), ('arg', Integer())]
     response = []
 
 
 class QueueTupleOfStr(Command):
-    arguments = [('action', String()),
-                 ('arg1', String()),
-                 ('arg2', String())]
+    arguments = [('action', Unicode()),
+                 ('arg1', Unicode()),
+                 ('arg2', Unicode())]
     response = []
 
 
 class QueueTupleOfInt(Command):
-    arguments = [('action', String()),
+    arguments = [('action', Unicode()),
                  ('arg1', Integer()),
                  ('arg2', Integer())]
     response = []
@@ -35,14 +35,14 @@ class QueueTupleOfInt(Command):
 
 class AddChatMessages(Command):
 
-    arguments = [('messages', AmpList([('message', String()),
+    arguments = [('messages', AmpList([('message', Unicode()),
                                        ('type', Integer())]))]
     response = []
 
 
 class SetBottomStatusBar(Command):
 
-    arguments = [('text', String())]
+    arguments = [('text', Unicode())]
     response = []
 
 
@@ -54,13 +54,13 @@ class SetPilot(Command):
 
 class SetTopStatusBar(Command):
 
-    arguments = [('text', String())]
+    arguments = [('text', Unicode())]
     response = []
 
 
 class SetView(Command):
 
-    arguments = [('view', String()),
+    arguments = [('view', Unicode()),
                  ('colors', AmpList([('x', Integer()),
                                      ('y', Integer()),
                                      ('r', Integer()),

@@ -11,7 +11,7 @@ class UI(object):
     global UI_COLOR
 
     def compose(self, view, colors, chat_log, prompt,
-                evt_mode, evt_mode_desc, status_bar, top_status_bar):
+                evt_mode, evt_mode_desc, bottom_status_bar, top_status_bar):
         if evt_mode == 'pilot':
             default_colors = self.ext_colors
         else:
@@ -39,7 +39,7 @@ class UI(object):
             evt_mode_desc = ' ' * 24
         else:
             evt_mode_desc += (24 - len(evt_mode_desc)) * ' '
-        evt_mode_desc += status_bar
+        evt_mode_desc += bottom_status_bar
         surface.append([[evt_mode_desc, UI_COLOR]])
         return surface
 

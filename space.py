@@ -7,7 +7,6 @@ from lib.display import Display
 from lib.ui import UI
 from lib import event
 from lib import client
-import time
 
 
 class GameClient(object):
@@ -38,12 +37,13 @@ class GameClient(object):
         self.require_arg = False
         self.queued_evt = False
         self.prompt = ''
-        self.top_status_bar, self.bottom_status_bar = '', ''
+        ver = 'v0.2.1-alpha'
+        self.top_status_bar = ' ' * (80 - len(ver)) + ver
+        self.bottom_status_bar = ''
         self.view_field, self.colors = False, {}
         self.command = None
 
     def main(self):
-        print 'start', time.time()
         if self.action and not self.require_arg:
             command = getattr(self.command, 'queue_' + self.arg_type)
             command(self.action[0], self.action[1])
@@ -101,7 +101,6 @@ class GameClient(object):
             self.top_status_bar)
         self.display.draw(surface)
         self.display.update()
-        print 'end', time.time()
 
     #--------------------------------------------------------------------------
     # state accessors
@@ -119,6 +118,8 @@ class GameClient(object):
             self.evt_mode = 'normal'
 
     def set_top_status_bar(self, text):
+        ver = 'v0.2.1-alpha'
+        text += ' ' * (80 - len(text) - len(ver)) + ver
         self.top_status_bar = text
 
     def set_view(self, view, colors):
