@@ -4,6 +4,7 @@ MSG_TYPES = [
     2,  # event in surroundings not caused by player
     3]  # hostile action
 
+
 class ChatServer(object):
     """
     Manages and distributes chat messages for players.
