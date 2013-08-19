@@ -1,14 +1,11 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.protocols.amp import AMP
-from twisted.python.log import startLogging
 from twisted.internet.task import LoopingCall
-from sys import stdout
 from copy import deepcopy
 
 import commands
 
-startLogging(stdout)
 
 class Requests:
 
@@ -36,6 +33,9 @@ class CommandProtocol(AMP):
         self.uid = str(id(self))
         self.factory.clients[self.uid] = self
 
+    #--------------------------------------------------------------------------
+    # responders
+
     def queue_int(self, action, arg):
         self.factory.requests.add_request(self.uid, (action, arg))
         return {}
@@ -56,19 +56,16 @@ class CommandProtocol(AMP):
         return {}
     commands.QueueTupleOfStr.responder(queue_tuple_of_str)
 
+    #--------------------------------------------------------------------------
+    # commands
+
     def add_chat_messages(self, messages):
         for i, m in enumerate(messages):
             messages[i] = {'message': m[0], 'type': m[1]}
-        return self.callRemote(commands.AddChatMessages,
-                                   messages=messages)
+        return self.callRemote(commands.AddChatMessages, messages=messages)
 
-    def set_view(self, view, colors):
-        view = '\n'.join(view)
-        c_colors = []
-        for k, v in colors.items():
-            c_colors.append({'x': k[0], 'y': k[1],
-                             'r': v[0], 'g': v[1], 'b': v[2]})
-        return self.callRemote(commands.SetView, view=view, colors=c_colors)
+    def set_bottom_status_bar(self, text):
+        return self.callRemote(commands.SetBottomStatusBar, text=text)
 
     def set_pilot(self, is_pilot):
         return self.callRemote(commands.SetPilot, is_pilot=is_pilot)
@@ -76,8 +73,13 @@ class CommandProtocol(AMP):
     def set_top_status_bar(self, text):
         return self.callRemote(commands.SetTopStatusBar, text=text)
 
-    def set_bottom_status_bar(self, text):
-        return self.callRemote(commands.SetBottomStatusBar, text=text)
+    def set_view(self, view, colors):
+        view = '\n'.join(view)
+        c_colors = []
+        for k, v in colors.items():
+            c_colors.append(
+                {'x': k[0], 'y': k[1], 'r': v[0], 'g': v[1], 'b': v[2]})
+        return self.callRemote(commands.SetView, view=view, colors=c_colors)
 
 
 class CommandFactory(Factory):
@@ -94,7 +96,6 @@ class CommandFactory(Factory):
     def callCommand(self, uid, command, *args, **kwargs):
         command = getattr(self.clients[uid], command)
         command(*args, **kwargs)
-
 
 
 def main(loop, port, timeout):

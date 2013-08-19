@@ -58,8 +58,7 @@ class GameClient(object):
         if self.evt_mode == 'normal' and len(self.evt_mode_desc):
             self.evt_mode_desc = ''
         if evt == 'quit':
-            print 'Quiting...'
-            return
+            self.command.cancel()
         elif evt == 'arg' and self.require_arg:
             self.action = (self.action, evt_arg) if evt_arg else 0
             self.evt_mode_desc = ''
@@ -106,10 +105,13 @@ class GameClient(object):
     # state accessors
 
     def add_chat_messages(self, messages):
-            self.chat.add_multiple(messages)
+        self.chat.add_multiple(messages)
 
     def set_bottom_status_bar(self, text):
         self.bottom_status_bar = text
+
+    def set_command(self, command):
+        self.command = command
 
     def set_pilot(self, is_pilot):
         if is_pilot:
@@ -125,9 +127,6 @@ class GameClient(object):
     def set_view(self, view, colors):
         self.view_field = view
         self.colors = colors
-
-    def set_command(self, command):
-        self.command = command
 
 config = ConfigParser()
 config.read('config.ini')

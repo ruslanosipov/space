@@ -17,16 +17,14 @@ class QueueInt(Command):
 
 
 class QueueTupleOfStr(Command):
-    arguments = [('action', Unicode()),
-                 ('arg1', Unicode()),
-                 ('arg2', Unicode())]
+    arguments = [
+        ('action', Unicode()), ('arg1', Unicode()), ('arg2', Unicode())]
     response = []
 
 
 class QueueTupleOfInt(Command):
-    arguments = [('action', Unicode()),
-                 ('arg1', Integer()),
-                 ('arg2', Integer())]
+    arguments = [
+        ('action', Unicode()), ('arg1', Integer()), ('arg2', Integer())]
     response = []
 
 #------------------------------------------------------------------------------
@@ -35,8 +33,8 @@ class QueueTupleOfInt(Command):
 
 class AddChatMessages(Command):
 
-    arguments = [('messages', AmpList([('message', Unicode()),
-                                       ('type', Integer())]))]
+    arguments = [
+        ('messages', AmpList([('message', Unicode()), ('type', Integer())]))]
     response = []
 
 
@@ -60,10 +58,12 @@ class SetTopStatusBar(Command):
 
 class SetView(Command):
 
-    arguments = [('view', Unicode()),
-                 ('colors', AmpList([('x', Integer()),
-                                     ('y', Integer()),
-                                     ('r', Integer()),
-                                     ('g', Integer()),
-                                     ('b', Integer())]))]
+    arguments = [
+        ('view', Unicode()),
+        ('colors', AmpList(
+            [('x', Integer()),
+            ('y', Integer()),
+            ('r', Integer()),
+            ('g', Integer()),
+            ('b', Integer())]))]
     response = []

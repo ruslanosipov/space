@@ -1,19 +1,22 @@
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 from twisted.protocols.amp import AMP
-from twisted.python.log import startLogging, err
 from twisted.internet.task import LoopingCall
-from sys import stdout
 
 import commands
-
-startLogging(stdout)
 
 
 class CommandProtocol(AMP):
 
     def __init__(self, main):
         self.main = main
+
+    def connectionLost(self, reason):
+        print "Server connection lost, shutting down..."
+        reactor.stop()
+
+    #--------------------------------------------------------------------------
+    # responders
 
     def add_chat_messages(self, messages):
         for i, m in enumerate(messages):
@@ -47,32 +50,38 @@ class CommandProtocol(AMP):
     commands.SetView.responder(set_view)
 
 
-class MyAMP:
+class Client:
 
     def __init__(self, host, port, main):
         destination = TCP4ClientEndpoint(reactor, host, port)
         self.protocol = CommandProtocol(main)
         self.d = connectProtocol(destination, self.protocol)
 
+    def stop(self):
+        self.protocol.transport.loseConnection()
+
+    #--------------------------------------------------------------------------
+    # commands
+
     def queue_int(self, action, arg):
-        return self.protocol.callRemote(commands.QueueInt,
-                                        action=action, arg=arg)
+        return self.protocol.callRemote(
+            commands.QueueInt, action=action, arg=arg)
 
     def queue_str(self, action, arg):
-        return self.protocol.callRemote(commands.QueueStr,
-                                        action=action, arg=arg)
+        return self.protocol.callRemote(
+            commands.QueueStr, action=action, arg=arg)
 
     def queue_tuple_of_int(self, action, arg):
-        return self.protocol.callRemote(commands.QueueTupleOfInt,
-                                        action=action, arg1=arg[0],
-                                        arg2=arg[1])
+        return self.protocol.callRemote(
+            commands.QueueTupleOfInt, action=action, arg1=arg[0], arg2=arg[1])
 
     def queue_tuple_of_str(self, action, arg):
-        return self.protocol.callRemote(commands.QueueTupleOfStr,
-                                        action=action, arg1=arg[0],
-                                        arg2=arg[1])
+        return self.protocol.callRemote(
+            commands.QueueTupleOfStr, action=action, arg1=arg[0], arg2=arg[1])
+
+
 def main(loop, host, port, timeout):
-    command = MyAMP(host, port, loop)
+    command = Client(host, port, loop)
     loop.set_command(command)
     lc = LoopingCall(loop.main)
     lc.start(timeout, now=False)
