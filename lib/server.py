@@ -67,8 +67,14 @@ class CommandProtocol(AMP):
     def set_bottom_status_bar(self, text):
         return self.callRemote(commands.SetBottomStatusBar, text=text)
 
+    def set_look_pointer(self, (x, y)):
+        return self.callRemote(commands.SetLookPointer, x=x, y=y)
+
     def set_pilot(self, is_pilot):
         return self.callRemote(commands.SetPilot, is_pilot=is_pilot)
+
+    def set_target(self, (x, y)):
+        return self.callRemote(commands.SetTarget, x=x, y=y)
 
     def set_top_status_bar(self, text):
         return self.callRemote(commands.SetTopStatusBar, text=text)
@@ -80,6 +86,12 @@ class CommandProtocol(AMP):
             c_colors.append(
                 {'x': k[0], 'y': k[1], 'r': v[0], 'g': v[1], 'b': v[2]})
         return self.callRemote(commands.SetView, view=view, colors=c_colors)
+
+    def unset_look_pointer(self):
+        return self.callRemote(commands.UnsetLookPointer)
+
+    def unset_target(self):
+        return self.callRemote(commands.UnsetTarget)
 
 
 class CommandFactory(Factory):

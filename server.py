@@ -56,7 +56,9 @@ class GameServer(object):
                         'colors': {},
                         'top_status_bar': ['', ''],
                         'bottom_status_bar': ['', ''],
-                        'is_pilot': False}
+                        'is_pilot': False,
+                        'target': [None, None],
+                        'look_coords': [None, None]}
                     client = self.clients[uid]
                 spaceship = player.get_interior().get_spaceship()
                 if not player.is_alive():
@@ -146,6 +148,7 @@ class GameServer(object):
                         player, (0, 0),
                         int_level, visible_tiles)
                 elif evt == 'look_dir':
+                    dx, dy = arg
                     client['top_status_bar'][-1] = misc.look(
                         player, (dx, dy),
                         int_level, visible_tiles)
@@ -156,13 +159,17 @@ class GameServer(object):
             # generate a view for player or spaceship
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
-                view, colors = view.generate(
+                view, colors, target, look_coords = view.generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),
                     visible_tiles,
                     player.get_target(),
                     player.get_look_coords())
+                if target:
+                    client['target'][-1] = target
+                if look_coords:
+                    client['look_coords'][-1] = look_coords
                 # create bottom status bar
                 hp = str(player.get_health())
                 client['bottom_status_bar'][-1] = \
@@ -211,6 +218,20 @@ class GameServer(object):
                     uid, 'set_top_status_bar',
                     bar[0])
                 client['top_status_bar'] = bar
+            if client['target'][-1] != client['target'][0]:
+                client['target'][0] = client['target'][-1]
+                if client['target'][0]:
+                    self.command_factory.callCommand(
+                        uid, 'set_target', client['target'][0])
+                else:
+                    self.command_factory.callCommand(uid, 'unset_target')
+            if client['look_coords'][-1] != client['look_coords'][0]:
+                client['look_coords'][0] = client['look_coords'][-1]
+                if client['look_coords'][0]:
+                    self.command_factory.callCommand(
+                        uid, 'set_look_pointer', client['look_coords'][0])
+                else:
+                    self.command_factory.callCommand(uid, 'unset_look_pointer')
 
     #--------------------------------------------------------------------------
     # accessors

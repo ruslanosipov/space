@@ -42,6 +42,7 @@ class GameClient(object):
         self.bottom_status_bar = ''
         self.view_field, self.colors = False, {}
         self.command = None
+        self.look_pointer, self.target = False, False
 
     def main(self):
         if self.action and not self.require_arg:
@@ -113,11 +114,17 @@ class GameClient(object):
     def set_command(self, command):
         self.command = command
 
+    def set_look_pointer(self, (x, y)):
+        self.look_pointer = (x, y)
+
     def set_pilot(self, is_pilot):
         if is_pilot:
             self.evt_mode = 'pilot'
         elif not is_pilot and self.evt_mode == 'pilot':
             self.evt_mode = 'normal'
+
+    def set_target(self, (x, y)):
+        self.target = (x, y)
 
     def set_top_status_bar(self, text):
         ver = 'v0.2.1-alpha'
@@ -127,6 +134,12 @@ class GameClient(object):
     def set_view(self, view, colors):
         self.view_field = view
         self.colors = colors
+
+    def unset_look_pointer(self):
+        self.look_pointer = False
+
+    def unset_target(self):
+        self.target = False
 
 config = ConfigParser()
 config.read('config.ini')
