@@ -58,7 +58,7 @@ class GameClient(object):
         if self.evt_mode == 'normal' and len(self.evt_mode_desc):
             self.evt_mode_desc = ''
         if evt == 'quit':
-            self.command.cancel()
+            self.command.stop()
         elif evt == 'arg' and self.require_arg:
             self.action = (self.action, evt_arg) if evt_arg else 0
             self.evt_mode_desc = ''
