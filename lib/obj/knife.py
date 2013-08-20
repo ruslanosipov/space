@@ -1,18 +1,11 @@
-from lib.obj.item import Item
+from lib.obj.meleeweapon import MeleeWeapon
 
 
-class Knife(Item):
+class Knife(MeleeWeapon):
 
     def __init__(self):
         """
         >>> Knife()
         <class 'Knife'>
         """
-        super(Knife, self).__init__(')', 'knife')
-        self.melee_damage = (20, 30)
-
-    #--------------------------------------------------------------------------
-    # accessors
-
-    def get_melee_damage(self):
-        return self.melee_damage
+        super(Knife, self).__init__(')', 'knife', (15, 25))

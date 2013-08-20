@@ -3,15 +3,15 @@ from lib.obj.item import Item
 
 class Armor(Item):
 
-    def __init__(self):
+    def __init__(self, char, name, damage_absorption, player_char):
         """
-        >>> Armor()
+        >>> Armor(']', 'armor', 10, 'A')
         <class 'Armor'>
         """
-        super(Armor, self).__init__(']', 'armor')
+        super(Armor, self).__init__(char, name)
         self.slots.append('torso')
-        self.damage_absorption = 10
-        self.player_char = 'A'
+        self.damage_absorption = damage_absorption
+        self.player_char = player_char
 
     #--------------------------------------------------------------------------
     # accessors

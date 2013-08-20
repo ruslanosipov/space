@@ -1,16 +1,16 @@
 from lib.obj.item import Item
 
 
-class Gun(Item):
+class RangedWeapon(Item):
 
-    def __init__(self):
+    def __init__(self, char, name, damage):
         """
-        >>> Gun()
-        <class 'Gun'>
+        >>> RangedWeapon('}', 'handgun', (10, 20))
+        <class 'RangedWeapon'>
         """
-        super(Gun, self).__init__('}', 'gun')
+        super(RangedWeapon, self).__init__(char, name)
         self.ranged_weapon = True
-        self.ranged_damage = (25, 40)
+        self.ranged_damage = damage
 
     #--------------------------------------------------------------------------
     # accessors
