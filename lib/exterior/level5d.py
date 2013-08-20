@@ -88,8 +88,13 @@ class Level5D(object):
                 if (dx, dy) != (0, 0):
                     p, q, x, y = coords
                     coords = self._validate_coordinates(p, q, x + dx, y + dy)
-                    spaceship.set_coords(coords)
-                    self.move_object((p, q, x, y), coords, spaceship)
+                    hostile = self.get_spaceship(coords)
+                    if hostile:
+                        hostile.receive_damage(100)
+                        spaceship.receive_damage(100)
+                    else:
+                        spaceship.set_coords(coords)
+                        self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
     # object operations
