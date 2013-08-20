@@ -23,11 +23,11 @@ class GameServer(object):
 
         spaceship = misc.add_spaceship(
             'Enterprise', (0, 0, 10, 10),
-            (24, 2), self.ext_level)
+            (14, 4), self.ext_level)
         self.spaceships['Enterprise'] = spaceship
         spaceship = misc.add_spaceship(
             'Galactica', (0, 0, 16, 16),
-            (7, 2), self.ext_level)
+            (5, 2), self.ext_level)
         self.spaceships['Galactica'] = spaceship
         self.requests = False
         self.command_factory = False

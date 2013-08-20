@@ -17,10 +17,11 @@ class Level(object):
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
 
-    def _load_level(self, level_definition, obj_definitions):
+    def _load_level(self, level_definition, obj_definitions, extras={}):
         """
         level_definition -- list of lists of lists of chars
         obj_definitions -- dict
+        extras -- dict
         """
         level = []
         for y, line in enumerate(level_definition):
@@ -28,7 +29,10 @@ class Level(object):
             for x, chars in enumerate(line):
                 level[y].append([])
                 for char in chars:
-                    name = obj_definitions[char]
+                    if (x, y) in extras.keys() and extras[(x, y)][0] == char:
+                        name = extras[(x, y)][1]
+                    else:
+                        name = obj_definitions[char]
                     try:
                         module = name.lower()
                         exec("from lib.obj.%s import %s" % (module, name))

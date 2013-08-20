@@ -25,13 +25,13 @@ def exterior_with_adjacent_spaceships():
     [[<class 'Player'> Mike], [<class 'Player'> Josh]]
     """
     level_definition = [
-        [['.'], ['.', 'T'], ['#']],
+        [['.'], ['.', '_'], ['#']],
         [['.'], ['.'], ['#']],
         [['.'], ['.', 'c'], ['#']]]
     obj_definitions = {
         '.': 'Floor',
         '#': 'Wall',
-        'T': 'TeleportPlatform',
+        '_': 'TeleportPlatform',
         'c': 'Console'}
 
     exterior = Level5D()

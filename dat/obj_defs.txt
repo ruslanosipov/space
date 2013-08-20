@@ -1,7 +1,7 @@
 +|Door
 /|Door
 %|Corpse
-}|Gun
+}|LaserGun
 c|Console
 @|Player
  |Space
@@ -9,6 +9,6 @@ c|Console
 .|Floor
 0|Glass
 n|NavigationConsole
-T|TeleportPlatform
+_|TeleportPlatform
 )|Knife
-]|Armor
+]|PowerArmor

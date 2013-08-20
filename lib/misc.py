@@ -1,4 +1,4 @@
-from tests import mocks
+import ast
 
 from lib.obj.player import Player
 from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
@@ -9,6 +9,26 @@ from lib.interior.view import InteriorView
 
 #------------------------------------------------------------------------------
 # server game start setup
+
+
+def load_extras(raw_extras):
+    r"""
+    >>> extras = '.|Foo|(0, 0)\n#|Bar|(0, 1), (1, 0)'
+    >>> extras = load_extras(extras)
+    >>> len(extras)
+    3
+    >>> extras[(0, 1)]
+    ('#', 'Bar')
+    """
+    extras = {}
+    for extra in raw_extras.split('\n'):
+        if not len(extra):
+            continue
+        char, name, coords = extra.split('|')
+        coords = ast.literal_eval('[%s]' % coords)
+        for coord in coords:
+            extras[coord] = (char, name)
+    return extras
 
 
 def load_interior_level(tiles_map, items_map):
@@ -76,6 +96,7 @@ def activate_obj((x, y), level, player=None):
 
 def add_player(name, spaceship, coords=None):
     """
+    >>> from tests import mocks
     >>> spaceship = mocks.spaceship()
     >>> player = add_player('Mike', spaceship, (0, 0))
     >>> player
@@ -92,18 +113,19 @@ def add_player(name, spaceship, coords=None):
 
 def drop_item(player, item_name):
     """
-    >>> from lib.obj.gun import Gun
+    >>> from tests import mocks
+    >>> from lib.obj.lasergun import LaserGun
     >>> spaceship = mocks.spaceship()
     >>> player = add_player('Mike', spaceship, (0, 0))
     >>> drop_item(player, 'helmet')
     'You do not have such an item.'
-    >>> player.inventory_add(Gun())
-    >>> drop_item(player, 'gun')
-    'You drop a gun.'
+    >>> player.inventory_add(LaserGun())
+    >>> drop_item(player, 'laser gun')
+    'You drop a laser gun.'
     >>> player.get_inventory()
     {}
     >>> player.get_interior().get_objects((0, 0))[-2]
-    <class 'Gun'>
+    <class 'LaserGun'>
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
@@ -116,14 +138,14 @@ def drop_item(player, item_name):
 def equipment(player):
     """
     >>> from lib.obj.player import Player
-    >>> from lib.obj.armor import Armor
+    >>> from lib.obj.powerarmor import PowerArmor
     >>> player = Player('Mike')
-    >>> player.inventory_add(Armor())
+    >>> player.inventory_add(PowerArmor())
     >>> equipment(player)
     'You do not have anything equipped at the moment.'
-    >>> _ = equip_item(player, 'armor', 'torso')
+    >>> _ = equip_item(player, 'power armor', 'torso')
     >>> equipment(player)
-    'Equipment: armor (torso).'
+    'Equipment: power armor (torso).'
     """
     equipment = player.get_equipment()
     contents = []
@@ -138,19 +160,19 @@ def equipment(player):
 def equip_item(player, item_name, slot='hands'):
     """
     >>> from lib.obj.player import Player
-    >>> from lib.obj.gun import Gun
-    >>> from lib.obj.armor import Armor
+    >>> from lib.obj.lasergun import LaserGun
+    >>> from lib.obj.powerarmor import PowerArmor
     >>> player = Player('Mike')
-    >>> player.inventory_add(Gun())
-    >>> player.inventory_add(Armor())
+    >>> player.inventory_add(LaserGun())
+    >>> player.inventory_add(PowerArmor())
     >>> equip_item(player, 'helmet', 'head')
     'Can not equip a helmet, item not in inventory.'
-    >>> equip_item(player, 'gun', 'toe')
+    >>> equip_item(player, 'laser gun', 'toe')
     'Incorrect equipment slot name.'
-    >>> equip_item(player, 'gun')
-    'You equip a gun.'
-    >>> equip_item(player, 'armor', 'torso')
-    'You equip a armor.'
+    >>> equip_item(player, 'laser gun')
+    'You equip a laser gun.'
+    >>> equip_item(player, 'power armor', 'torso')
+    'You equip a power armor.'
     >>> player.get_inventory()
     {}
     """
@@ -175,7 +197,7 @@ def interior_fire(player, level, chat):
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
     >>> from lib.chatserver import ChatServer
-    >>> from lib.obj.gun import Gun
+    >>> from lib.obj.lasergun import LaserGun
     >>> chat = ChatServer()
     >>> player = Player('Mike')
     >>> hostile = Player('Josh')
@@ -185,7 +207,7 @@ def interior_fire(player, level, chat):
     >>> level.add_object((1, 0), hostile)
     >>> interior_fire(player, level, chat)
     'You have no weapon to fire from...'
-    >>> _ = player.equip(Gun())
+    >>> _ = player.equip(LaserGun())
     >>> interior_fire(player, level, chat)
     'Target is not set...'
     >>> _ = set_target(player, level)
@@ -215,13 +237,13 @@ def interior_fire(player, level, chat):
 def inventory(player):
     """
     >>> from lib.obj.player import Player
-    >>> from lib.obj.gun import Gun
+    >>> from lib.obj.lasergun import LaserGun
     >>> player = Player('Mike')
     >>> inventory(player)
     'You do not own anything at the moment...'
-    >>> player.inventory_add(Gun())
+    >>> player.inventory_add(LaserGun())
     >>> inventory(player)
-    'Inventory contents: gun.'
+    'Inventory contents: laser gun.'
     """
     inv = player.get_inventory()
     if not len(inv):
@@ -238,6 +260,7 @@ def inventory(player):
 
 def move(player, (x, y), level, chat):
     """
+    >>> from tests import mocks
     >>> from lib.chatserver import ChatServer
     >>> chat = ChatServer()
     >>> spaceship = mocks.spaceship_with_two_players()
@@ -314,9 +337,9 @@ def pick_up_obj(player, (x, y), level):
     >>> player = Player('Mike')
     >>> level = Level3D()
     >>> level.load_converted_char_map([[['.', '}'], ['.']]],
-    ...                               {'.': 'Floor', '}': 'Gun'})
+    ...                               {'.': 'Floor', '}': 'LaserGun'})
     >>> pick_up_obj(player, (0, 0), level)
-    'You pick up a gun...'
+    'You pick up a laser gun...'
     >>> pick_up_obj(player, (1, 0), level)
     'Nothing to pick up here...'
     """
@@ -367,19 +390,19 @@ def set_target(player, level):
 def unequip_item(player, slot):
     """
     >>> from lib.obj.player import Player
-    >>> from lib.obj.gun import Gun
+    >>> from lib.obj.lasergun import LaserGun
     >>> player = Player('Mike')
-    >>> player.inventory_add(Gun())
-    >>> equip_item(player, 'gun')
-    'You equip a gun.'
+    >>> player.inventory_add(LaserGun())
+    >>> equip_item(player, 'laser gun')
+    'You equip a laser gun.'
     >>> player.get_inventory()
     {}
     >>> unequip_item(player, 'toe')
     'You do not have item in this slot.'
     >>> unequip_item(player, 'hands')
-    'You unequip a gun.'
+    'You unequip a laser gun.'
     >>> player.get_inventory()
-    {<class 'Gun'>: 1}
+    {<class 'LaserGun'>: 1}
     """
     item = player.unequip(slot)
     if item:
@@ -404,8 +427,10 @@ def add_spaceship(name, coords, spawn, exterior):
     level_definition = load_interior_level(tiles_map, items_map)
     txt = open('dat/obj_defs.txt', 'rb').read()
     obj_definitions = load_obj_definitions(txt)
+    extras = open('dat/maps/%s_extras.txt' % name.lower(), 'rb').read()
+    extras = load_extras(extras)
     spaceship = exterior.add_spaceship(coords, name)
-    spaceship.load_interior(level_definition, obj_definitions)
+    spaceship.load_interior(level_definition, obj_definitions, extras)
     spaceship.set_view(InteriorView(spaceship.get_interior()))
     spaceship.set_spawn_point(spawn)
     return spaceship

@@ -19,8 +19,8 @@ class Level3D(Level):
         char_map = self._convert_char_map(tiles_map, items_map)
         self._load_level(char_map, obj_defs)
 
-    def load_converted_char_map(self, char_map, obj_defs):
-        self._load_level(char_map, obj_defs)
+    def load_converted_char_map(self, char_map, obj_defs, extras={}):
+        self._load_level(char_map, obj_defs, extras)
 
     def _convert_char_map(self, tiles_map, items_map):
         char_map = []
