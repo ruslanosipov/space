@@ -1,58 +1,65 @@
 #!/usr/bin/env python
 
-import time
-import sys
 from ConfigParser import ConfigParser
 
-from lib.server import Server
 from lib.chatserver import ChatServer
+from lib import server
 from lib import misc
 
 from lib.exterior.level5d import Level5D
 from lib.exterior.view import ExteriorView
 
-config = ConfigParser()
-config.read('config.ini')
-port = config.getint('server', 'port')
 
-ext_level = Level5D()
-ext_view = ExteriorView(ext_level)
-chat = ChatServer()
+class GameServer(object):
 
-server = Server(port)
-server.listen()
+    def __init__(self):
+        self.ext_level = Level5D()
+        self.ext_view = ExteriorView(self.ext_level)
+        self.chat = ChatServer()
 
-players = {}
-spaceships = {}
+        self.clients = {}
+        self.players = {}
+        self.spaceships = {}
 
-spaceship = misc.add_spaceship(
-    'Enterprise', (0, 0, 10, 10),
-    (24, 2), ext_level)
-spaceships['Enterprise'] = spaceship
-spaceship = misc.add_spaceship(
-    'Galactica', (0, 0, 16, 16),
-    (7, 2), ext_level)
-spaceships['Galactica'] = spaceship
+        spaceship = misc.add_spaceship(
+            'Enterprise', (0, 0, 10, 10),
+            (14, 4), self.ext_level)
+        self.spaceships['Enterprise'] = spaceship
+        spaceship = misc.add_spaceship(
+            'Galactica', (0, 0, 16, 16),
+            (5, 2), self.ext_level)
+        self.spaceships['Galactica'] = spaceship
+        self.requests = False
+        self.command_factory = False
 
-try:
-    while True:
-        clock = time.clock()
-        server.receive()
-        data = server.get_data()
-        new_data = {}
-        # Process data received from players
-        for s in data.keys():
-            if not data[s]:
+    def main(self):
+        if not self.requests:
+            return
+        requests = self.requests.get_requests()
+
+        # first: process players' actions which affect the world
+        for uid, data in requests.items():
+            if not data:
                 continue
-            for evt, arg in data[s]:
-                msg = None
-                if s in players:
-                    player = players[s]
-                if evt == 'connect' and s not in players:
+            for evt, arg in data:
+                if uid in self.players:
+                    player, client = self.players[uid], self.clients[uid]
+                if evt == 'connect' and uid not in self.players:
                     name, spaceship = arg
-                    spaceship = spaceships[spaceship]
+                    spaceship = self.spaceships[spaceship]
                     player = misc.add_player(name, spaceship)
-                    players[s] = player
+                    self.players[uid] = player
+                    # I keep track of previous and current status bars,
+                    # view a list as a mutable tuple (old, new)
+                    self.clients[uid] = {
+                        'view': '',
+                        'colors': {},
+                        'top_status_bar': ['', ''],
+                        'bottom_status_bar': ['', ''],
+                        'is_pilot': False,
+                        'target': [None, None],
+                        'look_coords': [None, None]}
+                    client = self.clients[uid]
                 spaceship = player.get_interior().get_spaceship()
                 if not player.is_alive():
                     continue
@@ -60,79 +67,180 @@ try:
                 if player.is_pilot() and not spaceship.is_alive():
                     continue
                 if evt == 'activate':
-                    dx, dy = map(int, arg)
+                    dx, dy = arg
                     x, y = player.get_coords()
-                    msg = misc.activate_obj(
+                    client['top_status_bar'][-1] = misc.activate_obj(
                         (x + dx, y + dy),
-                        int_level,
-                        player)
+                        int_level, player)
                 elif evt == 'pickup':
-                    dx, dy = map(int, arg)
+                    dx, dy = arg
                     x, y = player.get_coords()
-                    msg = misc.pick_up_obj(player, (x + dx, y + dy), int_level)
-                elif evt == 'inventory':
-                    msg = misc.inventory(player)
+                    client['top_status_bar'][-1] = misc.pick_up_obj(
+                        player, (x + dx, y + dy),
+                        int_level)
                 elif evt == 'move':
-                    dx, dy = map(int, arg)
+                    dx, dy = arg
                     x, y = player.get_coords()
-                    msg = misc.move(player, (x + dx, y + dy), int_level, chat)
+                    client['top_status_bar'][-1] = misc.move(
+                        player, (x + dx, y + dy),
+                        int_level, self.chat)
                 elif evt == 'rotate':
-                    spaceship.rotate_pointer(int(arg))
+                    spaceship.rotate_pointer(arg)
                 elif evt == 'accelerate':
                     spaceship.accelerate(arg)
                 elif evt == 'ext_fire':
                     misc.exterior_fire(
                         spaceship.get_coords(),
                         spaceship.get_pointer(),
-                        ext_level)
-                elif evt == 'target':
-                    msg = misc.set_target(player, int_level)
+                        self.ext_level)
                 elif evt == 'int_fire':
-                    msg = misc.interior_fire(player, int_level, chat)
+                    client['top_status_bar'][-1] = misc.interior_fire(
+                        player, int_level, self.chat)
                 elif evt == 'say':
-                    chat.add_single('all', arg, name=player.get_name())
-                elif evt == 'look':
-                    dx, dy = map(int, arg)
-                    x, y = player.get_coords()
-                    msg = misc.look((x + dx, y + dy), int_level)
+                    self.chat.add_single(
+                        'public', "%s: %s" % (player.get_name(), arg), 0)
                 elif evt == 'unpilot':
-                    msg = "You are done piloting the spaceship..."
+                    client['top_status_bar'][-1] = \
+                        "You are done piloting the spaceship..."
                     player.set_pilot()
-                if msg is not None:
-                    chat.add_single(player, msg)
-        # Let the world process one step
-        ext_level.update()
-        # Generate views for players
-        for s in data.keys():
-            player = players[s]
-            spaceship = player.get_interior().get_spaceship()
+                elif evt == 'equip':
+                    if ', ' in arg:
+                        item, slot = arg.split(', ')
+                    else:
+                        item, slot = arg, 'hands'
+                    client['top_status_bar'][-1] = misc.equip_item(
+                        player, item, slot)
+                elif evt == 'unequip':
+                    client['top_status_bar'][-1] = misc.unequip_item(
+                        player, arg)
+                elif evt == 'drop':
+                    client['top_status_bar'][-1] = misc.drop_item(player, arg)
+
+        # second: let the world process one tick
+        self.ext_level.update()
+
+        # third: process insignificant actions and generate views
+        for uid, data in requests.items():
+            if uid not in self.players.keys():
+                continue
+            player, client = self.players[uid], self.clients[uid]
             int_radius = 11
             ext_radius = 11
+            spaceship = player.get_interior().get_spaceship()
+            int_level = player.get_interior()
             if not player.is_pilot():
                 view = player.get_interior().get_spaceship().get_view()
-                view = view.generate(
+                visible_tiles = view.visible_tiles(
+                    player.get_coords(),
+                    int_radius,
+                    player.get_sight())
+            for evt, arg in data:
+                msg = None
+                if evt == 'inventory':
+                    msg = misc.inventory(player)
+                elif evt == 'equipment':
+                    msg = misc.equipment(player)
+                elif evt == 'target':
+                    client['top_status_bar'][-1] = misc.set_target(
+                        player, int_level)
+                elif evt == 'look':
+                    client['top_status_bar'][-1] = misc.look(
+                        player, (0, 0),
+                        int_level, visible_tiles)
+                elif evt == 'look_dir':
+                    dx, dy = arg
+                    client['top_status_bar'][-1] = misc.look(
+                        player, (dx, dy),
+                        int_level, visible_tiles)
+                elif evt == 'look_done':
+                    player.set_looking()
+                if msg is not None:
+                    self.chat.add_single(player, msg, 1)
+            # generate a view for player or spaceship
+            if not player.is_pilot():
+                view = player.get_interior().get_spaceship().get_view()
+                view, colors, target, look_coords = view.generate(
                     player.get_coords(),
                     int_radius,
                     player.get_sight(),
-                    player.get_target())
-                status_bar = ""
+                    visible_tiles,
+                    player.get_target(),
+                    player.get_look_coords())
+                client['target'][-1] = target
+                client['look_coords'][-1] = look_coords
+                # create bottom status bar
+                hp = str(player.get_health())
+                client['bottom_status_bar'][-1] = \
+                    "HP %s%s " % (' ' * (3 - len(hp)), hp)
+                if player.get_equipment('hands') is not None:
+                    weapon = player.get_equipment('hands').get_name()
+                    client['bottom_status_bar'][-1] += "(%s) " % weapon
             else:
-                view = ext_view.generate(
+                view, colors = self.ext_view.generate(
                     spaceship.get_coords(),
                     ext_radius,
                     ext_radius,
                     spaceship.get_abs_pointer())
-                status_bar = "SPD: %s" % spaceship.get_speed()
-            chat_log = chat.get_recent(player)
-            new_data[s] = (
-                '\n'.join(view),
-                '\n'.join(chat_log),
-                player.is_pilot(),
-                status_bar)
-        server.set_data(new_data)
-        time.sleep(time.clock() - clock + 0.02)
-        server.send()
-except KeyboardInterrupt:
-    print "Keyboard interrupt detected, exiting..."
-    server.close()
-    sys.exit(0)
+                # create bottom status bar
+                spd = str(spaceship.get_speed())
+                client['bottom_status_bar'][-1] = \
+                    "SPD %s%s " % (' ' * (3 - len(spd)), spd)
+                hp = str(spaceship.get_health())
+                client['bottom_status_bar'][-1] += \
+                    "HP %s%s " % (' ' * (3 - len(hp)), hp)
+            recent_chat_msgs = self.chat.get_recent_for_recipient(player)
+            if len(recent_chat_msgs):
+                self.command_factory.callCommand(
+                    uid, 'add_chat_messages', recent_chat_msgs)
+            if view != client['view'] or \
+                    colors != client['colors']:
+                client['view'] = view
+                client['colors'] = colors
+                self.command_factory.callCommand(uid, 'set_view', view, colors)
+            if player.is_pilot() != client['is_pilot']:
+                client['is_pilot'] = player.is_pilot()
+                self.command_factory.callCommand(
+                    uid, 'set_pilot',
+                    player.is_pilot())
+            bar = client['bottom_status_bar']
+            if bar[-1] != bar[0]:
+                bar[0] = bar[1]
+                self.command_factory.callCommand(
+                    uid, 'set_bottom_status_bar',
+                    bar[0])
+                client['bottom_status_bar'] = bar
+            bar = client['top_status_bar']
+            if bar[-1] != bar[0]:
+                bar[0] = bar[-1]
+                self.command_factory.callCommand(
+                    uid, 'set_top_status_bar',
+                    bar[0])
+                client['top_status_bar'] = bar
+            if client['target'][-1] != client['target'][0]:
+                client['target'][0] = client['target'][-1]
+                if client['target'][0]:
+                    self.command_factory.callCommand(
+                        uid, 'set_target', client['target'][0])
+                else:
+                    self.command_factory.callCommand(uid, 'unset_target')
+            if client['look_coords'][-1] != client['look_coords'][0]:
+                client['look_coords'][0] = client['look_coords'][-1]
+                if client['look_coords'][0]:
+                    self.command_factory.callCommand(
+                        uid, 'set_look_pointer', client['look_coords'][0])
+                else:
+                    self.command_factory.callCommand(uid, 'unset_look_pointer')
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def set_command_factory(self, command_factory):
+        self.command_factory = command_factory
+
+    def set_requests(self, requests):
+        self.requests = requests
+
+config = ConfigParser()
+config.read('config.ini')
+port = config.getint('server', 'port')
+server.main(GameServer(), port, 0.02)

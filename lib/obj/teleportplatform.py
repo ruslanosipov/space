@@ -11,7 +11,7 @@ class TeleportPlatform(Stationary):
         >>> TeleportPlatform()
         <class 'TeleportPlatform'>
         """
-        super(TeleportPlatform, self).__init__('T', 'teleport platform')
+        super(TeleportPlatform, self).__init__('_', 'teleport platform')
         self.player = None
 
     def activate(self):
@@ -21,7 +21,7 @@ class TeleportPlatform(Stationary):
         >>> teleport = TeleportPlatform()
         >>> spaceship.get_interior().add_object((0, 0), teleport)
         >>> player = Player('Mike')
-        >>> spaceship.get_interior().add_player(player, (0, 0))
+        >>> spaceship.get_interior().add_player((0, 0), player)
         >>> teleport.set_player(player)
         >>> teleport.activate()
         'No spaceships in teleport radius are detected...'

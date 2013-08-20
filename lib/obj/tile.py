@@ -13,6 +13,7 @@ class Tile(object):
         self.moveable = False
         self.interior = None
         self.coords = None
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -23,6 +24,9 @@ class Tile(object):
     def get_char(self):
         return self.char
 
+    def get_color(self):
+        return self.color
+
     def get_coords(self):
         return self.coords
 
@@ -31,6 +35,9 @@ class Tile(object):
 
     def get_name(self):
         return self.name
+
+    def is_default_color(self):
+        return self.default_color
 
     def is_moveable(self):
         return self.moveable
@@ -43,6 +50,10 @@ class Tile(object):
 
     def is_view_blocker(self):
         return self.block_view
+
+    def set_color(self, color):
+        self.default_color = False
+        self.color = color
 
     def set_coords(self, coords):
         self.coords = coords

@@ -17,10 +17,11 @@ class Level(object):
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
 
-    def _load_level(self, level_definition, obj_definitions):
+    def _load_level(self, level_definition, obj_definitions, extras={}):
         """
         level_definition -- list of lists of lists of chars
         obj_definitions -- dict
+        extras -- dict
         """
         level = []
         for y, line in enumerate(level_definition):
@@ -28,7 +29,10 @@ class Level(object):
             for x, chars in enumerate(line):
                 level[y].append([])
                 for char in chars:
-                    name = obj_definitions[char]
+                    if (x, y) in extras.keys() and extras[(x, y)][0] == char:
+                        name = extras[(x, y)][1]
+                    else:
+                        name = obj_definitions[char]
                     try:
                         module = name.lower()
                         exec("from lib.obj.%s import %s" % (module, name))
@@ -50,7 +54,7 @@ class Level(object):
     #--------------------------------------------------------------------------
     # object operations
 
-    def add_object(self, (x, y), obj):
+    def add_object(self, (x, y), obj, position=0):
         """
         >>> level = Level([[['.']]], {'.': 'Floor'})
         >>> from lib.obj.door import Door
@@ -62,7 +66,11 @@ class Level(object):
         """
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             return False
-        self.level[y][x].append(obj)
+        if position > 0:
+            position = - position
+            self.level[y][x].insert(position, obj)
+        else:
+            self.level[y][x].append(obj)
 
     def move_object(self, (x0, y0), (x1, y1), obj):
         """

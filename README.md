@@ -1,4 +1,4 @@
-# Space v0.2.1-alpha
+# Space v0.3.0-alpha
 
 Space is a multiplayer roguelike game with ship vs ship and crew vs crew
 battles. 
@@ -19,13 +19,18 @@ battles.
 | `Q`     | quit game   | quit flight  |
 | `/`     | say         | -            |
 | `i`     | inventory   | -            |
+| `e`     | equip       | -            |
+| `u`     | unequip     | -            |
+| `d`     | drop        | -            |
+| `E`     | equipment   | -            |
 
 ## Contribution
 
 You are free to contribute, please keep in mind following things:
 * Code should comply with PEP 8 standards.
 * Tests: I use `doctest` and `unittest` modules in a bundle. `runtests.py`
-should pass. Everything except for UI elements is reasonably tested.
+should pass. Everything except for UI elements is reasonably tested. New code
+should come with unit tests only.
 * Project uses nvie's branching guidelines, main branches are develop and
 master (for details see
 [nvie.com](http://nvie.com/posts/a-successful-git-branching-model)).
@@ -41,5 +46,7 @@ it that way. Required packages:
 * Client:
     * `python2.7`
     * `python-pygame`
+    * `twisted`
 * Server:
     * `python2.7`
+    * `twisted`

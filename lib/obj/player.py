@@ -1,4 +1,15 @@
+import random
+import copy
+
 from lib.obj.mob import Mob
+
+
+class IncorrectSlotName(Exception):
+    pass
+
+
+class ItemCanNotBeEquippedInSlot(Exception):
+    pass
 
 
 class Player(Mob):
@@ -9,29 +20,90 @@ class Player(Mob):
         <class 'Player'> Mike
         """
         super(Player, self).__init__('@', name, 11)
-        self.inventory = []
+        self.inventory = {}
         self.target = None
         self.pilot = False
         self.interior = None
+        self.unarmed_damage = (5, 15)
+        self.equipment = {
+            'hands': None,
+            'torso': None,
+            'head': None}
+        self.look_coords = None
+        self.looking = False
+        self.set_color((147, 112, 219))
 
-    def inventory_add(self, item):
-        """
-        >>> from lib.obj.gun import Gun
-        >>> player = Player('Mike')
-        >>> player.inventory_add(Gun())
-        >>> player.get_inventory()
-        [<class 'Gun'>]
-        >>> player.inventory_add(Gun())
-        >>> player.get_inventory()
-        [<class 'Gun'>, <class 'Gun'>]
-        """
-        self.inventory.append(item)
+    #--------------------------------------------------------------------------
+    # equipment and inventory
+
+    def equip(self, item, slot='hands'):
+        if slot not in self.equipment.keys():
+            raise IncorrectSlotName
+        if self.equipment[slot] is not None:
+            self.inventory_add(self.equipment[slot])
+        if slot not in item.get_slots():
+            raise ItemCanNotBeEquippedInSlot
+        self.equipment[slot] = item
+        if slot == 'torso':
+            self.char = item.get_player_char()
+
+    def inventory_add(self, item, qty=1):
+        for obj in self.inventory:
+            if item == obj:
+                self.inventory[obj] += qty
+                break
+        else:
+            self.inventory[item] = qty
+
+    def inventory_remove_by_name(self, name):
+        for item, qty in self.inventory.items():
+            if item.get_name() == name:
+                if qty > 1:
+                    self.inventory[item] -= 1
+                    return copy.deepcopy(item)
+                else:
+                    del self.inventory[item]
+                    return item
+        return False
+
+    def unequip(self, slot='hands'):
+        if slot not in self.equipment.keys() or self.equipment[slot] is None:
+            return False
+        item = self.equipment[slot]
+        self.equipment[slot] = None
+        if slot == 'torso':
+            self.char = '@'
+        return item
+
+    #--------------------------------------------------------------------------
+    # messages
+
+    def get_melee_attack_messages(self, target):
+        if self.equipment['hands'] is None:
+            player_msg = "You punch %s." % target
+            hostile_msg = "%s punches you!" % self.get_name()
+        else:
+            weapon = self.equipment['hands'].get_name()
+            player_msg = "You hit %s with a %s." % (target, weapon)
+            hostile_msg = "%s hits you with a %s." % (self.get_name(), weapon)
+        return player_msg, hostile_msg
 
     #--------------------------------------------------------------------------
     # accessors
 
+    def is_looking(self):
+        return self.looking
+
     def is_pilot(self):
         return self.pilot
+
+    def get_equipment(self, slot=None):
+        if slot is None:
+            return self.equipment
+        try:
+            return self.equipment[slot]
+        except KeyError:
+            return False
 
     def get_inventory(self):
         return self.inventory
@@ -39,11 +111,52 @@ class Player(Mob):
     def get_interior(self):
         return self.interior
 
+    def get_look_coords(self):
+        return self.look_coords
+
+    def get_melee_damage(self):
+        if self.equipment['hands'] is None:
+            dmg_min, dmg_max = self.unarmed_damage
+        else:
+            try:
+                dmg_min, dmg_max = self.equipment['hands'].get_melee_damage()
+            except AttributeError:
+                dmg_min, dmg_max = map(lambda x: x + 5, self.unarmed_damage)
+        return random.randint(dmg_min, dmg_max)
+
+    def get_ranged_damage(self):
+        try:
+            dmg_min, dmg_max = self.equipment['hands'].get_ranged_damage()
+            return random.randint(dmg_min, dmg_max)
+        except AttributeError:
+            return False
+
     def get_target(self):
         return self.target
 
+    def is_gunman(self):
+        if self.equipment['hands'] is None:
+            return False
+        try:
+            return self.equipment['hands'].is_ranged_weapon()
+        except AttributeError:
+            return False
+
+    def set_look_coords(self, (x, y)):
+        self.look_coords = (x, y)
+
+    def set_looking(self):
+        self.looking = False if self.looking else True
+        if not self.looking:
+            self.look_coords = None
+
     def set_pilot(self):
-        self.pilot = False if self.pilot else True
+        if self.pilot:
+            self.pilot = False
+            self.get_interior().get_spaceship().set_pilot()
+        else:
+            self.pilot = True
+            self.get_interior().get_spaceship().set_pilot(self)
 
     def set_interior(self, interior=None):
         self.interior = interior

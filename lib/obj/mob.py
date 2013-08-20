@@ -12,6 +12,7 @@ class Mob(object):
         self.health = self.health_max = 100
         self.coords = (0, 0)
         self.level = None
+        self.default_color = True
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
@@ -26,6 +27,12 @@ class Mob(object):
         >>> mob.is_alive()
         False
         """
+        try:
+            for slot in ['torso', 'head']:
+                if self.equipment[slot] is not None:
+                    damage -= self.equipment[slot].get_damage_absorption()
+        except AttributeError:
+            pass
         self.health -= damage
         if self.health <= 0:
             self.alive = False
@@ -36,6 +43,9 @@ class Mob(object):
     def is_alive(self):
         return self.alive
 
+    def is_default_color(self):
+        return self.default_color
+
     def is_path_blocker(self):
         return True
 
@@ -45,8 +55,14 @@ class Mob(object):
     def get_char(self):
         return self.char
 
+    def get_color(self):
+        return self.color
+
     def get_coords(self):
         return self.coords
+
+    def get_health(self):
+        return self.health
 
     def get_level(self):
         return self.level
@@ -56,6 +72,10 @@ class Mob(object):
 
     def get_sight(self):
         return self.sight
+
+    def set_color(self, color):
+        self.default_color = False
+        self.color = color
 
     def set_coords(self, (x, y)):
         self.coords = (x, y)
