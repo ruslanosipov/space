@@ -1,4 +1,4 @@
-from tests import mocks
+import ast
 
 from lib.obj.player import Player
 from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
@@ -9,6 +9,26 @@ from lib.interior.view import InteriorView
 
 #------------------------------------------------------------------------------
 # server game start setup
+
+
+def load_extras(raw_extras):
+    r"""
+    >>> extras = '.|Foo|(0, 0)\n#|Bar|(0, 1), (1, 0)'
+    >>> extras = load_extras(extras)
+    >>> len(extras)
+    3
+    >>> extras[(0, 1)]
+    ('#', 'Bar')
+    """
+    extras = {}
+    for extra in raw_extras.split('\n'):
+        if not len(extra):
+            continue
+        char, name, coords = extra.split('|')
+        coords = ast.literal_eval('[%s]' % coords)
+        for coord in coords:
+            extras[coord] = (char, name)
+    return extras
 
 
 def load_interior_level(tiles_map, items_map):
@@ -76,6 +96,7 @@ def activate_obj((x, y), level, player=None):
 
 def add_player(name, spaceship, coords=None):
     """
+    >>> from tests import mocks
     >>> spaceship = mocks.spaceship()
     >>> player = add_player('Mike', spaceship, (0, 0))
     >>> player
@@ -92,6 +113,7 @@ def add_player(name, spaceship, coords=None):
 
 def drop_item(player, item_name):
     """
+    >>> from tests import mocks
     >>> from lib.obj.lasergun import LaserGun
     >>> spaceship = mocks.spaceship()
     >>> player = add_player('Mike', spaceship, (0, 0))
@@ -238,6 +260,7 @@ def inventory(player):
 
 def move(player, (x, y), level, chat):
     """
+    >>> from tests import mocks
     >>> from lib.chatserver import ChatServer
     >>> chat = ChatServer()
     >>> spaceship = mocks.spaceship_with_two_players()
@@ -404,8 +427,10 @@ def add_spaceship(name, coords, spawn, exterior):
     level_definition = load_interior_level(tiles_map, items_map)
     txt = open('dat/obj_defs.txt', 'rb').read()
     obj_definitions = load_obj_definitions(txt)
+    extras = open('dat/maps/%s_extras.txt' % name.lower(), 'rb').read()
+    extras = load_extras(extras)
     spaceship = exterior.add_spaceship(coords, name)
-    spaceship.load_interior(level_definition, obj_definitions)
+    spaceship.load_interior(level_definition, obj_definitions, extras)
     spaceship.set_view(InteriorView(spaceship.get_interior()))
     spaceship.set_spawn_point(spawn)
     return spaceship

@@ -11,7 +11,7 @@ class TeleportPlatform(Stationary):
         >>> TeleportPlatform()
         <class 'TeleportPlatform'>
         """
-        super(TeleportPlatform, self).__init__('T', 'teleport platform')
+        super(TeleportPlatform, self).__init__('_', 'teleport platform')
         self.player = None
 
     def activate(self):

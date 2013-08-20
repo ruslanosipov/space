@@ -35,10 +35,10 @@ class Spaceship(object):
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
-    def load_interior(self, level, obj_data):
+    def load_interior(self, level, obj_data, extras={}):
         self.interior = Level3D()
         self.interior.set_spaceship(self)
-        self.interior.load_converted_char_map(level, obj_data)
+        self.interior.load_converted_char_map(level, obj_data, extras)
 
     #--------------------------------------------------------------------------
     # movement
