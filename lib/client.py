@@ -30,10 +30,20 @@ class CommandProtocol(AMP):
         return {}
     commands.SetBottomStatusBar.responder(set_bottom_status_bar)
 
+    def set_look_pointer(self, x, y):
+        self.main.set_look_pointer((x, y))
+        return {}
+    commands.SetLookPointer.responder(set_look_pointer)
+
     def set_pilot(self, is_pilot):
         self.main.set_pilot(is_pilot)
         return {}
     commands.SetPilot.responder(set_pilot)
+
+    def set_target(self, x, y):
+        self.main.set_target((x, y))
+        return {}
+    commands.SetTarget.responder(set_target)
 
     def set_top_status_bar(self, text):
         self.main.set_top_status_bar(text)
@@ -48,6 +58,16 @@ class CommandProtocol(AMP):
         self.main.set_view(view, c_colors)
         return {}
     commands.SetView.responder(set_view)
+
+    def unset_look_pointer(self):
+        self.main.unset_look_pointer()
+        return {}
+    commands.UnsetLookPointer.responder(unset_look_pointer)
+
+    def unset_target(self):
+        self.main.unset_target()
+        return {}
+    commands.UnsetTarget.responder(unset_target)
 
 
 class Client:

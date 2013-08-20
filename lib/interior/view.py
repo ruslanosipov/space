@@ -10,7 +10,7 @@ class InteriorView(View):
     def generate(self, (x0, y0), r, sight, visible_tiles,
                  pointer=None, look=None):
         l = self.level
-        view, colors = [], {}
+        view, colors, rel_pointer, rel_look = [], {}, None, None
         for _ in xrange(0, r * 2 + 1):
                 line = [' ' for _ in xrange(0, r * 2 + 1)]
                 view.append(line)
@@ -20,17 +20,17 @@ class InteriorView(View):
                     if (x0 - sight <= x <= x0 + sight):
                         nx, ny = x - x0 + r, y - y0 + r
                         if pointer and (x, y) == pointer:
-                            view[ny][nx] = 'x'
-                        elif look and (x, y) == look:
-                            view[ny][nx] = 'l'
-                        elif (x, y) in visible_tiles:
+                            rel_pointer = (nx, ny)
+                        if look and (x, y) == look:
+                            rel_look = (nx, ny)
+                        if (x, y) in visible_tiles:
                             obj = l.get_objects((x, y))[-1]
                             view[ny][nx] = obj.get_char()
                             if not obj.is_default_color():
                                 colors[(nx, ny)] = obj.get_color()
         for y, line in enumerate(view):
             view[y] = ''.join(line)
-        return view, colors
+        return view, colors, rel_pointer, rel_look
 
     def visible_tiles(self, (x0, y0), r, sight):
         l = self.level
