@@ -149,9 +149,11 @@ class GameServer(object):
                         int_level, visible_tiles)
                 elif evt == 'look_dir':
                     dx, dy = arg
-                    client['top_status_bar'][-1] = misc.look(
+                    _tmp = misc.look(
                         player, (dx, dy),
                         int_level, visible_tiles)
+                    if _tmp:
+                        client['top_status_bar'][-1] = _tmp
                 elif evt == 'look_done':
                     player.set_looking()
                 if msg is not None:
