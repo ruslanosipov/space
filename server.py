@@ -166,10 +166,8 @@ class GameServer(object):
                     visible_tiles,
                     player.get_target(),
                     player.get_look_coords())
-                if target:
-                    client['target'][-1] = target
-                if look_coords:
-                    client['look_coords'][-1] = look_coords
+                client['target'][-1] = target
+                client['look_coords'][-1] = look_coords
                 # create bottom status bar
                 hp = str(player.get_health())
                 client['bottom_status_bar'][-1] = \

@@ -20,12 +20,10 @@ class InteriorView(View):
                     if (x0 - sight <= x <= x0 + sight):
                         nx, ny = x - x0 + r, y - y0 + r
                         if pointer and (x, y) == pointer:
-                            view[ny][nx] = 'x'
                             rel_pointer = (nx, ny)
-                        elif look and (x, y) == look:
-                            view[ny][nx] = 'l'
+                        if look and (x, y) == look:
                             rel_look = (nx, ny)
-                        elif (x, y) in visible_tiles:
+                        if (x, y) in visible_tiles:
                             obj = l.get_objects((x, y))[-1]
                             view[ny][nx] = obj.get_char()
                             if not obj.is_default_color():

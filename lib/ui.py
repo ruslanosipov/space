@@ -10,8 +10,8 @@ class UI(object):
     global MSG_COLORS
     global UI_COLOR
 
-    def compose(self, view, colors, chat_log, prompt,
-                evt_mode, evt_mode_desc, bottom_status_bar, top_status_bar):
+    def compose(self, view, colors, chat_log, prompt, evt_mode, evt_mode_desc,
+                bottom_status_bar, top_status_bar, target, look_pointer):
         if evt_mode == 'pilot':
             default_colors = self.ext_colors
         else:
@@ -24,6 +24,12 @@ class UI(object):
                 if (x, y) in colors.keys():
                     color = colors[(x, y)]
                 else:
+                    color = default_colors[char]
+                if (x, y) == target:
+                    char = 'x'
+                    color = default_colors[char]
+                elif (x, y) == look_pointer:
+                    char = 'l'
                     color = default_colors[char]
                 if len(new_line) and new_line[-1][1] == color:
                     new_line[-1][0] += char

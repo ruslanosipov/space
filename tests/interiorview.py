@@ -69,17 +69,10 @@ class TestInteriorViewGenerate(unittest.TestCase):
         (x, y), (dx, dy) = coords, target
         x, y = radius + dx - x, radius + dy - y
         visible_tiles = self.view.visible_tiles(coords, radius, sight)
-        field, colors, _, _ = self.view.generate(coords, radius, sight,
-                                                 visible_tiles, target)
-        self.assertEqual(field[y][x], 'x',
-                         "target should be drawn at specified coordinates")
-        count = 0
-        for line in field:
-            for char in line:
-                if char == 'x':
-                    count += 1
-        self.assertEqual(count, 1,
-                         "there should be only one target if any")
+        field, colors, target, _ = self.view.generate(coords, radius, sight,
+                                                      visible_tiles, target)
+        self.assertEqual(target, (x, y),
+                         "target's relative coordinates should be returned")
 
     def test_default_color_override(self):
         coords, radius, sight = (2, 1), 13, 13

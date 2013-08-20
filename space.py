@@ -42,7 +42,9 @@ class GameClient(object):
         self.bottom_status_bar = ''
         self.view_field, self.colors = False, {}
         self.command = None
-        self.look_pointer, self.target = False, False
+        self.look_pointer, self.target = None, None
+        self.fps = 50
+        self.blinker = 0
 
     def main(self):
         if self.action and not self.require_arg:
@@ -95,10 +97,14 @@ class GameClient(object):
         elif (evt, evt_arg) != (None, None):
             self.action = (evt, evt_arg)
 
+        self.blinker = self.blinker + 1 if self.blinker < self.fps else 0
         surface = self.ui.compose(
-            self.view_field, self.colors, self.chat.get_log(), self.prompt,
-            self.evt_mode, self.evt_mode_desc, self.bottom_status_bar,
-            self.top_status_bar)
+            self.view_field, self.colors,
+            self.chat.get_log(), self.prompt,
+            self.evt_mode, self.evt_mode_desc,
+            self.bottom_status_bar, self.top_status_bar,
+            self.target if self.blinker < self.fps / 2 else None,
+            self.look_pointer if self.blinker < self.fps / 2 else None)
         self.display.draw(surface)
         self.display.update()
 
@@ -116,6 +122,7 @@ class GameClient(object):
 
     def set_look_pointer(self, (x, y)):
         self.look_pointer = (x, y)
+        self.blinker = 0
 
     def set_pilot(self, is_pilot):
         if is_pilot:
@@ -125,6 +132,7 @@ class GameClient(object):
 
     def set_target(self, (x, y)):
         self.target = (x, y)
+        self.blinker = 0
 
     def set_top_status_bar(self, text):
         ver = 'v0.2.1-alpha'
