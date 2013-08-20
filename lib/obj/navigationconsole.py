@@ -11,7 +11,9 @@ class NavigationConsole(Stationary):
         self.player = None
 
     def activate(self):
-        if self.player.get_interior().get_spaceship().is_alive():
+        if self.player.get_interior().get_spaceship().get_pilot():
+            msg = "Someone else is operating the console..."
+        elif self.player.get_interior().get_spaceship().is_alive():
             self.player.set_pilot()
             msg = "You are piloting the spaceship now..."
         else:

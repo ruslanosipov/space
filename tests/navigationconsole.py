@@ -9,7 +9,7 @@ class TestNavigationConsole(unittest.TestCase):
 
     def setUp(self):
         self.spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        self.spaceship.load_interior([[['.']]], {'.': 'Floor'})
+        self.spaceship.load_interior([[['.'], ['.']]], {'.': 'Floor'})
         self.player = Player('Mike')
         self.spaceship.get_interior().add_player((0, 0), self.player)
         self.console = NavigationConsole()
@@ -28,3 +28,15 @@ class TestNavigationConsole(unittest.TestCase):
                          "console can not be activated if spaceship is broken")
         self.assertFalse(self.player.is_pilot(),
                          "player should not become a pilot")
+
+    def test_spaceship_can_be_piloted_only_by_one_player(self):
+        player = Player('Josh')
+        self.spaceship.get_interior().add_player((1, 0), player)
+        self.console.set_player(self.player)
+        self.console.activate()
+        self.console.set_player(player)
+        self.assertEqual(self.console.activate(),
+                         "Someone else is operating the console...",
+                         "corresponding message should be returned")
+        self.assertFalse(player.is_pilot(), "player should not become a pilot")
+
