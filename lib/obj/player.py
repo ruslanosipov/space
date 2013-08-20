@@ -81,11 +81,11 @@ class Player(Mob):
     def get_melee_attack_messages(self, target):
         if self.equipment['hands'] is None:
             player_msg = "You punch %s." % target
-            hostile_msg = "%s punches you!" % self
+            hostile_msg = "%s punches you!" % self.get_name()
         else:
             weapon = self.equipment['hands'].get_name()
             player_msg = "You hit %s with a %s." % (target, weapon)
-            hostile_msg = "%s hits you with a %s." % (target, weapon)
+            hostile_msg = "%s hits you with a %s." % (self.get_name(), weapon)
         return player_msg, hostile_msg
 
     #--------------------------------------------------------------------------
