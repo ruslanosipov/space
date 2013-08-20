@@ -31,6 +31,8 @@ class Mob(object):
             for slot in ['torso', 'head']:
                 if self.equipment[slot] is not None:
                     damage -= self.equipment[slot].get_damage_absorption()
+                    if damage < 0:
+                        damage = 0
         except AttributeError:
             pass
         self.health -= damage

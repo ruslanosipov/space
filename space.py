@@ -37,7 +37,7 @@ class GameClient(object):
         self.require_arg = False
         self.queued_evt = False
         self.prompt = ''
-        ver = 'v0.3.0-alpha'
+        ver = 'v0.3.1-alpha'
         self.top_status_bar = ' ' * (80 - len(ver)) + ver
         self.bottom_status_bar = ''
         self.view_field, self.colors = False, {}
@@ -135,7 +135,7 @@ class GameClient(object):
         self.blinker = 0
 
     def set_top_status_bar(self, text):
-        ver = 'v0.3.0-alpha'
+        ver = 'v0.3.1-alpha'
         text += ' ' * (80 - len(text) - len(ver)) + ver
         self.top_status_bar = text
 
