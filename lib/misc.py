@@ -358,7 +358,7 @@ def pick_up_obj(player, (x, y), level):
     return msg
 
 
-def set_target(player, level):
+def set_target(player, level, visible_tiles):
     """
     >>> from lib.interior.level3d import Level3D
     >>> from lib.obj.player import Player
@@ -367,17 +367,18 @@ def set_target(player, level):
     >>> level = Level3D()
     >>> level.load_converted_char_map(l, {'.': 'Floor'})
     >>> level.add_object((0, 0), player)
-    >>> set_target(player, level)
+    >>> set_target(player, level, [])
     'No suitable target found...'
     >>> hostile = Player('Josh')
     >>> level.add_object((1, 1), hostile)
-    >>> set_target(player, level)
+    >>> set_target(player, level, [(1, 1)])
     ''
     """
     status = ''
-    targets = level.get_nearest_mobs_coords(
+    targets = level.get_nearest_players_coords(
         player.get_coords(),
-        player.get_sight())
+        player.get_sight(),
+        visible_tiles)
     if len(targets):
         # TODO: implement switching between targets
         x, y = targets[0]

@@ -44,6 +44,9 @@ class InteriorView(View):
                         for (ix, iy) in line:
                             if not is_blocker and (ix, iy) not in visible:
                                 visible.append((ix, iy))
-                            if l.is_view_blocker((ix, iy)):
-                                is_blocker = True
+                            try:
+                                if l.is_view_blocker((ix, iy)):
+                                    is_blocker = True
+                            except IndexError:
+                                pass
         return visible
