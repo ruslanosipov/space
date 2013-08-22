@@ -19,6 +19,7 @@ class Projectile:
         self.alive = True
         self.coords = (0, 0, 0, 0)
         self.default_color = True
+        self.health = 1
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
@@ -48,6 +49,11 @@ class Projectile:
             return self.directions[self.position]
         return (0, 0)
 
+    def receive_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            self.alive = False
+
     def _increment_position(self):
         if self.position >= len(self.directions) - 1:
             self.position = 0
@@ -74,6 +80,9 @@ class Projectile:
 
     def get_damage(self):
         return self.damage
+
+    def get_health(self):
+        return self.health
 
     def set_color(self, color):
         self.default_color = False

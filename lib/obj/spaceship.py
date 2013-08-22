@@ -135,6 +135,7 @@ class Spaceship(object):
                 self.get_pilot().set_pilot()
             self.alive = False
             self.set_color((50, 50, 50))
+            self.speed = 0
 
     #--------------------------------------------------------------------------
     # accessors
