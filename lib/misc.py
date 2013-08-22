@@ -3,8 +3,6 @@ import ast
 from lib.obj.player import Player
 from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
 from lib.obj.corpse import Corpse
-from lib.obj.spaceship import Spaceship
-from lib.interior.level3d import Level3D
 from lib.interior.view import InteriorView
 
 #------------------------------------------------------------------------------
@@ -12,14 +10,6 @@ from lib.interior.view import InteriorView
 
 
 def load_extras(raw_extras):
-    r"""
-    >>> extras = '.|Foo|(0, 0)\n#|Bar|(0, 1), (1, 0)'
-    >>> extras = load_extras(extras)
-    >>> len(extras)
-    3
-    >>> extras[(0, 1)]
-    ('#', 'Bar')
-    """
     extras = {}
     for extra in raw_extras.split('\n'):
         if not len(extra):
@@ -32,11 +22,6 @@ def load_extras(raw_extras):
 
 
 def load_interior_level(tiles_map, items_map):
-    r"""
-    >>> tiles_map, items_map = '###\n...', '#+#\n...'
-    >>> load_interior_level(tiles_map, items_map)
-    [[['#'], ['#', '+'], ['#']], [['.'], ['.'], ['.']]]
-    """
     level = []
     tiles_map, items_map = tiles_map.split('\n'), items_map.split('\n')
     for y, line in enumerate(tiles_map):
@@ -49,14 +34,6 @@ def load_interior_level(tiles_map, items_map):
 
 
 def load_obj_definitions(txt, separator='|'):
-    r"""
-    >>> txt = '.|Floor\n#|Wall'
-    >>> d = load_obj_definitions(txt)
-    >>> d['.']
-    'Floor'
-    >>> d['#']
-    'Wall'
-    """
     obj_defs = {}
     for line in txt.split('\n'):
         if line:
