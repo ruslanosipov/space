@@ -4,3 +4,6 @@
 
 # IDE: ignore exhuberant ctags file
 /tags
+
+# IDE: ignore rope project files
+/.ropeproject
