@@ -395,11 +395,6 @@ def unequip_item(player, slot):
 
 
 def add_spaceship(name, coords, spawn, exterior):
-    """
-    >>> from lib.exterior.level5d import Level5D
-    >>> add_spaceship('Galactica', (0, 0, 0, 0), (8, 3), Level5D())
-    <class 'Spaceship'> Galactica
-    """
     tiles_map = open('dat/maps/%s_tiles.txt' % name.lower(), 'rb').read()
     items_map = open('dat/maps/%s_items.txt' % name.lower(), 'rb').read()
     level_definition = load_interior_level(tiles_map, items_map)
