@@ -104,6 +104,9 @@ def equipment(player):
 
 
 def equip_item(player, item_name, slot='hands'):
+    """
+    Equips item in desired slot from the inventory. Returns string.
+    """
     item = player.inventory_remove_by_name(item_name)
     if item:
         try:
@@ -122,25 +125,8 @@ def equip_item(player, item_name, slot='hands'):
 
 def interior_fire(player, level, chat):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> from lib.chatserver import ChatServer
-    >>> from lib.obj.lasergun import LaserGun
-    >>> chat = ChatServer()
-    >>> player = Player('Mike')
-    >>> hostile = Player('Josh')
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.'], ['.']]], {'.': 'Floor'})
-    >>> level.add_object((0, 0), player)
-    >>> level.add_object((1, 0), hostile)
-    >>> interior_fire(player, level, chat)
-    'You have no weapon to fire from...'
-    >>> _ = player.equip(LaserGun())
-    >>> interior_fire(player, level, chat)
-    'Target is not set...'
-    >>> _ = set_target(player, level)
-    >>> interior_fire(player, level, chat)
-    ''
+    Fire at other player. Target must be set up, weapon must be
+    equipped. Returns string.
     """
     target = player.get_target()
     if not player.is_gunman():
@@ -181,17 +167,7 @@ def inventory(player):
 
 def move(player, (x, y), level, chat):
     """
-    >>> from tests import mocks
-    >>> from lib.chatserver import ChatServer
-    >>> chat = ChatServer()
-    >>> spaceship = mocks.spaceship_with_two_players()
-    >>> player = spaceship.get_interior().get_objects((0, 0))[-1]
-    >>> move(player, (1, 0), spaceship.get_interior(), chat)
-    'Your path is obstructed by the door...'
-    >>> move(player, (0, 1), spaceship.get_interior(), chat)
-    ''
-    >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    ''
+    Move or attack a hostile standing in your way.
     """
     status = ''
     hostile = level.get_player((x, y))
@@ -221,16 +197,8 @@ def move(player, (x, y), level, chat):
 
 def look(player, (dx, dy), level, visible_tiles):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.', 'c']]],
-    ...                               {'.': 'Floor', 'c': 'Console'})
-    >>> player = Player('Mike')
-    >>> look(player, (0, 0), level, [(0, 0)])
-    'You see: console, floor.'
-    >>> look(player, (0, 1), level, [(0, 0)])
-    "You can't see anything there."
+    Look around the player, show description of visible objects from
+    top to bottom. Returns string.
     """
     if not player.is_looking():
         player.set_looking()
@@ -273,19 +241,8 @@ def pick_up_obj(player, (x, y), level):
 
 def set_target(player, level, visible_tiles):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> player = Player('Mike')
-    >>> l = [[['.'], ['.']], [['.'], ['.']]]
-    >>> level = Level3D()
-    >>> level.load_converted_char_map(l, {'.': 'Floor'})
-    >>> level.add_object((0, 0), player)
-    >>> set_target(player, level, [])
-    'No suitable target found...'
-    >>> hostile = Player('Josh')
-    >>> level.add_object((1, 1), hostile)
-    >>> set_target(player, level, [(1, 1)])
-    ''
+    Sets a target for a player if one is within visible_tiles. Returns
+    string.
     """
     status = ''
     targets = level.get_nearest_players_coords(

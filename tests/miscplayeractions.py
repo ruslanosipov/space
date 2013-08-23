@@ -3,8 +3,10 @@ import unittest
 from lib import misc
 from lib.interior.level3d import Level3D as InteriorLevel
 from lib.exterior.level5d import Level5D as ExteriorLevel
+from lib.chatserver import ChatServer
 from lib.obj.player import Player
 from lib.obj.testitem import TestItem
+from lib.obj.testrangedweapon import TestRangedWeapon
 
 
 class TestActivateObj(unittest.TestCase):
@@ -163,49 +165,108 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
 class TestMoveAndMeleeAttack(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.level = InteriorLevel()
+        char_map = [[['.'], ['.']], [['.', '+'], ['.']]]
+        obj_defs = {'.': 'TestTile', '+': 'TestStationaryBlocking'}
+        self.level.load_converted_char_map(char_map, obj_defs)
+        self.player = Player('Mike')
+        self.level.add_player((0, 0), self.player)
+        self.chatserver = ChatServer()
 
     def test_moving_is_possible(self):
-        pass
+        self.assertEqual(
+            misc.move(self.player, (1, 0), self.level, self.chatserver), '')
+        self.assertEqual(self.player.get_coords(), (1, 0))
 
     def test_some_objects_obstruct_path(self):
-        pass
+        self.assertEqual(
+            misc.move(self.player, (0, 1), self.level, self.chatserver),
+            "Your path is obstructed by the test blocking stationary...")
+        self.assertEqual(self.player.get_coords(), (0, 0))
 
     def test_moving_into_player_attacks_player(self):
-        pass
+        hostile = Player('Josh')
+        self.level.add_player((1, 0), hostile)
+        self.assertEqual(
+            misc.move(self.player, (1, 0), self.level, self.chatserver), '')
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.player),
+            [('You punch Josh.', 3)])
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(hostile),
+            [('Mike punches you!', 3)])
+        self.assertLess(hostile.get_health(), 100)
 
 
 class TestTargetAndFire(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.level = InteriorLevel()
+        char_map, obj_defs = [[['.'], ['.']]], {'.': 'TestTile'}
+        self.level.load_converted_char_map(char_map, obj_defs)
+        self.player, self.hostile = Player('Mike'), Player('Josh')
+        self.level.add_player((0, 0), self.player)
+        self.level.add_player((1, 0), self.hostile)
+        self.chatserver = ChatServer()
 
     def test_target_can_be_set(self):
-        pass
+        self.assertEqual(
+            misc.set_target(self.player, self.level, [(0, 0), (1, 0)]), '')
+        self.assertEqual(self.player.get_target(), (1, 0))
 
     def test_target_can_not_be_set_if_no_visible_players(self):
-        pass
+        self.assertEqual(misc.set_target(self.player, self.level, [(0, 0)]),
+                         'No suitable target found...')
+        self.assertIsNone(self.player.get_target())
 
     def test_weapon_is_required_to_fire(self):
-        pass
+        self.assertEqual(
+            misc.interior_fire(self.player, self.level, self.chatserver),
+            "You have no weapon to fire from...")
 
     def test_target_is_required_to_fire(self):
-        pass
+        self.player.inventory_add(TestRangedWeapon())
+        misc.equip_item(self.player, 'test ranged weapon')
+        self.assertEqual(
+            misc.interior_fire(self.player, self.level, self.chatserver),
+            "Target is not set...")
 
     def test_can_fire_at_other_player(self):
-        pass
+        self.player.inventory_add(TestRangedWeapon())
+        misc.equip_item(self.player, 'test ranged weapon')
+        misc.set_target(self.player, self.level, [(0, 0), (1, 0)])
+        self.assertEqual(
+            misc.interior_fire(self.player, self.level, self.chatserver), '')
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.player),
+            [('You shoot at Josh.', 3)])
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.hostile),
+            [('Mike shoots at you.', 3)])
+        self.assertLess(self.hostile.get_health(), 100)
 
 
 class TestLook(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.level = InteriorLevel()
+        char_map = [[['.'], ['.', '?']]]
+        obj_defs = {'.': 'TestTile', '?': 'TestItem'}
+        self.level.load_converted_char_map(char_map, obj_defs)
+        self.player = Player('Mike')
+        self.level.add_player((0, 0), self.player)
 
     def test_look_displays_visible_objects(self):
-        pass
+        self.assertEqual(
+            misc.look(self.player, (0, 0), self.level, [(0, 0), (1, 0)]),
+            "You see: Mike, test tile.")
+        self.assertEqual(
+            misc.look(self.player, (1, 0), self.level, [(0, 0), (1, 0)]),
+            "You see: test item, test tile.")
 
     def test_look_hides_invisible_objects(self):
-        pass
+        self.assertEqual(misc.look(self.player, (1, 0), self.level, [(0, 0)]),
+                         "You can't see anything there.")
 
     def test_look_is_limited_to_visible_area(self):
-        pass
+        self.assertIsNone(misc.look(self.player, (20, 20), self.level, []))
