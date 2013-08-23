@@ -8,16 +8,12 @@ class Spaceship(object):
     # setup
 
     def __init__(self, char, name, coords, exterior=None):
-        """
-        >>> Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        <class 'Spaceship'> Galactica
-        """
         self.char = char
         self.name = name
         self.coords = coords
         self.exterior = exterior
         self.pointers = [(0, -2), (1, -2), (2, -1), (2, 0), (2, 1), (1, 2),
-                        (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
+                         (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
         self.pointer = 0
         self.speed = 0
         self.speed_max = 500
@@ -44,14 +40,6 @@ class Spaceship(object):
     # movement
 
     def accelerate(self, acceleration):
-        """
-        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(500)
-        >>> spaceship.move()
-        []
-        >>> spaceship.move()
-        [(0, -1)]
-        """
         self.speed += acceleration
         if self.speed < 0:
             self.speed = 0
@@ -59,16 +47,6 @@ class Spaceship(object):
             self.speed = self.speed_max
 
     def move(self):
-        """
-        Returns relative movement.
-
-        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.accelerate(700)
-        >>> spaceship.move()
-        []
-        >>> spaceship.move()
-        [(0, -1)]
-        """
         directions = []
         if self.pointer not in self.inertia.keys():
             self.inertia[self.pointer] = [self.speed, self.speed, 0]
@@ -90,24 +68,6 @@ class Spaceship(object):
         return directions
 
     def rotate_pointer(self, reverse=False):
-        """
-        Pointer is an equivalent of a steering wheel. Reverse is
-        counter-clockwise.
-
-        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.get_pointer()
-        (0, -2)
-        >>> spaceship.rotate_pointer()
-        >>> spaceship.get_pointer()
-        (1, -2)
-        >>> for _ in xrange(0, 2):
-        ...     spaceship.rotate_pointer(True)
-        >>> spaceship.get_pointer()
-        (-1, -2)
-        >>> spaceship.rotate_pointer()
-        >>> spaceship.get_pointer()
-        (0, -2)
-        """
         i = 1 if not reverse else -1
         if self.pointer == len(self.pointers) - 1 and not reverse:
             self.pointer = 0
@@ -120,21 +80,13 @@ class Spaceship(object):
     # combat
 
     def receive_damage(self, damage):
-        """
-        >>> spaceship = Spaceship('@', 'Galactica', (0, 0, 0, 0))
-        >>> spaceship.receive_damage(10)
-        >>> spaceship.is_alive()
-        True
-        >>> spaceship.receive_damage(200)
-        >>> spaceship.is_alive()
-        False
-        """
         self.health -= damage
         if self.health <= 0:
             if self.get_pilot():
                 self.get_pilot().set_pilot()
             self.alive = False
             self.set_color((50, 50, 50))
+            self.speed = 0
 
     #--------------------------------------------------------------------------
     # accessors

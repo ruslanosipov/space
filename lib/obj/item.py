@@ -2,12 +2,11 @@ from lib.obj.tile import Tile
 
 
 class Item(Tile):
+    """
+    Base item class. All items inherit from it.
+    """
 
     def __init__(self, *args, **kwargs):
-        """
-        >>> Item('}', 'wall')
-        <class 'Item'>
-        """
         super(Item, self).__init__(*args, **kwargs)
         self.pickupable = True
         self.moveable = False

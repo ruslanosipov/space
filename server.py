@@ -142,7 +142,7 @@ class GameServer(object):
                     msg = misc.equipment(player)
                 elif evt == 'target':
                     client['top_status_bar'][-1] = misc.set_target(
-                        player, int_level)
+                        player, int_level, visible_tiles)
                 elif evt == 'look':
                     client['top_status_bar'][-1] = misc.look(
                         player, (0, 0),

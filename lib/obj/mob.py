@@ -1,10 +1,9 @@
 class Mob(object):
+    """
+    Base class for players and alike.
+    """
 
     def __init__(self, char, name, sight=11):
-        """
-        >>> Mob('@', 'Mike')
-        <class 'Mob'> Mike
-        """
         self.char = char
         self.name = name
         self.sight = sight
@@ -18,15 +17,6 @@ class Mob(object):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
     def receive_damage(self, damage):
-        """
-        >>> mob = Mob('@', 'Mike')
-        >>> mob.receive_damage(50)
-        >>> mob.is_alive()
-        True
-        >>> mob.receive_damage(90)
-        >>> mob.is_alive()
-        False
-        """
         try:
             for slot in ['torso', 'head']:
                 if self.equipment[slot] is not None:

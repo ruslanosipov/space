@@ -1,13 +1,6 @@
 def get_line((x, y), (x1, y1), length=False):
     """
-    Draw line from (x, y) to (x1, y1).
-
-    >>> get_line((0, 0), (3, 3))
-    [(0, 0), (1, 1), (2, 2), (3, 3)]
-    >>> get_line((0, 0), (0, 0))
-    [(0, 0)]
-    >>> get_line((0, 0), (1, 1), length=5)
-    [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+    Draw line from (x, y) to (x1, y1). Returns a list.
     """
     steep = 0
     line = []

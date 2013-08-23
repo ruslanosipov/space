@@ -3,8 +3,6 @@ import ast
 from lib.obj.player import Player
 from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
 from lib.obj.corpse import Corpse
-from lib.obj.spaceship import Spaceship
-from lib.interior.level3d import Level3D
 from lib.interior.view import InteriorView
 
 #------------------------------------------------------------------------------
@@ -12,14 +10,6 @@ from lib.interior.view import InteriorView
 
 
 def load_extras(raw_extras):
-    r"""
-    >>> extras = '.|Foo|(0, 0)\n#|Bar|(0, 1), (1, 0)'
-    >>> extras = load_extras(extras)
-    >>> len(extras)
-    3
-    >>> extras[(0, 1)]
-    ('#', 'Bar')
-    """
     extras = {}
     for extra in raw_extras.split('\n'):
         if not len(extra):
@@ -32,11 +22,6 @@ def load_extras(raw_extras):
 
 
 def load_interior_level(tiles_map, items_map):
-    r"""
-    >>> tiles_map, items_map = '###\n...', '#+#\n...'
-    >>> load_interior_level(tiles_map, items_map)
-    [[['#'], ['#', '+'], ['#']], [['.'], ['.'], ['.']]]
-    """
     level = []
     tiles_map, items_map = tiles_map.split('\n'), items_map.split('\n')
     for y, line in enumerate(tiles_map):
@@ -49,14 +34,6 @@ def load_interior_level(tiles_map, items_map):
 
 
 def load_obj_definitions(txt, separator='|'):
-    r"""
-    >>> txt = '.|Floor\n#|Wall'
-    >>> d = load_obj_definitions(txt)
-    >>> d['.']
-    'Floor'
-    >>> d['#']
-    'Wall'
-    """
     obj_defs = {}
     for line in txt.split('\n'):
         if line:
@@ -70,14 +47,8 @@ def load_obj_definitions(txt, separator='|'):
 
 def activate_obj((x, y), level, player=None):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.', '+'], ['.']]],
-    ...                               {'.': 'Floor', '+': 'Door'})
-    >>> activate_obj((0, 0), level)
-    'You open the door...'
-    >>> activate_obj((1, 0), level)
-    'Nothing to activate here...'
+    Activate object topmost available object at (x, y). Some objects
+    need to know who the player is while activating.
     """
     objects = level.get_objects((x, y))
     status = "Nothing to activate here..."
@@ -96,13 +67,8 @@ def activate_obj((x, y), level, player=None):
 
 def add_player(name, spaceship, coords=None):
     """
-    >>> from tests import mocks
-    >>> spaceship = mocks.spaceship()
-    >>> player = add_player('Mike', spaceship, (0, 0))
-    >>> player
-    <class 'Player'> Mike
-    >>> player.get_interior().get_spaceship()
-    <class 'Spaceship'> Galactica
+    Places player inside a spaceship, by default coords take
+    spaceship's spawn_point attribute.
     """
     player = Player(name)
     if coords is None:
@@ -113,19 +79,7 @@ def add_player(name, spaceship, coords=None):
 
 def drop_item(player, item_name):
     """
-    >>> from tests import mocks
-    >>> from lib.obj.lasergun import LaserGun
-    >>> spaceship = mocks.spaceship()
-    >>> player = add_player('Mike', spaceship, (0, 0))
-    >>> drop_item(player, 'helmet')
-    'You do not have such an item.'
-    >>> player.inventory_add(LaserGun())
-    >>> drop_item(player, 'laser gun')
-    'You drop a laser gun.'
-    >>> player.get_inventory()
-    {}
-    >>> player.get_interior().get_objects((0, 0))[-2]
-    <class 'LaserGun'>
+    Drops the item under the player's feet.
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
@@ -137,15 +91,7 @@ def drop_item(player, item_name):
 
 def equipment(player):
     """
-    >>> from lib.obj.player import Player
-    >>> from lib.obj.powerarmor import PowerArmor
-    >>> player = Player('Mike')
-    >>> player.inventory_add(PowerArmor())
-    >>> equipment(player)
-    'You do not have anything equipped at the moment.'
-    >>> _ = equip_item(player, 'power armor', 'torso')
-    >>> equipment(player)
-    'Equipment: power armor (torso).'
+    Returnes string describing player's equipment.
     """
     equipment = player.get_equipment()
     contents = []
@@ -159,22 +105,7 @@ def equipment(player):
 
 def equip_item(player, item_name, slot='hands'):
     """
-    >>> from lib.obj.player import Player
-    >>> from lib.obj.lasergun import LaserGun
-    >>> from lib.obj.powerarmor import PowerArmor
-    >>> player = Player('Mike')
-    >>> player.inventory_add(LaserGun())
-    >>> player.inventory_add(PowerArmor())
-    >>> equip_item(player, 'helmet', 'head')
-    'Can not equip a helmet, item not in inventory.'
-    >>> equip_item(player, 'laser gun', 'toe')
-    'Incorrect equipment slot name.'
-    >>> equip_item(player, 'laser gun')
-    'You equip a laser gun.'
-    >>> equip_item(player, 'power armor', 'torso')
-    'You equip a power armor.'
-    >>> player.get_inventory()
-    {}
+    Equips item in desired slot from the inventory. Returns string.
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
@@ -194,25 +125,8 @@ def equip_item(player, item_name, slot='hands'):
 
 def interior_fire(player, level, chat):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> from lib.chatserver import ChatServer
-    >>> from lib.obj.lasergun import LaserGun
-    >>> chat = ChatServer()
-    >>> player = Player('Mike')
-    >>> hostile = Player('Josh')
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.'], ['.']]], {'.': 'Floor'})
-    >>> level.add_object((0, 0), player)
-    >>> level.add_object((1, 0), hostile)
-    >>> interior_fire(player, level, chat)
-    'You have no weapon to fire from...'
-    >>> _ = player.equip(LaserGun())
-    >>> interior_fire(player, level, chat)
-    'Target is not set...'
-    >>> _ = set_target(player, level)
-    >>> interior_fire(player, level, chat)
-    ''
+    Fire at other player. Target must be set up, weapon must be
+    equipped. Returns string.
     """
     target = player.get_target()
     if not player.is_gunman():
@@ -236,14 +150,7 @@ def interior_fire(player, level, chat):
 
 def inventory(player):
     """
-    >>> from lib.obj.player import Player
-    >>> from lib.obj.lasergun import LaserGun
-    >>> player = Player('Mike')
-    >>> inventory(player)
-    'You do not own anything at the moment...'
-    >>> player.inventory_add(LaserGun())
-    >>> inventory(player)
-    'Inventory contents: laser gun.'
+    Return string describing inventory contents.
     """
     inv = player.get_inventory()
     if not len(inv):
@@ -260,17 +167,7 @@ def inventory(player):
 
 def move(player, (x, y), level, chat):
     """
-    >>> from tests import mocks
-    >>> from lib.chatserver import ChatServer
-    >>> chat = ChatServer()
-    >>> spaceship = mocks.spaceship_with_two_players()
-    >>> player = spaceship.get_interior().get_objects((0, 0))[-1]
-    >>> move(player, (1, 0), spaceship.get_interior(), chat)
-    'Your path is obstructed by the door...'
-    >>> move(player, (0, 1), spaceship.get_interior(), chat)
-    ''
-    >>> move(player, (1, 1), spaceship.get_interior(), chat)
-    ''
+    Move or attack a hostile standing in your way.
     """
     status = ''
     hostile = level.get_player((x, y))
@@ -300,16 +197,8 @@ def move(player, (x, y), level, chat):
 
 def look(player, (dx, dy), level, visible_tiles):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.', 'c']]],
-    ...                               {'.': 'Floor', 'c': 'Console'})
-    >>> player = Player('Mike')
-    >>> look(player, (0, 0), level, [(0, 0)])
-    'You see: console, floor.'
-    >>> look(player, (0, 1), level, [(0, 0)])
-    "You can't see anything there."
+    Look around the player, show description of visible objects from
+    top to bottom. Returns string.
     """
     if not player.is_looking():
         player.set_looking()
@@ -332,16 +221,8 @@ def look(player, (dx, dy), level, visible_tiles):
 
 def pick_up_obj(player, (x, y), level):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> player = Player('Mike')
-    >>> level = Level3D()
-    >>> level.load_converted_char_map([[['.', '}'], ['.']]],
-    ...                               {'.': 'Floor', '}': 'LaserGun'})
-    >>> pick_up_obj(player, (0, 0), level)
-    'You pick up a laser gun...'
-    >>> pick_up_obj(player, (1, 0), level)
-    'Nothing to pick up here...'
+    Pick up top object from (x, y) and put it in the inventory. Returns
+    string.
     """
     objects = level.get_objects((x, y))
     msg = "Nothing to pick up here..."
@@ -358,26 +239,16 @@ def pick_up_obj(player, (x, y), level):
     return msg
 
 
-def set_target(player, level):
+def set_target(player, level, visible_tiles):
     """
-    >>> from lib.interior.level3d import Level3D
-    >>> from lib.obj.player import Player
-    >>> player = Player('Mike')
-    >>> l = [[['.'], ['.']], [['.'], ['.']]]
-    >>> level = Level3D()
-    >>> level.load_converted_char_map(l, {'.': 'Floor'})
-    >>> level.add_object((0, 0), player)
-    >>> set_target(player, level)
-    'No suitable target found...'
-    >>> hostile = Player('Josh')
-    >>> level.add_object((1, 1), hostile)
-    >>> set_target(player, level)
-    ''
+    Sets a target for a player if one is within visible_tiles. Returns
+    string.
     """
     status = ''
-    targets = level.get_nearest_mobs_coords(
+    targets = level.get_nearest_players_coords(
         player.get_coords(),
-        player.get_sight())
+        player.get_sight(),
+        visible_tiles)
     if len(targets):
         # TODO: implement switching between targets
         x, y = targets[0]
@@ -389,27 +260,14 @@ def set_target(player, level):
 
 def unequip_item(player, slot):
     """
-    >>> from lib.obj.player import Player
-    >>> from lib.obj.lasergun import LaserGun
-    >>> player = Player('Mike')
-    >>> player.inventory_add(LaserGun())
-    >>> equip_item(player, 'laser gun')
-    'You equip a laser gun.'
-    >>> player.get_inventory()
-    {}
-    >>> unequip_item(player, 'toe')
-    'You do not have item in this slot.'
-    >>> unequip_item(player, 'hands')
-    'You unequip a laser gun.'
-    >>> player.get_inventory()
-    {<class 'LaserGun'>: 1}
+    Unequip item from selected slot. Returns string.
     """
     item = player.unequip(slot)
     if item:
         player.inventory_add(item)
         msg = "You unequip a %s." % item.get_name()
     else:
-        msg = "You do not have item in this slot."
+        msg = "You do not have an item in this slot."
     return msg
 
 #------------------------------------------------------------------------------
@@ -417,11 +275,6 @@ def unequip_item(player, slot):
 
 
 def add_spaceship(name, coords, spawn, exterior):
-    """
-    >>> from lib.exterior.level5d import Level5D
-    >>> add_spaceship('Galactica', (0, 0, 0, 0), (8, 3), Level5D())
-    <class 'Spaceship'> Galactica
-    """
     tiles_map = open('dat/maps/%s_tiles.txt' % name.lower(), 'rb').read()
     items_map = open('dat/maps/%s_items.txt' % name.lower(), 'rb').read()
     level_definition = load_interior_level(tiles_map, items_map)
@@ -437,10 +290,4 @@ def add_spaceship(name, coords, spawn, exterior):
 
 
 def exterior_fire(coords, pointer, level):
-    """
-    >>> from lib.exterior.level5d import Level5D
-    >>> from lib.obj.spaceship import Spaceship
-    >>> s = Spaceship('@', 'USS Enterprise', (0, 0, 0, 0))
-    >>> exterior_fire(s.get_coords(), s.get_pointer(), Level5D())
-    """
     level.add_projectile(coords, pointer, 50, 1000, 10)

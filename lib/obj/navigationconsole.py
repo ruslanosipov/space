@@ -2,6 +2,10 @@ from lib.obj.stationary import Stationary
 
 
 class NavigationConsole(Stationary):
+    """
+    Allows players to take control of the spaceship by calling
+    activate() method.
+    """
 
     def __init__(self):
         super(NavigationConsole, self).__init__(

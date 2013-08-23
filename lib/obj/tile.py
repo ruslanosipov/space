@@ -1,10 +1,9 @@
 class Tile(object):
+    """
+    Parent for every game tile, stationary or item.
+    """
 
     def __init__(self, char, name, block_path=False, block_view=False):
-        """
-        >>> Tile('#', 'wall', True, True)
-        <class 'Tile'>
-        """
         self.char = char
         self.name = name
         self.block_path = block_path
