@@ -13,12 +13,11 @@ class ItemCanNotBeEquippedInSlot(Exception):
 
 
 class Player(Mob):
+    """
+    Main characters: happy '@'s running around the screen.
+    """
 
     def __init__(self, name):
-        """
-        >>> Player('Mike')
-        <class 'Player'> Mike
-        """
         super(Player, self).__init__('@', name, 11)
         self.inventory = {}
         self.target = None

@@ -40,7 +40,6 @@ class SetBottomStatusBar(Command):
 
 class SetLookPointer(Command):
 
-
     arguments = [('x', Integer()), ('y', Integer())]
 
 
@@ -65,10 +64,10 @@ class SetView(Command):
         ('view', Unicode()),
         ('colors', AmpList(
             [('x', Integer()),
-            ('y', Integer()),
-            ('r', Integer()),
-            ('g', Integer()),
-            ('b', Integer())]))]
+             ('y', Integer()),
+             ('r', Integer()),
+             ('g', Integer()),
+             ('b', Integer())]))]
 
 
 class UnsetLookPointer(Command):

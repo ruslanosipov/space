@@ -9,6 +9,7 @@ class ChatServer(object):
     """
     Manages and distributes chat messages for players.
     """
+
     global MSG_TYPES
 
     def __init__(self):
