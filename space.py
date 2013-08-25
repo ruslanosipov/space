@@ -66,11 +66,11 @@ class GameClient(object):
             self.ui.set_evt_mode_desc('')
             self.action = (evt, evt_arg)
         elif evt == 'insert':
-            self.prompt += evt_arg
-        elif evt == 'backspace' and self.prompt:
-            self.prompt = self.prompt[: - evt_arg]
-        elif evt == 'return' and self.prompt:
-            self.action = (self.queued_evt, self.prompt)
+            self.ui.set_prompt(self.ui.get_prompt() + evt_arg)
+        elif evt == 'backspace' and self.ui.get_prompt():
+            self.ui.set_prompt(self.ui.get_prompt()[: - evt_arg])
+        elif evt == 'return' and self.ui.get_prompt():
+            self.action = (self.queued_evt, self.ui.get_prompt())
             self.queued_evt = False
             self.evt_mode = 'normal'
             self.ui.set_prompt('')
@@ -95,8 +95,8 @@ class GameClient(object):
         elif (evt, evt_arg) != (None, None):
             self.action = (evt, evt_arg)
 
-        surface = self.ui.compose()
-        self.display.draw(surface)
+        top_bar, left_pane, right_pane, bottom_bar = self.ui.compose()
+        self.display.draw(top_bar, left_pane, right_pane, bottom_bar)
         self.display.update()
 
     #--------------------------------------------------------------------------

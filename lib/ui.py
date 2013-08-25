@@ -23,44 +23,59 @@ class UI(object):
         self.look_pointer = None
         self.equipment = None
         self.is_pilot_mode = False
+        self.oscillator = 0
 
     def compose(self):
-        surface = []
-        surface.append([[self.top_status_bar, UI_COLOR]])
+        self.oscillator = self.oscillator + 1 if self.oscillator < 50 else 0
+
+        top_status_bar = (self.top_status_bar, UI_COLOR)
+
+        # left pane
+        view_field = []
         for y, line in enumerate(self.view_field):
-            new_line = []
+            l = []
             for x, char in enumerate(line):
                 if (x, y) in self.colors.keys():
                     color = self.colors[(x, y)]
                 else:
                     color = self.default_colors[char]
-                if (x, y) == self.target:
-                    char = 'x'
-                    color = self.default_colors[char]
-                elif (x, y) == self.look_pointer:
-                    char = 'l'
-                    color = self.default_colors[char]
-                if len(new_line) and new_line[-1][1] == color:
-                    new_line[-1][0] += char
+                if self.oscillator < 25:
+                    if (x, y) == self.target:
+                        char = 'x'
+                        color = self.default_colors[char]
+                    elif (x, y) == self.look_pointer:
+                        char = 'l'
+                        color = self.default_colors[char]
+                if len(l) and l[-1][1] == color:
+                    l[-1][0] += char
                 else:
-                    new_line.append([char, color])
-            if len(self.chat_log) >= y + 1:
-                msg, msg_type = self.chat_log[y]
-                new_line.append([' ' + msg, MSG_COLORS[msg_type]])
-            if y == len(self.view_field) - 1:
-                new_line.append([' > ' + self.prompt, UI_COLOR])
-            surface.append(new_line)
-        if not len(self.evt_mode_desc):
-            evt_mode_desc = ' ' * 24
+                    l.append([char, color])
+            view_field.append(l)
+
+        # right pane
+        side_pane = []
+        if self.equipment:
+            pass
         else:
-            evt_mode_desc = self.evt_mode_desc + \
-                (24 - len(self.evt_mode_desc)) * ' '
-        evt_mode_desc += self.bottom_status_bar
-        surface.append([[evt_mode_desc, UI_COLOR]])
-        return surface
+            for y in xrange(0, len(view_field)):
+                if len(self.chat_log) >= y + 1:
+                    msg, msg_type = self.chat_log[y]
+                    side_pane.append([[' ' + msg, MSG_COLORS[msg_type]]])
+                elif y == len(self.view_field) - 1:
+                    side_pane.append([[' > ' + self.prompt, UI_COLOR]])
+                else:
+                    side_pane.append([])
+
+        bottom_status_bar = self.evt_mode_desc + self.bottom_status_bar
+        bottom_status_bar = (bottom_status_bar, UI_COLOR)
+
+        return top_status_bar, view_field, side_pane, bottom_status_bar
 
     #--------------------------------------------------------------------------
     # accessors
+
+    def get_prompt(self):
+        return self.prompt
 
     def set_bottom_status_bar(self, bottom_status_bar):
         self.bottom_status_bar = bottom_status_bar
@@ -82,7 +97,7 @@ class UI(object):
             self.default_colors = self.int_colors
 
     def set_evt_mode_desc(self, evt_mode_desc):
-        self.evt_mode_desc = evt_mode_desc
+        self.evt_mode_desc = evt_mode_desc + (24 - len(evt_mode_desc)) * ' '
 
     def set_equipment(self, equipment):
         self.equipment = equipment
