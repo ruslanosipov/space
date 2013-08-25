@@ -56,6 +56,13 @@ class CommandProtocol(AMP):
         return {}
     commands.QueueTupleOfStr.responder(queue_tuple_of_str)
 
+    def query_equipment(self):
+        print "TODO: get equipment here"
+        equipment = {
+            'head': '', 'torso': 'power armor', 'hands': 'laser gun'}
+        return equipment
+    commands.QueryEquipment.responder(query_equipment)
+
     #--------------------------------------------------------------------------
     # commands
 

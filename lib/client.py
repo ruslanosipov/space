@@ -69,6 +69,12 @@ class CommandProtocol(AMP):
         return {}
     commands.UnsetTarget.responder(unset_target)
 
+    #--------------------------------------------------------------------------
+    # commands
+
+    def query_equipment(self):
+        return self.callRemote(commands.QueryEquipment)
+
 
 class Client:
 
@@ -76,6 +82,10 @@ class Client:
         destination = TCP4ClientEndpoint(reactor, host, port)
         self.protocol = CommandProtocol(main)
         self.d = connectProtocol(destination, self.protocol)
+
+    def callCommand(self, command, *args, **kwargs):
+        command = getattr(self.protocol, command)
+        return command(*args, **kwargs)
 
     def stop(self):
         self.protocol.transport.loseConnection()

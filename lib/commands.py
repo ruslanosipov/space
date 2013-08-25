@@ -70,6 +70,12 @@ class SetView(Command):
              ('b', Integer())]))]
 
 
+class QueryEquipment(Command):
+
+    response = [
+        ('head', Unicode()), ('torso', Unicode()), ('hands', Unicode())]
+
+
 class UnsetLookPointer(Command):
 
     pass

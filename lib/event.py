@@ -122,3 +122,7 @@ def get(mode='normal'):
                     return ('look', 'look_dir', (1, 0), 'tuple_of_int')
                 if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
                     return ('normal', 'look_done', 1, 'int')
+        if mode == 'equipment':
+            if evt.type == pygame.KEYDOWN:
+                if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
+                    return ('normal', None, None, None)
