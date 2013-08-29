@@ -75,14 +75,8 @@ def get(mode='normal'):
                     return (mode, 'pickup', (0, 0), 'tuple_of_int')
                 if evt.unicode == 'i':
                     return (mode, 'inventory', 1, 'int')
-                if evt.unicode == 'e':
-                    return ('insert', 'equip', 1, 'int')
-                if evt.unicode == 'u':
-                    return ('insert', 'unequip', 1, 'int')
-                if evt.unicode == 'd':
-                    return ('insert', 'drop', 1, 'int')
                 if evt.unicode == 'E':
-                    return (mode, 'equipment', 1, 'int')
+                    return ('equipment', 'equipment', 1, 'int')
         if mode == 'pilot':
             if evt.type == pygame.KEYDOWN:
                 if evt.unicode == 'Q':
@@ -124,5 +118,11 @@ def get(mode='normal'):
                     return ('normal', 'look_done', 1, 'int')
         if mode == 'equipment':
             if evt.type == pygame.KEYDOWN:
+                if evt.unicode == 'e':
+                    return ('insert', 'equip', 1, 'int')
+                if evt.unicode == 'u':
+                    return ('insert', 'unequip', 1, 'int')
+                if evt.unicode == 'd':
+                    return ('insert', 'drop', 1, 'int')
                 if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
                     return ('normal', None, None, None)

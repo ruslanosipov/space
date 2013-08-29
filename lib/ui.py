@@ -28,10 +28,57 @@ class UI(object):
     def compose(self):
         self.oscillator = self.oscillator + 1 if self.oscillator < 50 else 0
 
-        top_status_bar = (self.top_status_bar, UI_COLOR)
+        top_bar = self._compose_top_status_bar()
 
-        # left pane
-        view_field = []
+        left_pane = self._compose_view_pane()
+
+        if self.equipment:
+            right_pane = self._compose_equipment_pane()
+        else:
+            right_pane = self._compose_chat_pane()
+
+        bottom_bar = self._compose_bottom_status_bar()
+
+        return top_bar, left_pane, right_pane, bottom_bar
+
+    #--------------------------------------------------------------------------
+    # composing panes
+
+    def _compose_bottom_status_bar(self):
+        bottom_status_bar = self.evt_mode_desc + self.bottom_status_bar
+        return (bottom_status_bar, UI_COLOR)
+
+    def _compose_chat_pane(self):
+        pane = []
+        for y in xrange(0, len(self.view_field)):
+            if len(self.chat_log) >= y + 1:
+                msg, msg_type = self.chat_log[y]
+                pane.append([(' ' + msg, MSG_COLORS[msg_type])])
+            elif y == len(self.view_field) - 1:
+                pane.append([(' > ' + self.prompt, UI_COLOR)])
+            else:
+                pane.append([])
+        return pane
+
+    def _compose_equipment_pane(self):
+        pane = []
+        y = 0
+        for k, v in self.equipment.items():
+            pane.append([(' %s: %s' % (k, v), UI_COLOR)])
+            y += 1
+        n = len(self.view_field)
+        for y in xrange(y, n):
+            if y == n - 1:
+                pane.append([(' > ' + self.prompt, UI_COLOR)])
+            else:
+                pane.append([])
+        return pane
+
+    def _compose_top_status_bar(self):
+        return (self.top_status_bar, UI_COLOR)
+
+    def _compose_view_pane(self):
+        pane = []
         for y, line in enumerate(self.view_field):
             l = []
             for x, char in enumerate(line):
@@ -50,26 +97,8 @@ class UI(object):
                     l[-1][0] += char
                 else:
                     l.append([char, color])
-            view_field.append(l)
-
-        # right pane
-        side_pane = []
-        if self.equipment:
-            pass
-        else:
-            for y in xrange(0, len(view_field)):
-                if len(self.chat_log) >= y + 1:
-                    msg, msg_type = self.chat_log[y]
-                    side_pane.append([[' ' + msg, MSG_COLORS[msg_type]]])
-                elif y == len(self.view_field) - 1:
-                    side_pane.append([[' > ' + self.prompt, UI_COLOR]])
-                else:
-                    side_pane.append([])
-
-        bottom_status_bar = self.evt_mode_desc + self.bottom_status_bar
-        bottom_status_bar = (bottom_status_bar, UI_COLOR)
-
-        return top_status_bar, view_field, side_pane, bottom_status_bar
+            pane.append(l)
+        return pane
 
     #--------------------------------------------------------------------------
     # accessors

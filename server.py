@@ -138,8 +138,6 @@ class GameServer(object):
                 msg = None
                 if evt == 'inventory':
                     msg = misc.inventory(player)
-                elif evt == 'equipment':
-                    msg = misc.equipment(player)
                 elif evt == 'target':
                     client['top_status_bar'][-1] = misc.set_target(
                         player, int_level, visible_tiles)
@@ -232,6 +230,12 @@ class GameServer(object):
                         uid, 'set_look_pointer', client['look_coords'][0])
                 else:
                     self.command_factory.callCommand(uid, 'unset_look_pointer')
+
+    #--------------------------------------------------------------------------
+    # client accessors
+
+    def get_equipment(self, player_uid):
+        return misc.equipment(self.players[player_uid])
 
     #--------------------------------------------------------------------------
     # accessors

@@ -57,10 +57,7 @@ class CommandProtocol(AMP):
     commands.QueueTupleOfStr.responder(queue_tuple_of_str)
 
     def query_equipment(self):
-        print "TODO: get equipment here"
-        equipment = {
-            'head': '', 'torso': 'power armor', 'hands': 'laser gun'}
-        return equipment
+        return self.factory.game.get_equipment(self.uid)
     commands.QueryEquipment.responder(query_equipment)
 
     #--------------------------------------------------------------------------
@@ -105,8 +102,9 @@ class CommandFactory(Factory):
 
     protocol = CommandProtocol
 
-    def __init__(self, requests):
+    def __init__(self, requests, game):
         self.clients = {}
+        self.game = game
         self.requests = requests
 
     def buildProtocol(self, addr):
@@ -120,7 +118,7 @@ class CommandFactory(Factory):
 def main(loop, port, timeout):
     requests = Requests()
     loop.set_requests(requests)
-    factory = CommandFactory(requests)
+    factory = CommandFactory(requests, loop)
     loop.set_command_factory(factory)
     reactor.listenTCP(port, factory)
     lc = LoopingCall(loop.main)

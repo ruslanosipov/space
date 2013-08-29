@@ -1,4 +1,5 @@
 import ast
+from copy import deepcopy
 
 from lib.obj.player import Player
 from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
@@ -93,14 +94,13 @@ def equipment(player):
     """
     Returnes string describing player's equipment.
     """
-    equipment = player.get_equipment()
-    contents = []
+    equipment = deepcopy(player.get_equipment())
     for k, v in equipment.items():
-        if v is not None:
-            contents.append("%s (%s)" % (v.get_name(), k))
-    if not len(contents):
-        return "You do not have anything equipped at the moment."
-    return "Equipment: %s." % ', '.join(contents)
+        if v is None:
+            equipment[k] = 'None'
+        else:
+            equipment[k] = v.get_name()
+    return equipment
 
 
 def equip_item(player, item_name, slot='hands'):

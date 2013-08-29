@@ -49,6 +49,7 @@ class GameClient(object):
             evt, evt_arg = None, None
         if self.evt_mode == 'normal':
             self.ui.set_evt_mode_desc('')
+            self.ui.set_equipment(None)
         if evt == 'quit':
             self.command.stop()
         elif evt == 'arg' and self.require_arg:
@@ -89,7 +90,6 @@ class GameClient(object):
             d = self.command.callCommand('query_equipment')
 
             def set_equipment_pane(equipment):
-                self.evt_mode = 'equipment'
                 self.ui.set_equipment(equipment)
             d.addCallback(set_equipment_pane)
         elif (evt, evt_arg) != (None, None):
