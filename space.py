@@ -88,10 +88,7 @@ class GameClient(object):
             self.queued_evt = evt
         elif evt == 'equipment':
             d = self.command.callCommand('query_equipment')
-
-            def set_equipment_pane(equipment):
-                self.ui.set_equipment(equipment)
-            d.addCallback(set_equipment_pane)
+            d.addCallback(self.set_equipment)
         elif (evt, evt_arg) != (None, None):
             self.action = (evt, evt_arg)
 
@@ -108,6 +105,10 @@ class GameClient(object):
 
     def set_bottom_status_bar(self, text):
         self.ui.set_bottom_status_bar(text)
+
+    def set_equipment(self, equipment):
+        self.ui.set_equipment(equipment)
+        self.evt_mode = 'equipment'
 
     def set_command(self, command):
         self.command = command

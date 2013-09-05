@@ -30,6 +30,14 @@ class CommandProtocol(AMP):
         return {}
     commands.SetBottomStatusBar.responder(set_bottom_status_bar)
 
+    def set_equipment(self, equipment):
+        amp_equipment, equipment = equipment, {}
+        for item in amp_equipment:
+            equipment[item['slot']] = item['item']
+        self.main.set_equipment(equipment)
+        return {}
+    commands.SetEquipment.responder(set_equipment)
+
     def set_look_pointer(self, x, y):
         self.main.set_look_pointer((x, y))
         return {}
@@ -72,8 +80,16 @@ class CommandProtocol(AMP):
     #--------------------------------------------------------------------------
     # commands
 
+    def read_equipment(self, amp_equipment):
+        equipment = {}
+        for item in amp_equipment['equipment']:
+            equipment[item['slot']] = item['item']
+        return equipment
+
     def query_equipment(self):
-        return self.callRemote(commands.QueryEquipment)
+        amp_equipment = self.callRemote(commands.QueryEquipment)
+        amp_equipment.addCallback(self.read_equipment)
+        return amp_equipment
 
 
 class Client:

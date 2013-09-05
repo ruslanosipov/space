@@ -110,9 +110,13 @@ class GameServer(object):
                         item, slot = arg, 'hands'
                     client['top_status_bar'][-1] = misc.equip_item(
                         player, item, slot)
+                    self.command_factory.callCommand(
+                        uid, 'set_equipment', player.get_equipment())
                 elif evt == 'unequip':
                     client['top_status_bar'][-1] = misc.unequip_item(
                         player, arg)
+                    self.command_factory.callCommand(
+                        uid, 'set_equipment', player.get_equipment())
                 elif evt == 'drop':
                     client['top_status_bar'][-1] = misc.drop_item(player, arg)
 
@@ -235,7 +239,7 @@ class GameServer(object):
     # client accessors
 
     def get_equipment(self, player_uid):
-        return misc.equipment(self.players[player_uid])
+        return self.players[player_uid].get_equipment()
 
     #--------------------------------------------------------------------------
     # accessors

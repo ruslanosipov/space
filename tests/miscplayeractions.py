@@ -75,14 +75,15 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         self.assertTrue(isinstance(obj, TestItem))
 
     def test_view_empty_equipment(self):
-        self.assertEqual(misc.equipment(self.player),
-                         "You do not have anything equipped at the moment.")
+        for item in misc.equipment(self.player)['equipment']:
+            self.assertEqual(item['item'], 'None')
 
     def test_view_equipment(self):
         self.player.inventory_add(TestItem())
         misc.equip_item(self.player, 'test item')
-        self.assertEqual(misc.equipment(self.player),
-                         "Equipment: test item (hands).")
+        for item in misc.equipment(self.player)['equipment']:
+            value = 'test item' if item['slot'] == 'hands' else 'None'
+            self.assertEqual(item['item'], value)
 
     def test_equip_item_in_default_slot(self):
         self.player.inventory_add(TestItem())
