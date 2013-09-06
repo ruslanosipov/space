@@ -117,13 +117,11 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
                          "You equip a test item.")
 
     def test_view_empty_inventory(self):
-        self.assertEqual(misc.inventory(self.player),
-                         "You do not own anything at the moment...")
+        self.assertEqual(misc.inventory(self.player), [])
 
     def test_view_stacked_inventory(self):
         self.player.inventory_add(TestItem(), 2)
-        self.assertEqual(misc.inventory(self.player),
-                         "Inventory contents: test item (2).")
+        self.assertEqual(misc.inventory(self.player), ['test item (2)'])
 
     def test_pick_up_existing_object(self):
         item = TestItem()

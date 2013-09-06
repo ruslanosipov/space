@@ -147,19 +147,16 @@ def interior_fire(player, level, chat):
 
 def inventory(player):
     """
-    Return string describing inventory contents.
+    Return list of strings (items).
     """
     inv = player.get_inventory()
-    if not len(inv):
-        return "You do not own anything at the moment..."
     contents = []
     for item, qty in inv.items():
         item = item.get_name()
         if qty > 1:
             item += " (%d)" % qty
         contents.append(item)
-    msg = 'Inventory contents: %s.' % ', '.join(contents)
-    return msg
+    return contents
 
 
 def move(player, (x, y), level, chat):

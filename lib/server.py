@@ -65,6 +65,14 @@ class CommandProtocol(AMP):
         return {'equipment': amp_equipment}
     commands.QueryEquipment.responder(query_equipment)
 
+    def query_inventory(self):
+        inventory = self.factory.game.get_inventory(self.uid)
+        amp_inventory = []
+        for item in inventory:
+            amp_inventory.append({'item': item})
+        return {'inventory': amp_inventory}
+    commands.QueryInventory.responder(query_inventory)
+
     #--------------------------------------------------------------------------
     # commands
 

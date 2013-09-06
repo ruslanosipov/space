@@ -91,6 +91,17 @@ class CommandProtocol(AMP):
         amp_equipment.addCallback(self.read_equipment)
         return amp_equipment
 
+    def read_inventory(self, amp_inventory):
+        inventory = []
+        for item in amp_inventory['inventory']:
+            inventory.append(item['item'])
+        return inventory
+
+    def query_inventory(self):
+        amp_inventory = self.callRemote(commands.QueryInventory)
+        amp_inventory.addCallback(self.read_inventory)
+        return amp_inventory
+
 
 class Client:
 

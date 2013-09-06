@@ -124,5 +124,13 @@ def get(mode='normal'):
                     return ('insert', 'unequip', 1, 'int')
                 if evt.unicode == 'd':
                     return ('insert', 'drop', 1, 'int')
+                if evt.unicode == 'i':
+                    return ('inventory', 'inventory', 1, 'int')
+                if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
+                    return ('normal', None, None, None)
+        if mode == 'inventory':
+            if evt.type == pygame.KEYDOWN:
+                if evt.unicode == 'E':
+                    return ('equipment', 'equipment', 1, 'int')
                 if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
                     return ('normal', None, None, None)

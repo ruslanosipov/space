@@ -49,7 +49,7 @@ class GameClient(object):
             evt, evt_arg = None, None
         if self.evt_mode == 'normal':
             self.ui.set_evt_mode_desc('')
-            self.ui.set_equipment(None)
+            self.ui.set_mode()
         if evt == 'quit':
             self.command.stop()
         elif evt == 'arg' and self.require_arg:
@@ -89,6 +89,9 @@ class GameClient(object):
         elif evt == 'equipment':
             d = self.command.callCommand('query_equipment')
             d.addCallback(self.set_equipment)
+        elif evt == 'inventory':
+            d = self.command.callCommand('query_inventory')
+            d.addCallback(self.set_inventory)
         elif (evt, evt_arg) != (None, None):
             self.action = (evt, evt_arg)
 
@@ -106,12 +109,18 @@ class GameClient(object):
     def set_bottom_status_bar(self, text):
         self.ui.set_bottom_status_bar(text)
 
+    def set_command(self, command):
+        self.command = command
+
     def set_equipment(self, equipment):
         self.ui.set_equipment(equipment)
         self.evt_mode = 'equipment'
+        self.ui.set_mode('equipment')
 
-    def set_command(self, command):
-        self.command = command
+    def set_inventory(self, inventory):
+        self.ui.set_inventory(inventory)
+        self.evt_mode = 'inventory'
+        self.ui.set_mode('inventory')
 
     def set_look_pointer(self, (x, y)):
         self.ui.set_look_pointer((x, y))

@@ -22,8 +22,10 @@ class UI(object):
         self.target = None
         self.look_pointer = None
         self.equipment = None
+        self.inventory = None
         self.is_pilot_mode = False
         self.oscillator = 0
+        self.mode = 'chat'
 
     def compose(self):
         self.oscillator = self.oscillator + 1 if self.oscillator < 50 else 0
@@ -32,10 +34,7 @@ class UI(object):
 
         left_pane = self._compose_view_pane()
 
-        if self.equipment:
-            right_pane = self._compose_equipment_pane()
-        else:
-            right_pane = self._compose_chat_pane()
+        right_pane = getattr(self, '_compose_%s_pane' % self.mode)()
 
         bottom_bar = self._compose_bottom_status_bar()
 
@@ -65,6 +64,23 @@ class UI(object):
         y = 0
         for k, v in self.equipment.items():
             pane.append([(' %s: %s' % (k, v), UI_COLOR)])
+            y += 1
+        n = len(self.view_field)
+        for y in xrange(y, n):
+            if y == n - 1:
+                pane.append([(' > ' + self.prompt, UI_COLOR)])
+            else:
+                pane.append([])
+        return pane
+
+    def _compose_inventory_pane(self):
+        pane = []
+        y = 0
+        if not len(self.inventory):
+            pane.append([('Your inventory is empty...', UI_COLOR)])
+            y += 1
+        for item in self.inventory:
+            pane.append([(item, UI_COLOR)])
             y += 1
         n = len(self.view_field)
         for y in xrange(y, n):
@@ -131,9 +147,15 @@ class UI(object):
     def set_equipment(self, equipment):
         self.equipment = equipment
 
+    def set_inventory(self, inventory):
+        self.inventory = inventory
+
     def set_look_pointer(self, look_pointer):
         self.look_pointer = look_pointer
         self.oscillator = 0
+
+    def set_mode(self, mode='chat'):
+        self.mode = mode
 
     def set_prompt(self, prompt):
         self.prompt = prompt

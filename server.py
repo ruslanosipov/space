@@ -241,6 +241,9 @@ class GameServer(object):
     def get_equipment(self, player_uid):
         return self.players[player_uid].get_equipment()
 
+    def get_inventory(self, player_uid):
+        return misc.inventory(self.players[player_uid])
+
     #--------------------------------------------------------------------------
     # accessors
 
