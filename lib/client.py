@@ -120,19 +120,28 @@ class Client:
     #--------------------------------------------------------------------------
     # commands
 
-    def queue_int(self, action, arg):
+    def queue_action(self, action, arg):
+        if isinstance(arg, tuple):
+            if isinstance(arg[0], int):
+                return self._queue_tuple_of_int(action, arg)
+            return self._queue_tuple_of_str(action, arg)
+        if isinstance(arg, int):
+            return self._queue_int(action, arg)
+        return self._queue_str(action, arg)
+
+    def _queue_int(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueInt, action=action, arg=arg)
 
-    def queue_str(self, action, arg):
+    def _queue_str(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueStr, action=action, arg=arg)
 
-    def queue_tuple_of_int(self, action, arg):
+    def _queue_tuple_of_int(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueTupleOfInt, action=action, arg1=arg[0], arg2=arg[1])
 
-    def queue_tuple_of_str(self, action, arg):
+    def _queue_tuple_of_str(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueTupleOfStr, action=action, arg1=arg[0], arg2=arg[1])
 

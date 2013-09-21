@@ -98,23 +98,27 @@ class UI(object):
         for y, line in enumerate(self.view_field):
             l = []
             for x, char in enumerate(line):
-                if (x, y) in self.colors.keys():
-                    color = self.colors[(x, y)]
-                else:
-                    color = self.default_colors[char]
-                if self.oscillator < 25:
-                    if (x, y) == self.target:
-                        char = 'x'
-                        color = self.default_colors[char]
-                    elif (x, y) == self.look_pointer:
-                        char = 'l'
-                        color = self.default_colors[char]
+                char, color = self._draw_element(x, y, char)
                 if len(l) and l[-1][1] == color:
                     l[-1][0] += char
                 else:
                     l.append([char, color])
             pane.append(l)
         return pane
+
+    def _draw_element(self, x, y, char):
+        if (x, y) in self.colors.keys():
+            color = self.colors[(x, y)]
+        else:
+            color = self.default_colors[char]
+        if self.oscillator < 25:
+            if (x, y) == self.target:
+                char = 'x'
+                color = self.default_colors[char]
+            elif (x, y) == self.look_pointer:
+                char = 'l'
+                color = self.default_colors[char]
+        return char, color
 
     #--------------------------------------------------------------------------
     # accessors
@@ -137,9 +141,11 @@ class UI(object):
 
     def set_pilot_mode(self):
         if self.is_pilot_mode:
-            self.default_colors = self.ext_colors
-        else:
             self.default_colors = self.int_colors
+            self.is_pilot_mode = False
+        else:
+            self.default_colors = self.ext_colors
+            self.is_pilot_mode = True
 
     def set_evt_mode_desc(self, evt_mode_desc):
         self.evt_mode_desc = evt_mode_desc + (24 - len(evt_mode_desc)) * ' '

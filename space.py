@@ -5,7 +5,7 @@ from ConfigParser import ConfigParser
 from lib.chatclient import ChatClient
 from lib.display import Display
 from lib.ui import UI
-from lib import event
+from lib.event import Event
 from lib import client
 
 
@@ -18,6 +18,7 @@ class GameClient(object):
         self.chat = ChatClient()
         self.display = Display()
         self.ui = UI()
+        self.event = Event()
         int_colors, ext_colors = {}, {}
         obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
         for line in obj_defs:
@@ -33,18 +34,18 @@ class GameClient(object):
 
         self.evt_mode = 'normal'
         self.action = ('connect', (name, spaceship))
-        self.arg_type = 'tuple_of_str'
         self.require_arg, self.queued_evt = False, False
         self.command = None
 
     def main(self):
-        if self.action and not self.require_arg:
-            command = getattr(self.command, 'queue_' + self.arg_type)
+        if self.action and self.action[0] is not None and not self.require_arg:
+            command = getattr(self.command, 'queue_action')
             command(self.action[0], self.action[1])
             self.action, self.arg_type = False, False
-        events = event.get(self.evt_mode)
+        events = self.event.get()
         if events:
-            self.evt_mode, evt, evt_arg, self.arg_type = events
+            evt, evt_arg = events
+            self.evt_mode = self.event.get_mode()
         else:
             evt, evt_arg = None, None
         if self.evt_mode == 'normal':
@@ -66,14 +67,11 @@ class GameClient(object):
         elif evt == 'look_done':
             self.ui.set_evt_mode_desc('')
             self.action = (evt, evt_arg)
-        elif evt == 'insert':
-            self.ui.set_prompt(self.ui.get_prompt() + evt_arg)
-        elif evt == 'backspace' and self.ui.get_prompt():
-            self.ui.set_prompt(self.ui.get_prompt()[: - evt_arg])
-        elif evt == 'return' and self.ui.get_prompt():
-            self.action = (self.queued_evt, self.ui.get_prompt())
+        elif evt == 'insert_type':
+            self.ui.set_prompt(evt_arg)
+        elif evt == 'insert_done' and len(evt_arg):
+            self.action = (self.queued_evt, evt_arg)
             self.queued_evt = False
-            self.evt_mode = 'normal'
             self.ui.set_prompt('')
             self.ui.set_evt_mode_desc('')
         elif evt in ['say', 'equip', 'drop', 'unequip']:
@@ -127,9 +125,9 @@ class GameClient(object):
 
     def set_pilot(self, is_pilot):
         if is_pilot:
-            self.evt_mode = 'pilot'
+            self.event.set_mode('pilot')
         elif not is_pilot and self.evt_mode == 'pilot':
-            self.evt_mode = 'normal'
+            self.event.set_mode('normal')
         self.ui.set_pilot_mode()
 
     def set_target(self, (x, y)):
