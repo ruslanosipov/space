@@ -33,66 +33,53 @@ class GameClient(object):
         self.ui.set_default_colors(int_colors, ext_colors)
 
         self.evt_mode = 'normal'
-        self.action = ('connect', (name, spaceship))
+        self.evt, self.evt_arg = 'connect', (name, spaceship)
         self.require_arg, self.queued_evt = False, False
         self.command = None
 
     def main(self):
-        if self.action and self.action[0] is not None and not self.require_arg:
-            command = getattr(self.command, 'queue_action')
-            command(self.action[0], self.action[1])
-            self.action, self.arg_type = False, False
         events = self.event.get()
         if events:
             evt, evt_arg = events
             self.evt_mode = self.event.get_mode()
-        else:
-            evt, evt_arg = None, None
-        if self.evt_mode == 'normal':
-            self.ui.set_evt_mode_desc('')
-            self.ui.set_mode()
-        if evt == 'quit':
-            self.command.stop()
-        elif evt == 'arg' and self.require_arg:
-            self.action = (self.action, evt_arg) if evt_arg else 0
+
+            if evt == 'quit':
+                self.command.stop()
+
+            if self.evt_mode == 'insert':
+                self._process_insert(evt, evt_arg)
+            else:
+                self._process_event(evt, evt_arg)
+
+        if self.evt is not None and not self.require_arg:
+            command = getattr(self.command, 'queue_action')
+            command(self.evt, self.evt_arg)
+            self.evt, self.evt_arg = None, None
+
+        self._draw_screen()
+
+    def _process_event(self, evt, evt_arg):
+        if evt == 'arg' and self.require_arg:
+            self.evt, self.evt_arg = (self.evt, evt_arg) if evt_arg else 0
             self.ui.set_evt_mode_desc('')
             self.require_arg = False
-        elif evt == 'activate':
-            self.action = evt
-            self.ui.set_evt_mode_desc('Activate.. (direction)')
+        elif evt_arg is None:
+            self.evt = evt
             self.require_arg = True
-        elif evt == 'look':
-            self.ui.set_evt_mode_desc('Look... (direction)')
-            self.action = (evt, evt_arg)
-        elif evt == 'look_done':
-            self.ui.set_evt_mode_desc('')
-            self.action = (evt, evt_arg)
-        elif evt == 'insert_type':
-            self.ui.set_prompt(evt_arg)
-        elif evt == 'insert_done' and len(evt_arg):
-            self.action = (self.queued_evt, evt_arg)
-            self.queued_evt = False
-            self.ui.set_prompt('')
-            self.ui.set_evt_mode_desc('')
-        elif evt in ['say', 'equip', 'drop', 'unequip']:
-            if evt == 'say':
-                self.ui.set_evt_mode_desc('Say...')
-            elif evt == 'equip':
-                self.ui.set_evt_mode_desc('Equip... (item, slot)')
-            elif evt == 'drop':
-                self.ui.set_evt_mode_desc('Drop... (item name)')
-            elif evt == 'unequip':
-                self.ui.set_evt_mode_desc('Unequip... (slot)')
-            self.queued_evt = evt
-        elif evt == 'equipment':
-            d = self.command.callCommand('query_equipment')
-            d.addCallback(self.set_equipment)
-        elif evt == 'inventory':
-            d = self.command.callCommand('query_inventory')
-            d.addCallback(self.set_inventory)
-        elif (evt, evt_arg) != (None, None):
-            self.action = (evt, evt_arg)
+        elif evt in ['inventory', 'equipment']:
+            d = self.command.callCommand('query_%s' % evt)
+            d.addCallback(getattr(self, 'set_%s' % evt))
+        else:
+            self.evt, self.evt_arg = evt, evt_arg
 
+    def _process_insert(self, evt, evt_arg):
+        if evt == 'insert_type':
+            self.ui.set_prompt(evt_arg)
+        else:
+            self.evt = evt
+            self.require_arg = True
+
+    def _draw_screen(self):
         top_bar, left_pane, right_pane, bottom_bar = self.ui.compose()
         self.display.draw(top_bar, left_pane, right_pane, bottom_bar)
         self.display.update()

@@ -35,7 +35,7 @@ GAME_EVENTS = {
     'eqp': {
         'keys': {
             'e': ('insert', 'equip', None),
-            'd': (None, 'drop', 1),
+            'd': ('insert', 'drop', None),
             'i': ('inv', 'inventory', 1),
             'u': ('insert', 'unequip', None),
             'Q': ('normal', None, 1)},
@@ -83,14 +83,21 @@ GAME_EVENTS = {
         'temp': False}}
 
 
+def alphabet_generator():
+    for letter in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        yield letter
+
+
 class Event:
 
     global TRACK_EVENTS, IGNORE_EVENTS
     global GAME_EVENTS
+    global alphabet_generator
 
     def __init__(self):
         self.mode = self.prev_mode = 'normal'
         self.prompt = ''
+        self.extended_keys = ''
 
     def get(self):
         if not pygame.event.peek(TRACK_EVENTS):
@@ -129,7 +136,7 @@ class Event:
             elif evt.key == pygame.K_RETURN:
                 text, self.prompt = self.prompt, ''
                 self.mode = self.prev_mode
-                return ('insert_done', text)
+                return ('arg', text)
             else:
                 self.prompt += evt.unicode
         return ('insert_type', self.prompt)
@@ -140,6 +147,27 @@ class Event:
         if GAME_EVENTS[mode]['temp'] and not GAME_EVENTS[self.mode]['temp']:
             self.prev_mode = self.mode
         self.mode = mode
+
+    #--------------------------------------------------------------------------
+    # extending layout
+
+    def extend_current_layout(self, actions):
+        alphabet = alphabet_generator()
+        keys = GAME_EVENTS[self.mode]['keys'].keys()
+        for action in actions:
+            while True:
+                letter = alphabet.next()
+                if letter not in keys + list(self.extended_keys):
+                    break
+            self.extended_keys += letter
+            GAME_EVENTS[self.mode]['keys'][letter] = (None, action, 1)
+        return list(self.extended_keys)
+
+    def collapse_current_layout(self):
+        for key in GAME_EVENTS[self.mode]['keys'].keys():
+            if key in self.extended_keys:
+                del GAME_EVENTS[self.mode]['keys'][key]
+        self.extended_keys = ''
 
     #--------------------------------------------------------------------------
     # accessors
