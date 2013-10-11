@@ -98,7 +98,7 @@ class TestEventGet(unittest.TestCase):
         self.event.process(_unicode_events(['h', 'i']))
         self.assertEqual(
             self.event.process(_key_events([pygame.K_RETURN])),
-            ('insert_done', 'hi'))
+            ('arg', 'hi'))
         self.assertEqual(self.event.get_mode(), 'normal')
         self.event.process(_unicode_events(['/']))
         self.assertEqual(

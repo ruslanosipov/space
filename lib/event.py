@@ -38,7 +38,7 @@ GAME_EVENTS = {
             'd': ('insert', 'drop', None),
             'i': ('inv', 'inventory', 1),
             'u': ('insert', 'unequip', None),
-            'Q': ('normal', None, 1)},
+            'Q': ('normal', 'reset_right_pane', 1)},
         'temp': False},
     'insert': {
         'keys': {},
@@ -46,7 +46,7 @@ GAME_EVENTS = {
     'inv': {
         'keys': {
             'E': ('eqp', 'equipment', 1),
-            'Q': ('normal', None, 1)},
+            'Q': ('normal', 'reset_right_pane', 1)},
         'temp': False},
     'look': {
         'keys': {
@@ -66,7 +66,7 @@ GAME_EVENTS = {
             'k': (None, 'move', (0, -1)),
             'l': (None, 'move', (1, 0)),
             't': (None, 'target', 1),
-            'v': ('dir', 'look', 1),
+            'v': ('look', 'look', 1),
             'E': ('eqp', 'equipment', 1),
             'Q': (None, 'quit', 1),
             ',': (None, 'pickup', (0, 0)),

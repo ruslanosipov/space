@@ -63,12 +63,17 @@ class GameClient(object):
             self.evt, self.evt_arg = (self.evt, evt_arg) if evt_arg else 0
             self.ui.set_evt_mode_desc('')
             self.require_arg = False
+            if self.evt in ['say']:
+                self.ui.set_prompt('')
         elif evt_arg is None:
             self.evt = evt
             self.require_arg = True
+            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
         elif evt in ['inventory', 'equipment']:
             d = self.command.callCommand('query_%s' % evt)
             d.addCallback(getattr(self, 'set_%s' % evt))
+        elif evt == 'reset_right_pane':
+            self.ui.set_mode()
         else:
             self.evt, self.evt_arg = evt, evt_arg
 
@@ -77,6 +82,7 @@ class GameClient(object):
             self.ui.set_prompt(evt_arg)
         else:
             self.evt = evt
+            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
             self.require_arg = True
 
     def _draw_screen(self):
