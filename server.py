@@ -190,6 +190,10 @@ class GameServer(object):
                 hp = str(spaceship.get_health())
                 client['bottom_status_bar'][-1] += \
                     "HP %s%s " % (' ' * (3 - len(hp)), hp)
+                client['bottom_status_bar'][-1] += \
+                    "POS%s " % ''.join((
+                        ' ' * (3 - len(str(coord))) + str(coord)
+                        for coord in spaceship.get_coords()))
             recent_chat_msgs = self.chat.get_recent_for_recipient(player)
             if len(recent_chat_msgs):
                 self.command_factory.callCommand(
