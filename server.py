@@ -110,9 +110,13 @@ class GameServer(object):
                         item, slot = arg, 'hands'
                     client['top_status_bar'][-1] = misc.equip_item(
                         player, item, slot)
+                    self.command_factory.callCommand(
+                        uid, 'set_equipment', player.get_equipment())
                 elif evt == 'unequip':
                     client['top_status_bar'][-1] = misc.unequip_item(
                         player, arg)
+                    self.command_factory.callCommand(
+                        uid, 'set_equipment', player.get_equipment())
                 elif evt == 'drop':
                     client['top_status_bar'][-1] = misc.drop_item(player, arg)
 
@@ -138,8 +142,6 @@ class GameServer(object):
                 msg = None
                 if evt == 'inventory':
                     msg = misc.inventory(player)
-                elif evt == 'equipment':
-                    msg = misc.equipment(player)
                 elif evt == 'target':
                     client['top_status_bar'][-1] = misc.set_target(
                         player, int_level, visible_tiles)
@@ -236,6 +238,15 @@ class GameServer(object):
                         uid, 'set_look_pointer', client['look_coords'][0])
                 else:
                     self.command_factory.callCommand(uid, 'unset_look_pointer')
+
+    #--------------------------------------------------------------------------
+    # client accessors
+
+    def get_equipment(self, player_uid):
+        return self.players[player_uid].get_equipment()
+
+    def get_inventory(self, player_uid):
+        return misc.inventory(self.players[player_uid])
 
     #--------------------------------------------------------------------------
     # accessors

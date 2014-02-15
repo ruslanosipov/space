@@ -5,7 +5,7 @@ from ConfigParser import ConfigParser
 from lib.chatclient import ChatClient
 from lib.display import Display
 from lib.ui import UI
-from lib import event
+from lib.event import Event
 from lib import client
 
 
@@ -18,6 +18,7 @@ class GameClient(object):
         self.chat = ChatClient()
         self.display = Display()
         self.ui = UI()
+        self.event = Event()
         int_colors, ext_colors = {}, {}
         obj_defs = open('dat/int_obj_colors.txt', 'rb').read().split('\n')
         for line in obj_defs:
@@ -31,81 +32,62 @@ class GameClient(object):
                 ext_colors[char] = eval(color)
         self.ui.set_default_colors(int_colors, ext_colors)
 
-        self.evt_mode, self.evt_mode_desc = 'normal', ''
-        self.action = ('connect', (name, spaceship))
-        self.arg_type = 'tuple_of_str'
-        self.require_arg = False
-        self.queued_evt = False
-        self.prompt = ''
-        ver = 'v0.3.1-alpha'
-        self.top_status_bar = ' ' * (80 - len(ver)) + ver
-        self.bottom_status_bar = ''
-        self.view_field, self.colors = False, {}
+        self.evt_mode = 'normal'
+        self.evt, self.evt_arg = 'connect', (name, spaceship)
+        self.require_arg, self.queued_evt = False, False
         self.command = None
-        self.look_pointer, self.target = None, None
-        self.fps = 50
-        self.blinker = 0
 
     def main(self):
-        if self.action and not self.require_arg:
-            command = getattr(self.command, 'queue_' + self.arg_type)
-            command(self.action[0], self.action[1])
-            self.action, self.arg_type = False, False
-        if not self.view_field:
-            return
-        events = event.get(self.evt_mode)
+        events = self.event.get()
         if events:
-            self.evt_mode, evt, evt_arg, self.arg_type = events
-        else:
-            evt, evt_arg = None, None
-        if self.evt_mode == 'normal' and len(self.evt_mode_desc):
-            self.evt_mode_desc = ''
-        if evt == 'quit':
-            self.command.stop()
-        elif evt == 'arg' and self.require_arg:
-            self.action = (self.action, evt_arg) if evt_arg else 0
-            self.evt_mode_desc = ''
-            self.require_arg = False
-        elif evt == 'activate':
-            self.action = evt
-            self.evt_mode_desc = 'Activate.. (direction)'
-            self.require_arg = True
-        elif evt == 'look':
-            self.evt_mode_desc = 'Look... (direction)'
-            self.action = (evt, evt_arg)
-        elif evt == 'look_done':
-            self.evt_mode_desc = ''
-            self.action = (evt, evt_arg)
-        elif evt == 'insert':
-            self.prompt += evt_arg
-        elif evt == 'backspace' and self.prompt:
-            self.prompt = self.prompt[: - evt_arg]
-        elif evt == 'return' and self.prompt:
-            self.action = (self.queued_evt, self.prompt)
-            self.queued_evt = False
-            self.prompt, self.evt_mode, self.evt_mode_desc = '', 'normal', ''
-        elif evt in ['say', 'equip', 'drop', 'unequip']:
-            if evt == 'say':
-                self.evt_mode_desc = 'Say...'
-            elif evt == 'equip':
-                self.evt_mode_desc = 'Equip... (item, slot)'
-            elif evt == 'drop':
-                self.evt_mode_desc = 'Drop... (item name)'
-            elif evt == 'unequip':
-                self.evt_mode_desc = 'Unequip... (slot)'
-            self.queued_evt = evt
-        elif (evt, evt_arg) != (None, None):
-            self.action = (evt, evt_arg)
+            evt, evt_arg = events
+            self.evt_mode = self.event.get_mode()
 
-        self.blinker = self.blinker + 1 if self.blinker < self.fps else 0
-        surface = self.ui.compose(
-            self.view_field, self.colors,
-            self.chat.get_log(), self.prompt,
-            self.evt_mode, self.evt_mode_desc,
-            self.bottom_status_bar, self.top_status_bar,
-            self.target if self.blinker < self.fps / 2 else None,
-            self.look_pointer if self.blinker < self.fps / 2 else None)
-        self.display.draw(surface)
+            if evt == 'quit':
+                self.command.stop()
+
+            if self.evt_mode == 'insert':
+                self._process_insert(evt, evt_arg)
+            else:
+                self._process_event(evt, evt_arg)
+
+        if self.evt is not None and not self.require_arg:
+            command = getattr(self.command, 'queue_action')
+            command(self.evt, self.evt_arg)
+            self.evt, self.evt_arg = None, None
+
+        self._draw_screen()
+
+    def _process_event(self, evt, evt_arg):
+        if evt == 'arg' and self.require_arg:
+            self.evt, self.evt_arg = (self.evt, evt_arg) if evt_arg else 0
+            self.ui.set_evt_mode_desc('')
+            self.require_arg = False
+            if self.evt in ['say']:
+                self.ui.set_prompt('')
+        elif evt_arg is None:
+            self.evt = evt
+            self.require_arg = True
+            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
+        elif evt in ['inventory', 'equipment']:
+            d = self.command.callCommand('query_%s' % evt)
+            d.addCallback(getattr(self, 'set_%s' % evt))
+        elif evt == 'reset_right_pane':
+            self.ui.set_mode()
+        else:
+            self.evt, self.evt_arg = evt, evt_arg
+
+    def _process_insert(self, evt, evt_arg):
+        if evt == 'insert_type':
+            self.ui.set_prompt(evt_arg)
+        else:
+            self.evt = evt
+            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
+            self.require_arg = True
+
+    def _draw_screen(self):
+        top_bar, left_pane, right_pane, bottom_bar = self.ui.compose()
+        self.display.draw(top_bar, left_pane, right_pane, bottom_bar)
         self.display.update()
 
     #--------------------------------------------------------------------------
@@ -113,41 +95,51 @@ class GameClient(object):
 
     def add_chat_messages(self, messages):
         self.chat.add_multiple(messages)
+        self.ui.set_chat_log(self.chat.get_log())
 
     def set_bottom_status_bar(self, text):
-        self.bottom_status_bar = text
+        self.ui.set_bottom_status_bar(text)
 
     def set_command(self, command):
         self.command = command
 
+    def set_equipment(self, equipment):
+        self.ui.set_equipment(equipment)
+        self.evt_mode = 'equipment'
+        self.ui.set_mode('equipment')
+
+    def set_inventory(self, inventory):
+        self.ui.set_inventory(inventory)
+        self.evt_mode = 'inventory'
+        self.ui.set_mode('inventory')
+
     def set_look_pointer(self, (x, y)):
-        self.look_pointer = (x, y)
-        self.blinker = 0
+        self.ui.set_look_pointer((x, y))
 
     def set_pilot(self, is_pilot):
         if is_pilot:
-            self.evt_mode = 'pilot'
+            self.event.set_mode('pilot')
         elif not is_pilot and self.evt_mode == 'pilot':
-            self.evt_mode = 'normal'
+            self.event.set_mode('normal')
+        self.ui.set_pilot_mode()
 
     def set_target(self, (x, y)):
-        self.target = (x, y)
-        self.blinker = 0
+        self.ui.set_target((x, y))
 
     def set_top_status_bar(self, text):
         ver = 'v0.3.1-alpha'
         text += ' ' * (80 - len(text) - len(ver)) + ver
-        self.top_status_bar = text
+        self.ui.set_top_status_bar(text)
 
     def set_view(self, view, colors):
-        self.view_field = view
-        self.colors = colors
+        self.ui.set_view_field(view)
+        self.ui.set_colors(colors)
 
     def unset_look_pointer(self):
-        self.look_pointer = False
+        self.ui.set_look_pointer(None)
 
     def unset_target(self):
-        self.target = False
+        self.ui.set_target(None)
 
 config = ConfigParser()
 config.read('config.ini')

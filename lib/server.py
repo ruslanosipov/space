@@ -56,6 +56,23 @@ class CommandProtocol(AMP):
         return {}
     commands.QueueTupleOfStr.responder(queue_tuple_of_str)
 
+    def query_equipment(self):
+        equipment = self.factory.game.get_equipment(self.uid)
+        amp_equipment = []
+        for k, v in equipment.items():
+            v = 'None' if v is None else v.get_name()
+            amp_equipment.append({'slot': k, 'item': v})
+        return {'equipment': amp_equipment}
+    commands.QueryEquipment.responder(query_equipment)
+
+    def query_inventory(self):
+        inventory = self.factory.game.get_inventory(self.uid)
+        amp_inventory = []
+        for item in inventory:
+            amp_inventory.append({'item': item})
+        return {'inventory': amp_inventory}
+    commands.QueryInventory.responder(query_inventory)
+
     #--------------------------------------------------------------------------
     # commands
 
@@ -66,6 +83,13 @@ class CommandProtocol(AMP):
 
     def set_bottom_status_bar(self, text):
         return self.callRemote(commands.SetBottomStatusBar, text=text)
+
+    def set_equipment(self, equipment):
+        amp_equipment = []
+        for k, v in equipment.items():
+            v = 'None' if v is None else v.get_name()
+            amp_equipment.append({'slot': k, 'item': v})
+        return self.callRemote(commands.SetEquipment, equipment=amp_equipment)
 
     def set_look_pointer(self, (x, y)):
         return self.callRemote(commands.SetLookPointer, x=x, y=y)
@@ -98,8 +122,9 @@ class CommandFactory(Factory):
 
     protocol = CommandProtocol
 
-    def __init__(self, requests):
+    def __init__(self, requests, game):
         self.clients = {}
+        self.game = game
         self.requests = requests
 
     def buildProtocol(self, addr):
@@ -113,7 +138,7 @@ class CommandFactory(Factory):
 def main(loop, port, timeout):
     requests = Requests()
     loop.set_requests(requests)
-    factory = CommandFactory(requests)
+    factory = CommandFactory(requests, loop)
     loop.set_command_factory(factory)
     reactor.listenTCP(port, factory)
     lc = LoopingCall(loop.main)

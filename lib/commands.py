@@ -4,6 +4,18 @@ from twisted.protocols.amp import Command, Unicode, Integer, AmpList, Boolean
 # server commands
 
 
+class QueryEquipment(Command):
+
+    response = [
+        ('equipment', AmpList([('slot', Unicode()), ('item', Unicode())]))]
+
+
+class QueryInventory(Command):
+
+    response = [
+        ('inventory', AmpList([('item', Unicode())]))]
+
+
 class QueueStr(Command):
 
     arguments = [('action', Unicode()), ('arg', Unicode())]
@@ -36,6 +48,12 @@ class AddChatMessages(Command):
 class SetBottomStatusBar(Command):
 
     arguments = [('text', Unicode())]
+
+
+class SetEquipment(Command):
+
+    arguments = [
+        ('equipment', AmpList([('slot', Unicode()), ('item', Unicode())]))]
 
 
 class SetLookPointer(Command):

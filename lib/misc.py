@@ -93,14 +93,11 @@ def equipment(player):
     """
     Returnes string describing player's equipment.
     """
-    equipment = player.get_equipment()
-    contents = []
-    for k, v in equipment.items():
-        if v is not None:
-            contents.append("%s (%s)" % (v.get_name(), k))
-    if not len(contents):
-        return "You do not have anything equipped at the moment."
-    return "Equipment: %s." % ', '.join(contents)
+    equipment = []
+    for k, v in player.get_equipment().items():
+        v = 'None' if v is None else v.get_name()
+        equipment.append({'slot': k, 'item': v})
+    return {'equipment': equipment}
 
 
 def equip_item(player, item_name, slot='hands'):
@@ -150,19 +147,16 @@ def interior_fire(player, level, chat):
 
 def inventory(player):
     """
-    Return string describing inventory contents.
+    Return list of strings (items).
     """
     inv = player.get_inventory()
-    if not len(inv):
-        return "You do not own anything at the moment..."
     contents = []
     for item, qty in inv.items():
         item = item.get_name()
         if qty > 1:
             item += " (%d)" % qty
         contents.append(item)
-    msg = 'Inventory contents: %s.' % ', '.join(contents)
-    return msg
+    return contents
 
 
 def move(player, (x, y), level, chat):

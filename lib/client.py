@@ -30,6 +30,14 @@ class CommandProtocol(AMP):
         return {}
     commands.SetBottomStatusBar.responder(set_bottom_status_bar)
 
+    def set_equipment(self, equipment):
+        amp_equipment, equipment = equipment, {}
+        for item in amp_equipment:
+            equipment[item['slot']] = item['item']
+        self.main.set_equipment(equipment)
+        return {}
+    commands.SetEquipment.responder(set_equipment)
+
     def set_look_pointer(self, x, y):
         self.main.set_look_pointer((x, y))
         return {}
@@ -69,6 +77,31 @@ class CommandProtocol(AMP):
         return {}
     commands.UnsetTarget.responder(unset_target)
 
+    #--------------------------------------------------------------------------
+    # commands
+
+    def read_equipment(self, amp_equipment):
+        equipment = {}
+        for item in amp_equipment['equipment']:
+            equipment[item['slot']] = item['item']
+        return equipment
+
+    def query_equipment(self):
+        amp_equipment = self.callRemote(commands.QueryEquipment)
+        amp_equipment.addCallback(self.read_equipment)
+        return amp_equipment
+
+    def read_inventory(self, amp_inventory):
+        inventory = []
+        for item in amp_inventory['inventory']:
+            inventory.append(item['item'])
+        return inventory
+
+    def query_inventory(self):
+        amp_inventory = self.callRemote(commands.QueryInventory)
+        amp_inventory.addCallback(self.read_inventory)
+        return amp_inventory
+
 
 class Client:
 
@@ -77,25 +110,38 @@ class Client:
         self.protocol = CommandProtocol(main)
         self.d = connectProtocol(destination, self.protocol)
 
+    def callCommand(self, command, *args, **kwargs):
+        command = getattr(self.protocol, command)
+        return command(*args, **kwargs)
+
     def stop(self):
         self.protocol.transport.loseConnection()
 
     #--------------------------------------------------------------------------
     # commands
 
-    def queue_int(self, action, arg):
+    def queue_action(self, action, arg):
+        if isinstance(arg, tuple):
+            if isinstance(arg[0], int):
+                return self._queue_tuple_of_int(action, arg)
+            return self._queue_tuple_of_str(action, arg)
+        if isinstance(arg, int):
+            return self._queue_int(action, arg)
+        return self._queue_str(action, arg)
+
+    def _queue_int(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueInt, action=action, arg=arg)
 
-    def queue_str(self, action, arg):
+    def _queue_str(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueStr, action=action, arg=arg)
 
-    def queue_tuple_of_int(self, action, arg):
+    def _queue_tuple_of_int(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueTupleOfInt, action=action, arg1=arg[0], arg2=arg[1])
 
-    def queue_tuple_of_str(self, action, arg):
+    def _queue_tuple_of_str(self, action, arg):
         return self.protocol.callRemote(
             commands.QueueTupleOfStr, action=action, arg1=arg[0], arg2=arg[1])
 

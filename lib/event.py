@@ -7,6 +7,7 @@ pygame.key.set_repeat(100, 100)
 TRACK_EVENTS = [
     pygame.QUIT,
     pygame.KEYDOWN]
+
 IGNORE_EVENTS = [
     pygame.ACTIVEEVENT,
     pygame.KEYUP,
@@ -22,103 +23,163 @@ IGNORE_EVENTS = [
     pygame.VIDEOEXPOSE,
     pygame.USEREVENT]
 
+GAME_EVENTS = {
+    'dir': {
+        'keys': {
+            'h': ('prev', 'arg', (-1, 0)),
+            'j': ('prev', 'arg', (0, 1)),
+            'k': ('prev', 'arg', (0, -1)),
+            'l': ('prev', 'arg', (1, 0)),
+            'any': ('prev', 'arg', False)},
+        'temp': True},
+    'eqp': {
+        'keys': {
+            'e': ('insert', 'equip', None),
+            'd': ('insert', 'drop', None),
+            'i': ('inv', 'inventory', 1),
+            'u': ('insert', 'unequip', None),
+            'Q': ('normal', 'reset_right_pane', 1)},
+        'temp': False},
+    'insert': {
+        'keys': {},
+        'temp': True},
+    'inv': {
+        'keys': {
+            'E': ('eqp', 'equipment', 1),
+            'Q': ('normal', 'reset_right_pane', 1)},
+        'temp': False},
+    'look': {
+        'keys': {
+            'h': (None, 'look_dir', (-1, 0)),
+            'j': (None, 'look_dir', (0, 1)),
+            'k': (None, 'look_dir', (0, -1)),
+            'l': (None, 'look_dir', (1, 0)),
+            'Q': ('normal', 'look_done', 1)},
+        'temp': False},
+    'normal': {
+        'keys': {
+            'a': ('dir', 'activate', None),
+            'f': (None, 'fire', 1),
+            'i': ('inv', 'inventory', 1),
+            'h': (None, 'move', (-1, 0)),
+            'j': (None, 'move', (0, 1)),
+            'k': (None, 'move', (0, -1)),
+            'l': (None, 'move', (1, 0)),
+            't': (None, 'target', 1),
+            'v': ('look', 'look', 1),
+            'E': ('eqp', 'equipment', 1),
+            'Q': (None, 'quit', 1),
+            ',': (None, 'pickup', (0, 0)),
+            '/': ('insert', 'say', None)},
+        'temp': False},
+    'pilot': {
+        'keys': {
+            'f': (None, 'ext_fire', 1),
+            'h': (None, 'rotate', 1),
+            'j': (None, 'accelerate', -50),
+            'k': (None, 'accelerate', 50),
+            'l': (None, 'rotate', 0),
+            'Q': ('normal', 'unpilot', 1)},
+        'temp': False}}
 
-def get(mode='normal'):
-    """
-    mode -- str, identical to the way vim mode works (normal, insert,
-    direction)
 
-    Returns tuple (mode, event_name, event_argument)
-    """
-    if not pygame.event.peek(TRACK_EVENTS):
-        return
-    events = pygame.event.get(TRACK_EVENTS)
-    pygame.event.clear(IGNORE_EVENTS)
-    if mode == 'insert':
-        text = ""
+def alphabet_generator():
+    for letter in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        yield letter
+
+
+class Event:
+
+    global TRACK_EVENTS, IGNORE_EVENTS
+    global GAME_EVENTS
+    global alphabet_generator
+
+    def __init__(self):
+        self.mode = self.prev_mode = 'normal'
+        self.prompt = ''
+        self.extended_keys = ''
+
+    def get(self):
+        if not pygame.event.peek(TRACK_EVENTS):
+            return
+        events = pygame.event.get(TRACK_EVENTS)
+        pygame.event.clear(IGNORE_EVENTS)
+        return self.process(events)
+
+    def process(self, events):
+        if self.mode == 'insert':
+            return self._process_insert(events)
+        return self._process_keys(events)
+
+    def _process_keys(self, events):
         for evt in events:
             if evt.type == pygame.KEYDOWN:
-                if evt.key == pygame.K_ESCAPE:
-                    return ('normal', None, None, None)
-                if evt.key == pygame.K_BACKSPACE:
-                    return (mode, 'backspace', 1, None)
-                if evt.key == pygame.K_RETURN:
-                    return (mode, 'return', 1, 'str')
-                text += evt.unicode
-        return (mode, 'insert', text, 'str')
-    for evt in events:
-        if evt.type == pygame.QUIT:
-            return (mode, 'quit', None, None)
-        if mode == 'normal':
-            if evt.type == pygame.KEYDOWN:
-                if evt.unicode == 'Q':
-                    return (mode, 'quit', None, None)
-                if evt.unicode == '/':
-                    return ('insert', 'say', evt.unicode, 'str')
-                if evt.unicode == 'a':
-                    return ('direction', 'activate', 1, 'int')
-                if evt.unicode == 'v':
-                    return ('look', 'look', 1, 'int')
-                if evt.key == pygame.K_LEFT:
-                    return (mode, 'move', (-1, 0), 'tuple_of_int')
-                if evt.key == pygame.K_DOWN:
-                    return (mode, 'move', (0, 1), 'tuple_of_int')
-                if evt.key == pygame.K_UP:
-                    return (mode, 'move', (0, -1), 'tuple_of_int')
-                if evt.key == pygame.K_RIGHT:
-                    return (mode, 'move', (1, 0), 'tuple_of_int')
-                if evt.unicode == 't':
-                    return (mode, 'target', 1, 'int')
-                if evt.unicode == 'f':
-                    return (mode, 'int_fire', 1, 'int')
-                if evt.unicode == ',':
-                    return (mode, 'pickup', (0, 0), 'tuple_of_int')
-                if evt.unicode == 'i':
-                    return (mode, 'inventory', 1, 'int')
-                if evt.unicode == 'e':
-                    return ('insert', 'equip', 1, 'int')
-                if evt.unicode == 'u':
-                    return ('insert', 'unequip', 1, 'int')
-                if evt.unicode == 'd':
-                    return ('insert', 'drop', 1, 'int')
-                if evt.unicode == 'E':
-                    return (mode, 'equipment', 1, 'int')
-        if mode == 'pilot':
-            if evt.type == pygame.KEYDOWN:
-                if evt.unicode == 'Q':
-                    return ('normal', 'unpilot', 1, 'int')
-                if evt.key == pygame.K_LEFT:
-                    return (mode, 'rotate', 1, 'int')
-                if evt.key == pygame.K_RIGHT:
-                    return (mode, 'rotate', 0, 'int')
-                if evt.key == pygame.K_UP:
-                    return (mode, 'accelerate', 100, 'int')
-                if evt.key == pygame.K_DOWN:
-                    return (mode, 'accelerate', -100, 'int')
-                if evt.unicode == 'f':
-                    return (mode, 'ext_fire', 1, 'int')
-        if mode == 'direction':
-            if evt.type == pygame.KEYDOWN:
-                if evt.key == pygame.K_LEFT:
-                    return ('normal', 'arg', (-1, 0), 'tuple_of_int')
-                if evt.key == pygame.K_DOWN:
-                    return ('normal', 'arg', (0, 1), 'tuple_of_int')
-                if evt.key == pygame.K_UP:
-                    return ('normal', 'arg', (0, -1), 'tuple_of_int')
-                if evt.key == pygame.K_RIGHT:
-                    return ('normal', 'arg', (1, 0), 'tuple_of_int')
-                if evt.unicode == '.':
-                    return ('normal', 'arg', (0, 0), 'tuple_of_int')
-            return ('normal', 'arg', None, None)
-        if mode == 'look':
-            if evt.type == pygame.KEYDOWN:
-                if evt.key == pygame.K_LEFT:
-                    return ('look', 'look_dir', (-1, 0), 'tuple_of_int')
-                if evt.key == pygame.K_DOWN:
-                    return ('look', 'look_dir', (0, 1), 'tuple_of_int')
-                if evt.key == pygame.K_UP:
-                    return ('look', 'look_dir', (0, -1), 'tuple_of_int')
-                if evt.key == pygame.K_RIGHT:
-                    return ('look', 'look_dir', (1, 0), 'tuple_of_int')
-                if evt.key == pygame.K_ESCAPE or evt.unicode == 'Q':
-                    return ('normal', 'look_done', 1, 'int')
+                if evt.unicode in GAME_EVENTS[self.mode]['keys']:
+                    mode, action, arg = \
+                        GAME_EVENTS[self.mode]['keys'][evt.unicode]
+                elif 'any' in GAME_EVENTS[self.mode]['keys']:
+                    mode, action, arg = GAME_EVENTS[self.mode]['keys']['any']
+                else:
+                    continue
+                self._set_mode(mode)
+                if mode == 'prev':
+                    self.mode = self.prev_mode
+                return (action, arg)
+
+    def _process_insert(self, events):
+        for evt in events:
+            if evt.key == pygame.K_ESCAPE:
+                self.mode = self.prev_mode
+            elif evt.key == pygame.K_BACKSPACE:
+                if len(self.prompt):
+                    self.prompt = self.prompt[:-1]
+            elif evt.key == pygame.K_RETURN:
+                text, self.prompt = self.prompt, ''
+                self.mode = self.prev_mode
+                return ('arg', text)
+            else:
+                self.prompt += evt.unicode
+        return ('insert_type', self.prompt)
+
+    def _set_mode(self, mode):
+        if mode in [None, 'prev']:
+            return
+        if GAME_EVENTS[mode]['temp'] and not GAME_EVENTS[self.mode]['temp']:
+            self.prev_mode = self.mode
+        self.mode = mode
+
+    #--------------------------------------------------------------------------
+    # extending layout
+
+    def extend_current_layout(self, actions):
+        alphabet = alphabet_generator()
+        keys = GAME_EVENTS[self.mode]['keys'].keys()
+        for action in actions:
+            while True:
+                letter = alphabet.next()
+                if letter not in keys + list(self.extended_keys):
+                    break
+            self.extended_keys += letter
+            GAME_EVENTS[self.mode]['keys'][letter] = (None, action, 1)
+        return list(self.extended_keys)
+
+    def collapse_current_layout(self):
+        for key in GAME_EVENTS[self.mode]['keys'].keys():
+            if key in self.extended_keys:
+                del GAME_EVENTS[self.mode]['keys'][key]
+        self.extended_keys = ''
+
+    #--------------------------------------------------------------------------
+    # accessors
+
+    def get_mode(self):
+        return self.mode
+
+    def get_prompt(self):
+        return self.prompt
+
+    def set_mode(self, mode):
+        self.mode = mode
+
+    def set_prompt(self, prompt):
+        self.prompt = prompt
