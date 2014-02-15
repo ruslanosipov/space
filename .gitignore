@@ -10,3 +10,7 @@
 
 # virtualenv directory
 /env
+
+# coverage.py files
+/.coverage
+/cover
