@@ -7,3 +7,6 @@
 
 # IDE: ignore rope project files
 /.ropeproject
+
+# virtualenv directory
+/env
