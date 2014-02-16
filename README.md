@@ -5,12 +5,14 @@ battles.
 
 ## Key bindings
 
+### Player and spaceship
+
 | Key     | Player      | Spaceship    |
 | :------ | ----------- | -----------: |
-| `left`  | move left   | rotate left  |
-| `down`  | move down   | decelerate   |
-| `up`    | move up     | accelerate   |
-| `right` | move right  | rotate right |
+| `h`     | move left   | rotate left  |
+| `j`     | move down   | decelerate   |
+| `k`     | move up     | accelerate   |
+| `l`     | move right  | rotate right |
 | `t`     | set target  | -            |
 | `f`     | fire        | fire missile |
 | `v`     | look        | -            |
@@ -19,18 +21,32 @@ battles.
 | `Q`     | quit game   | quit flight  |
 | `/`     | say         | -            |
 | `i`     | inventory   | -            |
-| `e`     | equip       | -            |
-| `u`     | unequip     | -            |
-| `d`     | drop        | -            |
 | `E`     | equipment   | -            |
+
+### Equipment screen
+
+| Key     | Description |
+| :------ | ----------: |
+| `d`     | drop        |
+| `e`     | equip       |
+| `i`     | inventory   |
+| `u`     | unequip     |
+| `Q`     | quit screen |
+
+### Inventory screen
+
+| Key     | Description |
+| :------ | ----------: |
+| `E`     | equipment   |
+| `Q`     | quit screen |
 
 ## Contribution
 
 You are free to contribute, please keep in mind following things:
 * Code should comply with PEP 8 standards.
-* Tests: I use `doctest` and `unittest` modules in a bundle. `runtests.py`
-should pass. Everything except for UI elements is reasonably tested. New code
-should come with unit tests only.
+* Tests: I use `unittest` module. `make test` should pass. Everything
+except for UI elements is reasonably tested. New code should not be
+submitted without unit tests.
 * Project uses nvie's branching guidelines, main branches are develop and
 master (for details see
 [nvie.com](http://nvie.com/posts/a-successful-git-branching-model)).
@@ -41,12 +57,12 @@ use tpope's commit message guidelines (for details see
 ## Dependencies
 
 Currently the game does not require a lot to run, and I would prefer to keep
-it that way. Required packages:
+it that way. It uses virtualenv and pip bundle, so you can set up the
+environment as follows:
 
-* Client:
-    * `python2.7`
-    * `python-pygame`
-    * `twisted`
-* Server:
-    * `python2.7`
-    * `twisted`
+    virtualenv env
+    . env/bin/activate
+    pip install -r requirements.txt
+
+There might be an issue with installing pygame package via pip - don't forget
+to install the dependencies in this case.
