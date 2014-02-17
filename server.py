@@ -104,12 +104,8 @@ class GameServer(object):
                         "You are done piloting the spaceship..."
                     player.set_pilot()
                 elif evt == 'equip':
-                    if ', ' in arg:
-                        item, slot = arg.split(', ')
-                    else:
-                        item, slot = arg, 'hands'
                     client['top_status_bar'][-1] = misc.equip_item(
-                        player, item, slot)
+                        player, arg)
                     self.command_factory.callCommand(
                         uid, 'set_equipment', player.get_equipment())
                 elif evt == 'unequip':
@@ -119,6 +115,9 @@ class GameServer(object):
                         uid, 'set_equipment', player.get_equipment())
                 elif evt == 'drop':
                     client['top_status_bar'][-1] = misc.drop_item(player, arg)
+                    self.command_factory.callCommand(
+                        uid, 'set_inventory', player.get_inventory())
+
 
         # second: let the world process one tick
         self.ext_level.update()
@@ -140,9 +139,7 @@ class GameServer(object):
                     player.get_sight())
             for evt, arg in data:
                 msg = None
-                if evt == 'inventory':
-                    msg = misc.inventory(player)
-                elif evt == 'target':
+                if evt == 'target':
                     client['top_status_bar'][-1] = misc.set_target(
                         player, int_level, visible_tiles)
                 elif evt == 'look':
@@ -246,7 +243,7 @@ class GameServer(object):
         return self.players[player_uid].get_equipment()
 
     def get_inventory(self, player_uid):
-        return misc.inventory(self.players[player_uid])
+        return self.players[player_uid].get_inventory()
 
     #--------------------------------------------------------------------------
     # accessors

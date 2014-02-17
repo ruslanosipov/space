@@ -79,7 +79,9 @@ class UI(object):
         if not len(self.inventory):
             pane.append([('Your inventory is empty...', UI_COLOR)])
             y += 1
-        for item in self.inventory:
+        for item, qty in self.inventory.items():
+            if qty > 1:
+                item = "%s (%d)" % (item, qty)
             pane.append([(item, UI_COLOR)])
             y += 1
         n = len(self.view_field)
@@ -122,6 +124,12 @@ class UI(object):
 
     #--------------------------------------------------------------------------
     # accessors
+
+    def get_equipment(self):
+        return self.equipment
+
+    def get_inventory(self):
+        return self.inventory
 
     def get_prompt(self):
         return self.prompt

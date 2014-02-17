@@ -27,8 +27,6 @@ battles.
 
 | Key     | Description |
 | :------ | ----------: |
-| `d`     | drop        |
-| `e`     | equip       |
 | `i`     | inventory   |
 | `u`     | unequip     |
 | `Q`     | quit screen |
@@ -37,6 +35,8 @@ battles.
 
 | Key     | Description |
 | :------ | ----------: |
+| `d`     | drop        |
+| `e`     | equip       |
 | `E`     | equipment   |
 | `Q`     | quit screen |
 

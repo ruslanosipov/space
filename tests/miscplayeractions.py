@@ -74,31 +74,14 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         obj = self.spaceship.get_interior().get_objects((5, 5))[-2]
         self.assertTrue(isinstance(obj, TestItem))
 
-    def test_view_empty_equipment(self):
-        for item in misc.equipment(self.player)['equipment']:
-            self.assertEqual(item['item'], 'None')
-
-    def test_view_equipment(self):
-        self.player.inventory_add(TestItem())
-        misc.equip_item(self.player, 'test item')
-        for item in misc.equipment(self.player)['equipment']:
-            value = 'test item' if item['slot'] == 'hands' else 'None'
-            self.assertEqual(item['item'], value)
-
-    def test_equip_item_in_default_slot(self):
-        self.player.inventory_add(TestItem())
+    def test_equip_item_without_a_slot(self):
+        def method_does_not_exist():
+            raise AttributeError
+        item = TestItem()
+        item.get_slot = method_does_not_exist
+        self.player.inventory_add(item)
         self.assertEqual(misc.equip_item(self.player, 'test item'),
-                         "You equip a test item.")
-
-    def test_equip_item_in_malformed_slot(self):
-        self.player.inventory_add(TestItem())
-        self.assertEqual(misc.equip_item(self.player, 'test item', 'invalid'),
-                         "Incorrect equipment slot name.")
-
-    def test_equip_item_in_restricted_slot(self):
-        self.player.inventory_add(TestItem())
-        self.assertEqual(misc.equip_item(self.player, 'test item', 'torso'),
-                         "Item can not be equipped in selected slot.")
+                         "Item can not be equipped.")
 
     def test_equip_invalid_item(self):
         self.assertEqual(misc.equip_item(self.player, 'test item'),
@@ -111,17 +94,10 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
                          "You equip a test item.")
         self.assertEqual(self.player.get_inventory(), {item: 1})
 
-    def test_equip_item_in_custom_slot(self):
+    def test_equip_item(self):
         self.player.inventory_add(TestItem())
-        self.assertEqual(misc.equip_item(self.player, 'test item', 'hands'),
+        self.assertEqual(misc.equip_item(self.player, 'test item'),
                          "You equip a test item.")
-
-    def test_view_empty_inventory(self):
-        self.assertEqual(misc.inventory(self.player), [])
-
-    def test_view_stacked_inventory(self):
-        self.player.inventory_add(TestItem(), 2)
-        self.assertEqual(misc.inventory(self.player), ['test item (2)'])
 
     def test_pick_up_existing_object(self):
         item = TestItem()

@@ -52,7 +52,7 @@ class TestPlayerInventory(unittest.TestCase):
                          "player without armor should not alter damage")
 
     def test_armor_affects_received_damage(self):
-        self.player.equip(TestArmor(), 'torso')
+        self.player.equip(TestArmor())
         self.player.receive_damage(100)
         self.assertTrue(self.player.is_alive(),
                         "armor should reduce received damage")
@@ -60,7 +60,7 @@ class TestPlayerInventory(unittest.TestCase):
     def test_armor_changes_player_char(self):
         default_char = self.player.get_char()
         armor = TestArmor()
-        self.player.equip(armor, 'torso')
+        self.player.equip(armor)
         self.assertEqual(self.player.get_char(), armor.get_player_char(),
                          "equipping armor should change player char")
         self.player.unequip('torso')

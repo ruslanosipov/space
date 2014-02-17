@@ -13,7 +13,7 @@ class QueryEquipment(Command):
 class QueryInventory(Command):
 
     response = [
-        ('inventory', AmpList([('item', Unicode())]))]
+        ('inventory', AmpList([('item', Unicode()), ('qty', Integer())]))]
 
 
 class QueueStr(Command):
@@ -54,6 +54,12 @@ class SetEquipment(Command):
 
     arguments = [
         ('equipment', AmpList([('slot', Unicode()), ('item', Unicode())]))]
+
+
+class SetInventory(Command):
+
+    arguments = [
+        ('inventory', AmpList([('item', Unicode()), ('qty', Integer())]))]
 
 
 class SetLookPointer(Command):

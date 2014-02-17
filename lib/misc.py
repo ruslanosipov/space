@@ -1,7 +1,7 @@
 import ast
 
 from lib.obj.player import Player
-from lib.obj.player import IncorrectSlotName, ItemCanNotBeEquippedInSlot
+from lib.obj.player import ItemCanNotBeEquipped
 from lib.obj.corpse import Corpse
 from lib.interior.view import InteriorView
 
@@ -89,31 +89,17 @@ def drop_item(player, item_name):
         return "You do not have such an item."
 
 
-def equipment(player):
+def equip_item(player, item_name):
     """
-    Returnes string describing player's equipment.
-    """
-    equipment = []
-    for k, v in player.get_equipment().items():
-        v = 'None' if v is None else v.get_name()
-        equipment.append({'slot': k, 'item': v})
-    return {'equipment': equipment}
-
-
-def equip_item(player, item_name, slot='hands'):
-    """
-    Equips item in desired slot from the inventory. Returns string.
+    Equips item in corresponding slot from the inventory. Returns string.
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
         try:
-            player.equip(item, slot)
-        except IncorrectSlotName:
+            player.equip(item)
+        except ItemCanNotBeEquipped:
             player.inventory_add(item)
-            return "Incorrect equipment slot name."
-        except ItemCanNotBeEquippedInSlot:
-            player.inventory_add(item)
-            return "Item can not be equipped in selected slot."
+            return "Item can not be equipped."
         msg = "You equip a %s." % item_name
     else:
         msg = "Can not equip a %s, item not in inventory." % item_name
@@ -143,20 +129,6 @@ def interior_fire(player, level, chat):
         chat.add_single(hostile, hostile_msg, 3)
         return ''
     return 'Target is not set...'
-
-
-def inventory(player):
-    """
-    Return list of strings (items).
-    """
-    inv = player.get_inventory()
-    contents = []
-    for item, qty in inv.items():
-        item = item.get_name()
-        if qty > 1:
-            item += " (%d)" % qty
-        contents.append(item)
-    return contents
 
 
 def move(player, (x, y), level, chat):

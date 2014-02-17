@@ -38,6 +38,14 @@ class CommandProtocol(AMP):
         return {}
     commands.SetEquipment.responder(set_equipment)
 
+    def set_inventory(self, inventory):
+        amp_inventory, inventory = inventory, {}
+        for item in amp_inventory:
+            inventory[item['item']] = item['qty']
+        self.main.set_inventory(inventory)
+        return {}
+    commands.SetInventory.responder(set_inventory)
+
     def set_look_pointer(self, x, y):
         self.main.set_look_pointer((x, y))
         return {}
@@ -92,9 +100,9 @@ class CommandProtocol(AMP):
         return amp_equipment
 
     def read_inventory(self, amp_inventory):
-        inventory = []
+        inventory = {}
         for item in amp_inventory['inventory']:
-            inventory.append(item['item'])
+            inventory[item['item']] = item['qty']
         return inventory
 
     def query_inventory(self):

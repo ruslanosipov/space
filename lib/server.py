@@ -68,8 +68,8 @@ class CommandProtocol(AMP):
     def query_inventory(self):
         inventory = self.factory.game.get_inventory(self.uid)
         amp_inventory = []
-        for item in inventory:
-            amp_inventory.append({'item': item})
+        for item, qty in inventory.items():
+            amp_inventory.append({'item': item.get_name(), 'qty': qty})
         return {'inventory': amp_inventory}
     commands.QueryInventory.responder(query_inventory)
 
@@ -90,6 +90,12 @@ class CommandProtocol(AMP):
             v = 'None' if v is None else v.get_name()
             amp_equipment.append({'slot': k, 'item': v})
         return self.callRemote(commands.SetEquipment, equipment=amp_equipment)
+
+    def set_inventory(self, inventory):
+        amp_inventory = []
+        for item, qty in inventory.items():
+            amp_inventory.append({'item': item.get_name(), 'qty': qty})
+        return self.callRemote(commands.SetInventory, inventory=amp_inventory)
 
     def set_look_pointer(self, (x, y)):
         return self.callRemote(commands.SetLookPointer, x=x, y=y)

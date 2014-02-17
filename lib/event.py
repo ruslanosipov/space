@@ -23,81 +23,71 @@ IGNORE_EVENTS = [
     pygame.VIDEOEXPOSE,
     pygame.USEREVENT]
 
-GAME_EVENTS = {
-    'dir': {
-        'keys': {
-            'h': ('prev', 'arg', (-1, 0)),
-            'j': ('prev', 'arg', (0, 1)),
-            'k': ('prev', 'arg', (0, -1)),
-            'l': ('prev', 'arg', (1, 0)),
-            'any': ('prev', 'arg', False)},
-        'temp': True},
-    'eqp': {
-        'keys': {
-            'e': ('insert', 'equip', None),
-            'd': ('insert', 'drop', None),
-            'i': ('inv', 'inventory', 1),
-            'u': ('insert', 'unequip', None),
-            'Q': ('normal', 'reset_right_pane', 1)},
-        'temp': False},
-    'insert': {
-        'keys': {},
-        'temp': True},
-    'inv': {
-        'keys': {
-            'E': ('eqp', 'equipment', 1),
-            'Q': ('normal', 'reset_right_pane', 1)},
-        'temp': False},
-    'look': {
-        'keys': {
-            'h': (None, 'look_dir', (-1, 0)),
-            'j': (None, 'look_dir', (0, 1)),
-            'k': (None, 'look_dir', (0, -1)),
-            'l': (None, 'look_dir', (1, 0)),
-            'Q': ('normal', 'look_done', 1)},
-        'temp': False},
-    'normal': {
-        'keys': {
-            'a': ('dir', 'activate', None),
-            'f': (None, 'fire', 1),
-            'i': ('inv', 'inventory', 1),
-            'h': (None, 'move', (-1, 0)),
-            'j': (None, 'move', (0, 1)),
-            'k': (None, 'move', (0, -1)),
-            'l': (None, 'move', (1, 0)),
-            't': (None, 'target', 1),
-            'v': ('look', 'look', 1),
-            'E': ('eqp', 'equipment', 1),
-            'Q': (None, 'quit', 1),
-            ',': (None, 'pickup', (0, 0)),
-            '/': ('insert', 'say', None)},
-        'temp': False},
-    'pilot': {
-        'keys': {
-            'f': (None, 'ext_fire', 1),
-            'h': (None, 'rotate', 1),
-            'j': (None, 'accelerate', -50),
-            'k': (None, 'accelerate', 50),
-            'l': (None, 'rotate', 0),
-            'Q': ('normal', 'unpilot', 1)},
-        'temp': False}}
 
-
-def alphabet_generator():
-    for letter in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ':
-        yield letter
-
-
-class Event:
-
-    global TRACK_EVENTS, IGNORE_EVENTS
-    global GAME_EVENTS
-    global alphabet_generator
+class Event(object):
 
     def __init__(self):
         self.mode = self.prev_mode = 'normal'
         self.prompt = ''
-        self.extended_keys = ''
+        self.extended_keys = []
+        self.keys = {
+            'dir': {
+                'keys': {
+                    'h': ('prev', 'arg', (-1, 0)),
+                    'j': ('prev', 'arg', (0, 1)),
+                    'k': ('prev', 'arg', (0, -1)),
+                    'l': ('prev', 'arg', (1, 0)),
+                    'any': ('prev', 'arg', False)},
+                'temp': True},
+            'eqp': {
+                'keys': {
+                    'i': ('inv', 'inventory', 1),
+                    'u': (None, 'unequip', None),
+                    'Q': ('normal', 'reset_right_pane', 1)},
+                'temp': False},
+            'insert': {
+                'keys': {},
+                'temp': True},
+            'inv': {
+                'keys': {
+                    'd': (None, 'drop', None),
+                    'e': (None, 'equip', None),
+                    'E': ('eqp', 'equipment', 1),
+                    'Q': ('normal', 'reset_right_pane', 1)},
+                'temp': False},
+            'look': {
+                'keys': {
+                    'h': (None, 'look_dir', (-1, 0)),
+                    'j': (None, 'look_dir', (0, 1)),
+                    'k': (None, 'look_dir', (0, -1)),
+                    'l': (None, 'look_dir', (1, 0)),
+                    'Q': ('normal', 'look_done', 1)},
+                'temp': False},
+            'normal': {
+                'keys': {
+                    'a': ('dir', 'activate', None),
+                    'f': (None, 'fire', 1),
+                    'i': ('inv', 'inventory', 1),
+                    'h': (None, 'move', (-1, 0)),
+                    'j': (None, 'move', (0, 1)),
+                    'k': (None, 'move', (0, -1)),
+                    'l': (None, 'move', (1, 0)),
+                    't': (None, 'target', 1),
+                    'v': ('look', 'look', 1),
+                    'E': ('eqp', 'equipment', 1),
+                    'Q': (None, 'quit', 1),
+                    ',': (None, 'pickup', (0, 0)),
+                    '/': ('insert', 'say', None)},
+                'temp': False},
+            'pilot': {
+                'keys': {
+                    'f': (None, 'ext_fire', 1),
+                    'h': (None, 'rotate', 1),
+                    'j': (None, 'accelerate', -50),
+                    'k': (None, 'accelerate', 50),
+                    'l': (None, 'rotate', 0),
+                    'Q': ('normal', 'unpilot', 1)},
+                'temp': False}}
 
     def get(self):
         if not pygame.event.peek(TRACK_EVENTS):
@@ -114,11 +104,11 @@ class Event:
     def _process_keys(self, events):
         for evt in events:
             if evt.type == pygame.KEYDOWN:
-                if evt.unicode in GAME_EVENTS[self.mode]['keys']:
+                if evt.unicode in self.keys[self.mode]['keys']:
                     mode, action, arg = \
-                        GAME_EVENTS[self.mode]['keys'][evt.unicode]
-                elif 'any' in GAME_EVENTS[self.mode]['keys']:
-                    mode, action, arg = GAME_EVENTS[self.mode]['keys']['any']
+                        self.keys[self.mode]['keys'][evt.unicode]
+                elif 'any' in self.keys[self.mode]['keys']:
+                    mode, action, arg = self.keys[self.mode]['keys']['any']
                 else:
                     continue
                 self._set_mode(mode)
@@ -144,30 +134,33 @@ class Event:
     def _set_mode(self, mode):
         if mode in [None, 'prev']:
             return
-        if GAME_EVENTS[mode]['temp'] and not GAME_EVENTS[self.mode]['temp']:
-            self.prev_mode = self.mode
+        self.prev_mode = self.mode
         self.mode = mode
 
     #--------------------------------------------------------------------------
     # extending layout
 
-    def extend_current_layout(self, actions):
+    def extend_current_layout(self, action, args):
+        def alphabet_generator():
+            for letter in ('abcdefghijklmnopqrstuvwxyz'
+                           'ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
+                yield letter
         alphabet = alphabet_generator()
-        keys = GAME_EVENTS[self.mode]['keys'].keys()
-        for action in actions:
+        keys = self.keys[self.mode]['keys'].keys()
+        for arg in args:
             while True:
                 letter = alphabet.next()
-                if letter not in keys + list(self.extended_keys):
+                if letter not in keys + self.extended_keys:
                     break
-            self.extended_keys += letter
-            GAME_EVENTS[self.mode]['keys'][letter] = (None, action, 1)
-        return list(self.extended_keys)
+            self.extended_keys.append(letter)
+            self.keys[self.mode]['keys'][letter] = (None, action, arg)
+        return self.extended_keys
 
     def collapse_current_layout(self):
-        for key in GAME_EVENTS[self.mode]['keys'].keys():
+        for key in self.keys[self.prev_mode]['keys'].keys():
             if key in self.extended_keys:
-                del GAME_EVENTS[self.mode]['keys'][key]
-        self.extended_keys = ''
+                del self.keys[self.prev_mode]['keys'][key]
+        self.extended_keys = []
 
     #--------------------------------------------------------------------------
     # accessors
@@ -179,6 +172,7 @@ class Event:
         return self.prompt
 
     def set_mode(self, mode):
+        self.prev_mode = self.mode
         self.mode = mode
 
     def set_prompt(self, prompt):

@@ -34,6 +34,7 @@ class GameClient(object):
 
         self.evt_mode = 'normal'
         self.evt, self.evt_arg = 'connect', (name, spaceship)
+        self.tmp_arg = None
         self.require_arg, self.queued_evt = False, False
         self.command = None
 
@@ -65,6 +66,7 @@ class GameClient(object):
             self.require_arg = False
             if self.evt in ['say']:
                 self.ui.set_prompt('')
+            self.event.collapse_current_layout()
         elif evt_arg is None:
             self.evt = evt
             self.require_arg = True
@@ -73,9 +75,13 @@ class GameClient(object):
             d = self.command.callCommand('query_%s' % evt)
             d.addCallback(getattr(self, 'set_%s' % evt))
         elif evt == 'reset_right_pane':
+            self.event.collapse_current_layout()
             self.ui.set_mode()
         else:
             self.evt, self.evt_arg = evt, evt_arg
+
+        if evt in ['equip', 'drop', 'unequip'] and evt_arg is None:
+            getattr(self, 'setup_%s' % evt)()
 
     def _process_insert(self, evt, evt_arg):
         if evt == 'insert_type':
@@ -106,11 +112,13 @@ class GameClient(object):
     def set_equipment(self, equipment):
         self.ui.set_equipment(equipment)
         self.evt_mode = 'equipment'
+        self.event.set_mode('eqp')
         self.ui.set_mode('equipment')
 
     def set_inventory(self, inventory):
         self.ui.set_inventory(inventory)
         self.evt_mode = 'inventory'
+        self.event.set_mode('inv')
         self.ui.set_mode('inventory')
 
     def set_look_pointer(self, (x, y)):
@@ -135,14 +143,38 @@ class GameClient(object):
         self.ui.set_view_field(view)
         self.ui.set_colors(colors)
 
+    def setup_drop(self):
+        inventory = self.ui.get_inventory()
+        inventory_keys = inventory.keys()
+        keys = self.event.extend_current_layout('arg', inventory_keys)
+        inventory_keys = [
+            '%s %s' % (k, i) for k, i in zip(keys, inventory_keys)]
+        self.ui.set_inventory(dict(zip(inventory_keys, inventory.values())))
+
+    def setup_equip(self):
+        inventory = self.ui.get_inventory()
+        inventory_keys = inventory.keys()
+        keys = self.event.extend_current_layout('arg', inventory_keys)
+        inventory_keys = [
+            '%s %s' % (k, i) for k, i in zip(keys, inventory_keys)]
+        self.ui.set_inventory(dict(zip(inventory_keys, inventory.values())))
+
+    def setup_unequip(self):
+        equipment = self.ui.get_equipment()
+        equipment_keys = equipment.keys()
+        keys = self.event.extend_current_layout('arg', equipment_keys)
+        equipment_keys = [
+            '%s %s' % (k, e) for k, e in zip(keys, equipment_keys)]
+        self.ui.set_equipment(dict(zip(equipment_keys, equipment.values())))
+
     def unset_look_pointer(self):
         self.ui.set_look_pointer(None)
 
     def unset_target(self):
         self.ui.set_target(None)
 
-config = ConfigParser()
-config.read('config.ini')
-host = config.get('server', 'host')
-port = config.getint('server', 'port')
-client.main(GameClient(config), host, port, timeout=0.02)
+conf = ConfigParser()
+conf.read('config.ini')
+host = conf.get('server', 'host')
+port = conf.getint('server', 'port')
+client.main(GameClient(conf), host, port, timeout=0.02)
