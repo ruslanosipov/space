@@ -9,3 +9,5 @@ before_install:
     - sudo apt-get install python-pygame
 script:
     - make test
+virtualenv:
+    system_site_packages: true
