@@ -2,6 +2,10 @@ language: python
 python:
     - "2.7"
 install:
-    - sudo apt-get build-dep python-pygame
     - pip install -r requirements.txt
-script: nosetests
+before_install:
+    - sudo apt-get update
+    - sudo apt-get build-dep python-pygame
+    - sudo apt-get install python-dev
+script:
+    - nosetests
