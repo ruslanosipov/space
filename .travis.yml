@@ -8,4 +8,4 @@ before_install:
     - sudo apt-get build-dep python-pygame
     - sudo apt-get install python-pygame
 script:
-    - nosetests
+    - make test
