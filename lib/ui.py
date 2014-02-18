@@ -4,6 +4,7 @@ MSG_COLORS = {
     2: (200, 200, 200),
     3: (200, 0, 0)}
 UI_COLOR = (100, 100, 100)
+SECONDARY_UI_COLOR = (165,  42,  42)
 
 
 class UI(object):
@@ -15,7 +16,7 @@ class UI(object):
         self.colors = {}
         self.chat_log = []
         self.prompt = ''
-        self.evt_mode_desc = ''
+        self.evt_mode_desc = 24 * ' '
         self.bottom_status_bar = ''
         ver = 'v0.3.1-alpha'
         self.top_status_bar = ' ' * (80 - len(ver)) + ver
@@ -68,7 +69,12 @@ class UI(object):
         n = len(self.view_field)
         for y in xrange(y, n):
             if y == n - 1:
-                pane.append([(' > ' + self.prompt, UI_COLOR)])
+                pane.append([(' i', SECONDARY_UI_COLOR),
+                             ('nventory ', UI_COLOR),
+                             ('u', SECONDARY_UI_COLOR),
+                             ('nequip ', UI_COLOR),
+                             ('Q', SECONDARY_UI_COLOR),
+                             ('uit', UI_COLOR)])
             else:
                 pane.append([])
         return pane
@@ -87,7 +93,14 @@ class UI(object):
         n = len(self.view_field)
         for y in xrange(y, n):
             if y == n - 1:
-                pane.append([(' > ' + self.prompt, UI_COLOR)])
+                pane.append([(' d', SECONDARY_UI_COLOR),
+                             ('rop ', UI_COLOR),
+                             ('e', SECONDARY_UI_COLOR),
+                             ('quip ', UI_COLOR),
+                             ('E', SECONDARY_UI_COLOR),
+                             ('quipment ', UI_COLOR),
+                             ('Q', SECONDARY_UI_COLOR),
+                             ('uit', UI_COLOR)])
             else:
                 pane.append([])
         return pane

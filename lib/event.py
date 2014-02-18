@@ -30,6 +30,7 @@ class Event(object):
         self.mode = self.prev_mode = 'normal'
         self.prompt = ''
         self.extended_keys = []
+        self.temp_mode = None
         self.keys = {
             'dir': {
                 'keys': {
@@ -146,21 +147,24 @@ class Event(object):
                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
                 yield letter
         alphabet = alphabet_generator()
-        keys = self.keys[self.mode]['keys'].keys()
+        self._create_temp_mode(action)
+        self._set_mode(self.temp_mode)
         for arg in args:
-            while True:
-                letter = alphabet.next()
-                if letter not in keys + self.extended_keys:
-                    break
+            letter = alphabet.next()
             self.extended_keys.append(letter)
-            self.keys[self.mode]['keys'][letter] = (None, action, arg)
+            self.keys[self.temp_mode]['keys'][letter] = (None, action, arg)
         return self.extended_keys
 
     def collapse_current_layout(self):
-        for key in self.keys[self.prev_mode]['keys'].keys():
-            if key in self.extended_keys:
-                del self.keys[self.prev_mode]['keys'][key]
+        if self.temp_mode:
+            del self.keys[self.temp_mode]
+        self.temp_mode = None
         self.extended_keys = []
+
+    def _create_temp_mode(self, mode):
+        self.temp_mode = 'temp-' + mode
+        self.keys[self.temp_mode] = {
+            'keys': {'any': ('prev', 'arg', False)}, 'temp': True}
 
     #--------------------------------------------------------------------------
     # accessors

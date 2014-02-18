@@ -143,18 +143,15 @@ class TestExtendLayout(unittest.TestCase):
     def test_exteneded_layout_can_be_collapsed(self):
         self.event.process(_unicode_events(['i']))
         keys = self.event.extend_current_layout('equip', ['pants', 'hat'])
-        self.event.process(_unicode_events(['Q']))
         self.event.collapse_current_layout()
-        action = self.event.process(_unicode_events([keys[0]]))
-        self.assertEqual(action, ('activate', None))
+        with self.assertRaises(KeyError):
+            action = self.event.process(_unicode_events([keys[0]]))
 
     def test_extedned_layout_resets_on_every_call(self):
         self.event.process(_unicode_events(['i']))
         items = ['pants', 'hat']
         keys = self.event.extend_current_layout('equip', items)
         self.assertEqual(keys, ['a', 'b'])
-        self.event.process(_unicode_events(['Q']))
         self.event.collapse_current_layout()
-        self.event.process(_unicode_events(['i']))
         keys = self.event.extend_current_layout('equip', items)
         self.assertEqual(keys, ['a', 'b'])

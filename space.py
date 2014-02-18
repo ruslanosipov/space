@@ -61,7 +61,16 @@ class GameClient(object):
 
     def _process_event(self, evt, evt_arg):
         if evt == 'arg' and self.require_arg:
-            self.evt, self.evt_arg = (self.evt, evt_arg) if evt_arg else 0
+            if evt_arg:
+                self.evt, self.evt_arg = (self.evt, evt_arg)
+            else:
+                if self.evt in ['equip', 'drop']:
+                    d = self.command.callCommand('query_inventory')
+                    d.addCallback(getattr(self, 'set_inventory'))
+                elif self.evt in ['unequip']:
+                    d = self.command.callCommand('query_equipment')
+                    d.addCallback(getattr(self, 'set_equipment'))
+                self.evt, self.evt_arg = None, None
             self.ui.set_evt_mode_desc('')
             self.require_arg = False
             if self.evt in ['say']:
