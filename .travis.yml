@@ -6,6 +6,6 @@ install:
 before_install:
     - sudo apt-get update
     - sudo apt-get build-dep python-pygame
-    - sudo apt-get install python-dev
+    - sudo apt-get install mercurial
 script:
     - nosetests
