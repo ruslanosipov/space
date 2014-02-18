@@ -1,5 +1,8 @@
 # Space v0.3.1-alpha
 
+[![Build Status](https://travis-ci.org/ruslanosipov/space.png?branch=develop)]
+(https://travis-ci.org/ruslanosipov/space)
+
 Space is a multiplayer roguelike game with ship vs ship and crew vs crew
 battles. 
 
