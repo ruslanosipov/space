@@ -10,6 +10,8 @@ before_install:
 install:
     - pip install -r .travis_requirements.txt
 script:
-    - make test
+    - make coverage
+after_success:
+    coveralls
 virtualenv:
     system_site_packages: true
