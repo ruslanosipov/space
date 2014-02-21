@@ -1,4 +1,6 @@
 [report]
 omit = 
+    */__init__.py
     */python?.?/*
     */site-packages/nose/*
+    /usr/share/pyshared/*
