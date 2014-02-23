@@ -50,7 +50,7 @@ battles.
 
 You are free to contribute, please keep in mind following things:
 * Code should comply with PEP 8 standards.
-* Tests: I use `unittest` module. `make test` should pass. Everything
+* Tests: I use `unittest` module. `fab test` should pass. Everything
 except for UI elements is reasonably tested. New code should not be
 submitted without unit tests.
 * Project uses nvie's branching guidelines, main branches are develop and
