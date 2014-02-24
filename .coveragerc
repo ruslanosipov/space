@@ -3,4 +3,5 @@ omit =
     */__init__.py
     */python?.?/*
     */site-packages/nose/*
+    */tests/*
     /usr/share/pyshared/*
