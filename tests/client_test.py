@@ -190,3 +190,37 @@ class ControllerCommandsTest(unittest.TestCase):
         self.assertEqual(kwargs, {})
         result.callback({'inventory': [{'item': 'knife', 'qty': 2}]})
         self.assertEqual(result.result, {'knife': 2})
+
+    def test_queue_int_action(self):
+        self.protocol.queue_action('sample_action', 42)
+        self.assertEquals(len(self.calls), 1)
+        _, command, kwargs = self.calls.pop()
+        self.assertIdentical(command, commands.QueueInt)
+        self.assertEqual(kwargs, {'action': 'sample_action', 'arg': 42})
+
+    def test_queue_str_action(self):
+        self.protocol.queue_action('sample_action', 'string')
+        self.assertEquals(len(self.calls), 1)
+        _, command, kwargs = self.calls.pop()
+        self.assertIdentical(command, commands.QueueStr)
+        self.assertEqual(kwargs, {'action': 'sample_action', 'arg': 'string'})
+
+    def test_queue_tuple_of_int_action(self):
+        self.protocol.queue_action('sample_action', (42, 98))
+        self.assertEquals(len(self.calls), 1)
+        _, command, kwargs = self.calls.pop()
+        self.assertIdentical(command, commands.QueueTupleOfInt)
+        self.assertEqual(kwargs, {
+            'action': 'sample_action',
+            'arg1': 42,
+            'arg2': 98})
+
+    def test_queue_tuple_of_str_action(self):
+        self.protocol.queue_action('sample_action', ('string1', 'string2'))
+        self.assertEquals(len(self.calls), 1)
+        _, command, kwargs = self.calls.pop()
+        self.assertIdentical(command, commands.QueueTupleOfStr)
+        self.assertEqual(kwargs, {
+            'action': 'sample_action',
+            'arg1': 'string1',
+            'arg2': 'string2'})
