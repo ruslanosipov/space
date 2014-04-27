@@ -1,12 +1,28 @@
 #!/usr/bin/env python
 
-from ConfigParser import ConfigParser
+"""Space client.
 
+Usage:
+    space.py --host=<host> [--port=<port>] [--debug]
+    space.py --help | -h
+
+Options:
+    --host <host>   Host to connect to.
+    --port <port>   Port to connect to [default: 12345].
+    --debug         Expand logging level.
+    --help -h       Show this screen.
+"""
+
+from ConfigParser import ConfigParser
+import logging
+
+import docopt
+
+from lib import client
 from lib.chatclient import ChatClient
 from lib.display import Display
-from lib.ui import UI
 from lib.event import Event
-from lib import client
+from lib.ui import UI
 
 
 class GameClient(object):
@@ -182,8 +198,15 @@ class GameClient(object):
     def unset_target(self):
         self.ui.set_target(None)
 
-conf = ConfigParser()
-conf.read('config.ini')
-host = conf.get('server', 'host')
-port = conf.getint('server', 'port')
-client.main(GameClient(conf), host, port, timeout=0.02)
+def main(arguments):
+    level = logging.DEBUG if arguments['--debug'] else logging.INFO
+    logging.basicConfig(level=level)
+
+    conf = ConfigParser()
+    conf.read('config.ini')
+    host = arguments['--host']
+    port = int(arguments['--port'])
+    client.main(GameClient(conf), host, port, timeout=0.02)
+
+if __name__ == '__main__':
+    main(docopt.docopt(__doc__))

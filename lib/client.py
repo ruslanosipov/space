@@ -1,9 +1,15 @@
+"""Network client."""
+
+import logging
+
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 from twisted.protocols.amp import AMP
 from twisted.internet.task import LoopingCall
 
-import commands
+from lib import commands
+
+logging = logging.getLogger(__name__)
 
 
 class CommandProtocol(AMP):
@@ -12,7 +18,7 @@ class CommandProtocol(AMP):
         self.main = main
 
     def connectionLost(self, reason):
-        print "Server connection lost, shutting down..."
+        logging.info("Server connection lost, shutting down...")
         reactor.stop()
 
     #--------------------------------------------------------------------------
@@ -162,4 +168,5 @@ def main(loop, host, port, timeout):
     loop.set_command(command)
     lc = LoopingCall(loop.main)
     lc.start(timeout, now=False)
+    logging.info("Connected to %s:%d.", host, port)
     reactor.run()

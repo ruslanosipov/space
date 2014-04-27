@@ -1,11 +1,24 @@
 #!/usr/bin/env python
 
-from ConfigParser import ConfigParser
+"""Space server.
 
-from lib.chatserver import ChatServer
-from lib import server
+Usage:
+    server.py [--port=<port>] [--debug]
+    server.py --help | -h
+
+Options:
+    --port <port>   Open at port [default: 12345].
+    --debug         Extend log level.
+    --help -h       Show this screen.
+"""
+
+import logging
+
+import docopt
+
 from lib import misc
-
+from lib import server
+from lib.chatserver import ChatServer
 from lib.exterior.level5d import Level5D
 from lib.exterior.view import ExteriorView
 
@@ -254,7 +267,12 @@ class GameServer(object):
     def set_requests(self, requests):
         self.requests = requests
 
-config = ConfigParser()
-config.read('config.ini')
-port = config.getint('server', 'port')
-server.main(GameServer(), port, 0.02)
+
+def main(arguments):
+    level = logging.DEBUG if arguments['--debug'] else logging.INFO
+    logging.basicConfig(level=level)
+    port = int(arguments['--port'])
+    server.main(GameServer(), port, 0.02)
+
+if __name__ == '__main__':
+    main(docopt.docopt(__doc__))
