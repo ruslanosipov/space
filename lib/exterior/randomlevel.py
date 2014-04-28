@@ -1,11 +1,14 @@
+"""A randomly generated level (part of Level5D grid)."""
+
 from lib.level import Level
 from lib.obj.space import Space
 
 
 class RandomLevel(Level):
+    """A randomly generated level (part of Level5D grid)."""
 
     #--------------------------------------------------------------------------
-    # setup
+    # Setup.
 
     def __init__(self, size):
         self._generate(size)

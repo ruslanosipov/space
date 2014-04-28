@@ -1,14 +1,14 @@
+"""3-dimensional ship interior level."""
+
 from lib.level import Level
 from lib.obj.space import Space
 
 
 class Level3D(Level):
-    """
-    The interior Level class.
-    """
+    """3-dimensional ship interior level."""
 
     #--------------------------------------------------------------------------
-    # setup
+    # Setup.
 
     def __init__(self):
         self.players = []
@@ -33,7 +33,7 @@ class Level3D(Level):
         return char_map
 
     #--------------------------------------------------------------------------
-    # bulk object accessors
+    # Bulk object accessors.
 
     def get_nearest_players_coords(self, (x0, y0), eyesight, visible):
         """
@@ -55,6 +55,13 @@ class Level3D(Level):
             _, players = zip(*players)
         return list(players)
 
+    def get_objects(self, (x, y)):
+        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
+            if (x, y) not in self.extra_tiles.keys():
+                self.extra_tiles[(x, y)] = Space()
+            return [self.extra_tiles[(x, y)]]
+        return self.level[y][x]
+
     def get_player(self, (x, y)):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             raise IndexError("coordinates can not be outside the level")
@@ -64,7 +71,7 @@ class Level3D(Level):
         return False
 
     #--------------------------------------------------------------------------
-    # object operations
+    # Object operations.
 
     def add_player(self, (x, y), player):
         self.add_object((x, y), player)
@@ -78,13 +85,3 @@ class Level3D(Level):
     def remove_player(self, player):
         self.remove_object(player.coords, player)
         self.players.remove(player)
-
-    #--------------------------------------------------------------------------
-    # bulk object accessors
-
-    def get_objects(self, (x, y)):
-        if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
-            if (x, y) not in self.extra_tiles.keys():
-                self.extra_tiles[(x, y)] = Space()
-            return [self.extra_tiles[(x, y)]]
-        return self.level[y][x]

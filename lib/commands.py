@@ -1,104 +1,98 @@
-from twisted.protocols.amp import Command, Unicode, Integer, AmpList, Boolean
+"""AMP commands to communicate between client and server."""
+
+from twisted.protocols import amp
 
 #------------------------------------------------------------------------------
-# server commands
+# Server commands.
 
 
-class QueryEquipment(Command):
-
-    response = [
-        ('equipment', AmpList([('slot', Unicode()), ('item', Unicode())]))]
-
-
-class QueryInventory(Command):
-
-    response = [
-        ('inventory', AmpList([('item', Unicode()), ('qty', Integer())]))]
+class QueryEquipment(amp.Command):
+    response = [(
+        'equipment',
+         amp.AmpList([('slot', amp.Unicode()), ('item', amp.Unicode())]))]
 
 
-class QueueStr(Command):
-
-    arguments = [('action', Unicode()), ('arg', Unicode())]
-
-
-class QueueInt(Command):
-
-    arguments = [('action', Unicode()), ('arg', Integer())]
+class QueryInventory(amp.Command):
+    response = [(
+        'inventory',
+        amp.AmpList([('item', amp.Unicode()), ('qty', amp.Integer())]))]
 
 
-class QueueTupleOfStr(Command):
+class QueueStr(amp.Command):
+    arguments = [('action', amp.Unicode()), ('arg', amp.Unicode())]
+
+
+class QueueInt(amp.Command):
+    arguments = [('action', amp.Unicode()), ('arg', amp.Integer())]
+
+
+class QueueTupleOfStr(amp.Command):
     arguments = [
-        ('action', Unicode()), ('arg1', Unicode()), ('arg2', Unicode())]
+        ('action', amp.Unicode()),
+        ('arg1', amp.Unicode()), ('arg2', amp.Unicode())]
 
 
-class QueueTupleOfInt(Command):
+class QueueTupleOfInt(amp.Command):
     arguments = [
-        ('action', Unicode()), ('arg1', Integer()), ('arg2', Integer())]
+        ('action', amp.Unicode()),
+        ('arg1', amp.Integer()), ('arg2', amp.Integer())]
 
 #------------------------------------------------------------------------------
-# client commands
+# Client commands.
 
 
-class AddChatMessages(Command):
+class AddChatMessages(amp.Command):
+    arguments = [(
+        'messages',
+        amp.AmpList([('message', amp.Unicode()), ('type', amp.Integer())]))]
 
+
+class SetBottomStatusBar(amp.Command):
+    arguments = [('text', amp.Unicode())]
+
+
+class SetEquipment(amp.Command):
+    arguments = [(
+        'equipment',
+        amp.AmpList([('slot', amp.Unicode()), ('item', amp.Unicode())]))]
+
+
+class SetInventory(amp.Command):
     arguments = [
-        ('messages', AmpList([('message', Unicode()), ('type', Integer())]))]
+        ('inventory',
+            amp.AmpList([('item', amp.Unicode()), ('qty', amp.Integer())]))]
 
 
-class SetBottomStatusBar(Command):
+class SetLookPointer(amp.Command):
+    arguments = [('x', amp.Integer()), ('y', amp.Integer())]
 
-    arguments = [('text', Unicode())]
+
+class SetPilot(amp.Command):
+    arguments = [('is_pilot', amp.Boolean())]
 
 
-class SetEquipment(Command):
+class SetTarget(amp.Command):
+    arguments = [('x', amp.Integer()), ('y', amp.Integer())]
 
+
+class SetTopStatusBar(amp.Command):
+    arguments = [('text', amp.Unicode())]
+
+
+class SetView(amp.Command):
     arguments = [
-        ('equipment', AmpList([('slot', Unicode()), ('item', Unicode())]))]
+        ('view', amp.Unicode()),
+        ('colors', amp.AmpList(
+            [('x', amp.Integer()),
+             ('y', amp.Integer()),
+             ('r', amp.Integer()),
+             ('g', amp.Integer()),
+             ('b', amp.Integer())]))]
 
 
-class SetInventory(Command):
-
-    arguments = [
-        ('inventory', AmpList([('item', Unicode()), ('qty', Integer())]))]
-
-
-class SetLookPointer(Command):
-
-    arguments = [('x', Integer()), ('y', Integer())]
-
-
-class SetPilot(Command):
-
-    arguments = [('is_pilot', Boolean())]
-
-
-class SetTarget(Command):
-
-    arguments = [('x', Integer()), ('y', Integer())]
-
-
-class SetTopStatusBar(Command):
-
-    arguments = [('text', Unicode())]
-
-
-class SetView(Command):
-
-    arguments = [
-        ('view', Unicode()),
-        ('colors', AmpList(
-            [('x', Integer()),
-             ('y', Integer()),
-             ('r', Integer()),
-             ('g', Integer()),
-             ('b', Integer())]))]
-
-
-class UnsetLookPointer(Command):
-
+class UnsetLookPointer(amp.Command):
     pass
 
 
-class UnsetTarget(Command):
-
+class UnsetTarget(amp.Command):
     pass

@@ -20,14 +20,14 @@ from lib import misc
 from lib import server
 from lib.chatserver import ChatServer
 from lib.exterior.level5d import Level5D
-from lib.exterior.view import ExteriorView
+from lib.exterior import view as exterior_view
+from lib.interior import view as interior_view
 
 
 class GameServer(object):
 
     def __init__(self):
         self.ext_level = Level5D()
-        self.ext_view = ExteriorView(self.ext_level)
         self.chat = ChatServer()
 
         self.clients = {}
@@ -145,8 +145,8 @@ class GameServer(object):
             spaceship = player.interior.spaceship
             int_level = player.interior
             if not player.is_pilot:
-                view = player.interior.spaceship.view
-                visible_tiles = view.visible_tiles(
+                visible_tiles = interior_view.find_visible_tiles(
+                    player.interior,
                     player.coords,
                     int_radius,
                     player.sight)
@@ -172,14 +172,15 @@ class GameServer(object):
                     self.chat.add_single(player, msg, 1)
             # generate a view for player or spaceship
             if not player.is_pilot:
-                view = player.interior.spaceship.view
-                view, colors, target, look_coords = view.generate(
-                    player.coords,
-                    int_radius,
-                    player.sight,
-                    visible_tiles,
-                    player.target,
-                    player.look_coords)
+                view, colors, target, look_coords = \
+                        interior_view.generate_interior_view(
+                                player.interior,
+                                player.coords,
+                                int_radius,
+                                player.sight,
+                                visible_tiles,
+                                player.target,
+                                player.look_coords)
                 client['target'][-1] = target
                 client['look_coords'][-1] = look_coords
                 # create bottom status bar
@@ -190,11 +191,12 @@ class GameServer(object):
                     weapon = player.get_equipment_slot('hands').name
                     client['bottom_status_bar'][-1] += "(%s) " % weapon
             else:
-                view, colors = self.ext_view.generate(
-                    spaceship.coords,
-                    ext_radius,
-                    ext_radius,
-                    spaceship.get_abs_pointer())
+                view, colors = exterior_view.generate_exterior_view(
+                        self.ext_level,
+                        spaceship.coords,
+                        ext_radius,
+                        ext_radius,
+                        spaceship.get_abs_pointer())
                 # create bottom status bar
                 spd = str(spaceship.speed)
                 client['bottom_status_bar'][-1] = \

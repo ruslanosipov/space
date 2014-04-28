@@ -1,25 +1,34 @@
-class NonexistentObjectDefinition(Exception):
+"""Game level - either a spaceship interior or space."""
 
-    pass
+import importlib
+
+from lib.utl import ignored
+
+
+class NonexistentObjectDefinition(Exception):
+    """Object is missing definition module."""
 
 
 class ObjectDefinitionMissing(Exception):
-
-    pass
+    """Object is missing definition in one of the dat/*.txt files."""
 
 
 class Level(object):
+    """Game level - either a spaceship interior or space."""
 
     #--------------------------------------------------------------------------
-    # setup
+    # Setup.
 
     def __init__(self, level_definition, obj_definitions):
+        self.level = []
         self._load_level(level_definition, obj_definitions)
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
 
-    def _load_level(self, level_definition, obj_definitions, extras={}):
+    def _load_level(self, level_definition, obj_definitions, extras=None):
+        if extras is None:
+            extras = {}
         level = []
         for y, line in enumerate(level_definition):
             level.append([])
@@ -33,26 +42,23 @@ class Level(object):
                             name = obj_definitions[char]
                         except KeyError:
                             raise ObjectDefinitionMissing
+                    module = name.lower()
                     try:
-                        module = name.lower()
-                        exec("from lib.obj.%s import %s" % (module, name))
-                        f = eval(name)
-                        obj = f()
-                        try:
-                            obj.coords = (x, y)
-                        except AttributeError:
-                            pass
-                        try:
-                            obj.interior = self
-                        except AttributeError:
-                            pass
-                        level[y][x].append(obj)
+                        module = importlib.import_module("lib.obj.%s" % module)
                     except ImportError:
                         raise NonexistentObjectDefinition
+                    obj = getattr(module, name)()
+                    with ignored.ignored(AttributeError):
+                        _ = obj.coords
+                        obj.coords = (x, y)
+                    with ignored.ignored(AttributeError):
+                        _ = obj.interior
+                        obj.interior = self
+                    level[y][x].append(obj)
         self.level = level
 
     #--------------------------------------------------------------------------
-    # object operations
+    # Object operations.
 
     def add_object(self, (x, y), obj, position=0):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
@@ -76,7 +82,7 @@ class Level(object):
         del self.level[y][x][self.level[y][x].index(obj)]
 
     #--------------------------------------------------------------------------
-    # bulk object accessors
+    # Bulk object accessors.
 
     def get_objects(self, (x, y)):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
@@ -100,7 +106,7 @@ class Level(object):
         return False
 
     #--------------------------------------------------------------------------
-    # accessors
+    # Accessors.
 
     def get_height(self):
         return len(self.level)

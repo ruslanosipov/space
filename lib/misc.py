@@ -1,9 +1,9 @@
 import ast
 
-from lib.obj.player import Player
-from lib.obj.player import ItemCanNotBeEquipped
 from lib.obj.corpse import Corpse
-from lib.interior.view import InteriorView
+from lib.obj.player import ItemCanNotBeEquipped
+from lib.obj.player import Player
+from lib.utl import ignored
 
 #------------------------------------------------------------------------------
 # server game start setup
@@ -53,15 +53,12 @@ def activate_obj((x, y), level, player=None):
     objects = level.get_objects((x, y))
     status = "Nothing to activate here..."
     for obj in objects[::-1]:
-        try:
-            try:
-                obj.player = player
-            except AttributeError:
-                pass
+        with ignored.ignored(AttributeError):
+            _ = obj.player
+            obj.player = player
+        with ignored.ignored(AttributeError):
             status = obj.activate()
             break
-        except AttributeError:
-            pass
     return status
 
 
@@ -193,15 +190,13 @@ def pick_up_obj(player, (x, y), level):
     objects = level.get_objects((x, y))
     msg = "Nothing to pick up here..."
     for obj in objects[::-1]:
-        try:
+        with ignored.ignored(AttributeError):
             if obj.is_pickupable:
                 obj.coords = None
                 player.inventory_add(obj)
                 level.remove_object((x, y), obj)
                 msg = "You pick up a %s..." % obj.name
                 break
-        except AttributeError:
-            pass
     return msg
 
 
@@ -249,7 +244,6 @@ def add_spaceship(name, coords, spawn, exterior):
     extras = load_extras(extras)
     spaceship = exterior.add_spaceship(coords, name)
     spaceship.load_interior(level_definition, obj_definitions, extras)
-    spaceship.view = InteriorView(spaceship.interior)
     spaceship.spawn_point = spawn
     return spaceship
 

@@ -1,7 +1,8 @@
+"""Draw line from (x, y) to (x1, y1). Returns a list."""
+
+
 def get_line((x, y), (x1, y1), length=False):
-    """
-    Draw line from (x, y) to (x1, y1). Returns a list.
-    """
+    """Draw line from (x, y) to (x1, y1). Returns a list."""
     steep = 0
     line = []
     dx = abs(x1 - x)

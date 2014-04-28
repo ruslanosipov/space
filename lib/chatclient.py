@@ -1,14 +1,11 @@
+"""Receives, cuts and displays chat log."""
+
 class ChatClient(object):
-    """
-    Receives, cuts and displays chat log
-    """
+    """Receives, cuts and displays chat log."""
 
     def __init__(self):
         self.log = []
         self.width = 56
-
-    def __repr__(self):
-        return "<class '%s'>" % self.__class__.__name__
 
     def get_log(self, size=22):
         if len(self.log) <= size:

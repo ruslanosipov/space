@@ -1,3 +1,5 @@
+"""Input-to-event converter."""
+
 import pygame
 
 
@@ -25,6 +27,7 @@ IGNORE_EVENTS = [
 
 
 class Event(object):
+    """Input-to-event converter."""
 
     def __init__(self):
         self.mode = self.prev_mode = 'normal'
@@ -139,7 +142,7 @@ class Event(object):
         self.mode = mode
 
     #--------------------------------------------------------------------------
-    # extending layout
+    # Extending layout.
 
     def extend_current_layout(self, action, args):
         def alphabet_generator():
@@ -167,7 +170,7 @@ class Event(object):
             'keys': {'any': ('prev', 'arg', False)}, 'temp': True}
 
     #--------------------------------------------------------------------------
-    # accessors
+    # Accessors.
 
     def get_mode(self):
         return self.mode

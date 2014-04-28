@@ -1,14 +1,24 @@
+"""5-dimensional map level representing space."""
+
 from functools import wraps
 
 from lib.exterior.randomlevel import RandomLevel
 from lib.obj.projectile import Projectile
 from lib.obj.spaceship import Spaceship
+from lib.utl import ignored
 
 
 class Level5D(object):
+    """5-dimensional map level representing space.
+
+    Level5D consists of number of smaller lib.exterior.randomlevel.RandomLevel
+    objects, so the coordinates used to access elements in 5D are (p, q, x, y),
+    where (p, q) are coordinates representing RandomLevel and (x, y) are
+    coordinates within RandomLevel. Fifth dimension is depth, but it's not
+    actively used at this point."""
 
     #--------------------------------------------------------------------------
-    # decorators
+    # Decorators.
 
     def _validate(func):
         @wraps(func)
@@ -17,11 +27,10 @@ class Level5D(object):
             if char is not None:
                 return func(self, (p, q, x, y), char)
             return func(self, (p, q, x, y))
-
         return wrapper
 
     #--------------------------------------------------------------------------
-    # setup
+    # Setup.
 
     def __init__(self):
         self.levels = {}
@@ -39,7 +48,7 @@ class Level5D(object):
                     self.levels[(x, y)] = RandomLevel(25)
 
     #--------------------------------------------------------------------------
-    # update
+    # Update.
 
     def update(self):
         remove = []
@@ -52,13 +61,11 @@ class Level5D(object):
                 projectile.coords = coords
                 self.move_object((p, q, x, y), coords, projectile)
             for obj in self.get_objects(coords):
-                try:
-                    if obj == projectile:
-                        continue
+                if obj == projectile:
+                    continue
+                with ignored.ignored(AttributeError):
                     obj.receive_damage(projectile.damage)
                     projectile.receive_damage(1)
-                except AttributeError:
-                    pass
             if not projectile.is_alive:
                 self.remove_object(coords, projectile)
                 remove.append(i)
@@ -80,7 +87,7 @@ class Level5D(object):
                         self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
-    # object operations
+    # Object operations.
 
     @_validate
     def add_object(self, (p, q, x, y), obj):
@@ -113,7 +120,7 @@ class Level5D(object):
             receiver.teleport_point, player)
 
     #--------------------------------------------------------------------------
-    # bulk object accessors
+    # Bulk object accessors.
 
     @_validate
     def get_adjacent_spaceships(self, (p, q, x0, y0)):
@@ -132,7 +139,7 @@ class Level5D(object):
         return self.levels[(p, q)].get_objects((x, y))
 
     #--------------------------------------------------------------------------
-    # validators
+    # Validators.
 
     def _validate_coordinates(self, p, q, x, y):
         while True:
@@ -156,7 +163,7 @@ class Level5D(object):
         return p, q, x, y
 
     #--------------------------------------------------------------------------
-    # accessors
+    # Accessors.
 
     def get_spaceship(self, (p, q, x, y)):
         for obj in self.get_objects((p, q, x, y))[::-1]:
