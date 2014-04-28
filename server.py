@@ -73,27 +73,27 @@ class GameServer(object):
                         'target': [None, None],
                         'look_coords': [None, None]}
                     client = self.clients[uid]
-                spaceship = player.get_interior().get_spaceship()
-                if not player.is_alive():
+                spaceship = player.interior.spaceship
+                if not player.is_alive:
                     continue
-                int_level = player.get_interior()
-                if player.is_pilot() and not spaceship.is_alive():
+                int_level = player.interior
+                if player.is_pilot and not spaceship.is_alive:
                     continue
                 if evt == 'activate':
                     dx, dy = arg
-                    x, y = player.get_coords()
+                    x, y = player.coords
                     client['top_status_bar'][-1] = misc.activate_obj(
                         (x + dx, y + dy),
                         int_level, player)
                 elif evt == 'pickup':
                     dx, dy = arg
-                    x, y = player.get_coords()
+                    x, y = player.coords
                     client['top_status_bar'][-1] = misc.pick_up_obj(
                         player, (x + dx, y + dy),
                         int_level)
                 elif evt == 'move':
                     dx, dy = arg
-                    x, y = player.get_coords()
+                    x, y = player.coords
                     client['top_status_bar'][-1] = misc.move(
                         player, (x + dx, y + dy),
                         int_level, self.chat)
@@ -103,7 +103,7 @@ class GameServer(object):
                     spaceship.accelerate(arg)
                 elif evt == 'ext_fire':
                     misc.exterior_fire(
-                        spaceship.get_coords(),
+                        spaceship.coords,
                         spaceship.get_pointer(),
                         self.ext_level)
                 elif evt == 'int_fire':
@@ -111,25 +111,25 @@ class GameServer(object):
                         player, int_level, self.chat)
                 elif evt == 'say':
                     self.chat.add_single(
-                        'public', "%s: %s" % (player.get_name(), arg), 0)
+                        'public', "%s: %s" % (player.name, arg), 0)
                 elif evt == 'unpilot':
                     client['top_status_bar'][-1] = \
                         "You are done piloting the spaceship..."
-                    player.set_pilot()
+                    player.toggle_pilot()
                 elif evt == 'equip':
                     client['top_status_bar'][-1] = misc.equip_item(
                         player, arg)
                     self.command_factory.callCommand(
-                        uid, 'set_equipment', player.get_equipment())
+                        uid, 'set_equipment', player.equipment)
                 elif evt == 'unequip':
                     client['top_status_bar'][-1] = misc.unequip_item(
                         player, arg)
                     self.command_factory.callCommand(
-                        uid, 'set_equipment', player.get_equipment())
+                        uid, 'set_equipment', player.equipment)
                 elif evt == 'drop':
                     client['top_status_bar'][-1] = misc.drop_item(player, arg)
                     self.command_factory.callCommand(
-                        uid, 'set_inventory', player.get_inventory())
+                        uid, 'set_inventory', player.inventory)
 
 
         # second: let the world process one tick
@@ -142,14 +142,14 @@ class GameServer(object):
             player, client = self.players[uid], self.clients[uid]
             int_radius = 11
             ext_radius = 11
-            spaceship = player.get_interior().get_spaceship()
-            int_level = player.get_interior()
-            if not player.is_pilot():
-                view = player.get_interior().get_spaceship().get_view()
+            spaceship = player.interior.spaceship
+            int_level = player.interior
+            if not player.is_pilot:
+                view = player.interior.spaceship.view
                 visible_tiles = view.visible_tiles(
-                    player.get_coords(),
+                    player.coords,
                     int_radius,
-                    player.get_sight())
+                    player.sight)
             for evt, arg in data:
                 msg = None
                 if evt == 'target':
@@ -167,45 +167,45 @@ class GameServer(object):
                     if _tmp:
                         client['top_status_bar'][-1] = _tmp
                 elif evt == 'look_done':
-                    player.set_looking()
+                    player.toggle_looking()
                 if msg is not None:
                     self.chat.add_single(player, msg, 1)
             # generate a view for player or spaceship
-            if not player.is_pilot():
-                view = player.get_interior().get_spaceship().get_view()
+            if not player.is_pilot:
+                view = player.interior.spaceship.view
                 view, colors, target, look_coords = view.generate(
-                    player.get_coords(),
+                    player.coords,
                     int_radius,
-                    player.get_sight(),
+                    player.sight,
                     visible_tiles,
-                    player.get_target(),
-                    player.get_look_coords())
+                    player.target,
+                    player.look_coords)
                 client['target'][-1] = target
                 client['look_coords'][-1] = look_coords
                 # create bottom status bar
-                hp = str(player.get_health())
+                hp = str(player.health)
                 client['bottom_status_bar'][-1] = \
                     "HP %s%s " % (' ' * (3 - len(hp)), hp)
-                if player.get_equipment('hands') is not None:
-                    weapon = player.get_equipment('hands').get_name()
+                if player.get_equipment_slot('hands') is not None:
+                    weapon = player.get_equipment_slot('hands').name
                     client['bottom_status_bar'][-1] += "(%s) " % weapon
             else:
                 view, colors = self.ext_view.generate(
-                    spaceship.get_coords(),
+                    spaceship.coords,
                     ext_radius,
                     ext_radius,
                     spaceship.get_abs_pointer())
                 # create bottom status bar
-                spd = str(spaceship.get_speed())
+                spd = str(spaceship.speed)
                 client['bottom_status_bar'][-1] = \
                     "SPD %s%s " % (' ' * (3 - len(spd)), spd)
-                hp = str(spaceship.get_health())
+                hp = str(spaceship.health)
                 client['bottom_status_bar'][-1] += \
                     "HP %s%s " % (' ' * (3 - len(hp)), hp)
                 client['bottom_status_bar'][-1] += \
                     "POS%s " % ''.join((
                         ' ' * (3 - len(str(coord))) + str(coord)
-                        for coord in spaceship.get_coords()))
+                        for coord in spaceship.coords))
             recent_chat_msgs = self.chat.get_recent_for_recipient(player)
             if len(recent_chat_msgs):
                 self.command_factory.callCommand(
@@ -215,11 +215,11 @@ class GameServer(object):
                 client['view'] = view
                 client['colors'] = colors
                 self.command_factory.callCommand(uid, 'set_view', view, colors)
-            if player.is_pilot() != client['is_pilot']:
-                client['is_pilot'] = player.is_pilot()
+            if player.is_pilot != client['is_pilot']:
+                client['is_pilot'] = player.is_pilot
                 self.command_factory.callCommand(
                     uid, 'set_pilot',
-                    player.is_pilot())
+                    player.is_pilot)
             bar = client['bottom_status_bar']
             if bar[-1] != bar[0]:
                 bar[0] = bar[1]
@@ -253,10 +253,10 @@ class GameServer(object):
     # client accessors
 
     def get_equipment(self, player_uid):
-        return self.players[player_uid].get_equipment()
+        return self.players[player_uid].equipment
 
     def get_inventory(self, player_uid):
-        return self.players[player_uid].get_inventory()
+        return self.players[player_uid].inventory
 
     #--------------------------------------------------------------------------
     # accessors

@@ -55,7 +55,7 @@ def activate_obj((x, y), level, player=None):
     for obj in objects[::-1]:
         try:
             try:
-                obj.set_player(player)
+                obj.player = player
             except AttributeError:
                 pass
             status = obj.activate()
@@ -72,8 +72,8 @@ def add_player(name, spaceship, coords=None):
     """
     player = Player(name)
     if coords is None:
-        coords = spaceship.get_spawn_point()
-    spaceship.get_interior().add_player(coords, player)
+        coords = spaceship.spawn_point
+    spaceship.interior.add_player(coords, player)
     return player
 
 
@@ -83,7 +83,7 @@ def drop_item(player, item_name):
     """
     item = player.inventory_remove_by_name(item_name)
     if item:
-        player.get_interior().add_object(player.get_coords(), item, 1)
+        player.interior.add_object(player.coords, item, 1)
         return "You drop a %s." % item_name
     else:
         return "You do not have such an item."
@@ -111,19 +111,19 @@ def interior_fire(player, level, chat):
     Fire at other player. Target must be set up, weapon must be
     equipped. Returns string.
     """
-    target = player.get_target()
+    target = player.target
     if not player.is_gunman():
         return "You have no weapon to fire from..."
     if target:
         hostile = level.get_player(target)
         hostile.receive_damage(player.get_ranged_damage())
-        msg = 'You shoot at %s.' % hostile.get_name()
-        hostile_msg = '%s shoots at you.' % player.get_name()
-        if not hostile.is_alive():
+        msg = 'You shoot at %s.' % hostile.name
+        hostile_msg = '%s shoots at you.' % player.name
+        if not hostile.is_alive:
             level.remove_object(target, hostile)
-            level.add_object(target, Corpse(hostile.get_name()))
-            player.set_target()
-            msg += ' %s is dead.' % hostile.get_name()
+            level.add_object(target, Corpse(hostile.name))
+            player.target = None
+            msg += ' %s is dead.' % hostile.name
             hostile_msg += ' You are dead!'
         chat.add_single(player, msg, 3)
         chat.add_single(hostile, hostile_msg, 3)
@@ -138,25 +138,25 @@ def move(player, (x, y), level, chat):
     status = ''
     hostile = level.get_player((x, y))
     if not level.is_path_blocker((x, y)):
-        level.move_object(player.get_coords(), (x, y), player)
-        player.set_coords((x, y))
+        level.move_object(player.coords, (x, y), player)
+        player.coords = (x, y)
     elif hostile:
         hostile.receive_damage(player.get_melee_damage())
-        msg, hostile_msg = player.get_melee_attack_messages(hostile.get_name())
-        if not hostile.is_alive():
+        msg, hostile_msg = player.get_melee_attack_messages(hostile.name)
+        if not hostile.is_alive:
             level.remove_object((x, y), hostile)
-            level.add_object((x, y), Corpse(hostile.get_name()))
-            player.set_target()
-            msg += ' %s is dead.' % hostile.get_name()
+            level.add_object((x, y), Corpse(hostile.name))
+            player.target = None
+            msg += ' %s is dead.' % hostile.name
             hostile_msg += ' You are dead!'
         chat.add_single(player, msg, 3)
         chat.add_single(hostile, hostile_msg, 3)
     else:
         objects = level.get_objects((x, y))
         for obj in objects[::-1]:
-            if obj.is_path_blocker():
+            if obj.is_path_blocker:
                 status = "Your path is obstructed by the %s..." % \
-                    obj.get_name()
+                    obj.name
                 break
     return status
 
@@ -166,21 +166,21 @@ def look(player, (dx, dy), level, visible_tiles):
     Look around the player, show description of visible objects from
     top to bottom. Returns string.
     """
-    if not player.is_looking():
-        player.set_looking()
-        player.set_look_coords(player.get_coords())
-    x, y = player.get_look_coords()
+    if not player.is_looking:
+        player.toggle_looking()
+        player.look_coords = player.coords
+    x, y = player.look_coords
     x, y = x + dx, y + dy
-    px, py = player.get_coords()
+    px, py = player.coords
     if abs(px - x) >= 12 or abs(py - y) >= 12:
         return None
-    player.set_look_coords((x, y))
+    player.look_coords = (x, y)
     if (x, y) not in visible_tiles:
         return "You can't see anything there."
     objects = level.get_objects((x, y))
     names = []
     for obj in objects[::-1]:
-        names.append(obj.get_name())
+        names.append(obj.name)
     msg = 'You see: %s.' % ', '.join(names)
     return msg
 
@@ -194,11 +194,11 @@ def pick_up_obj(player, (x, y), level):
     msg = "Nothing to pick up here..."
     for obj in objects[::-1]:
         try:
-            if obj.is_pickupable():
-                obj.set_coords(None)
+            if obj.is_pickupable:
+                obj.coords = None
                 player.inventory_add(obj)
                 level.remove_object((x, y), obj)
-                msg = "You pick up a %s..." % obj.get_name()
+                msg = "You pick up a %s..." % obj.name
                 break
         except AttributeError:
             pass
@@ -212,13 +212,12 @@ def set_target(player, level, visible_tiles):
     """
     status = ''
     targets = level.get_nearest_players_coords(
-        player.get_coords(),
-        player.get_sight(),
+        player.coords,
+        player.sight,
         visible_tiles)
     if len(targets):
         # TODO: implement switching between targets
-        x, y = targets[0]
-        player.set_target((x, y))
+        player.target = targets[0]
     else:
         status = 'No suitable target found...'
     return status
@@ -231,7 +230,7 @@ def unequip_item(player, slot):
     item = player.unequip(slot)
     if item:
         player.inventory_add(item)
-        msg = "You unequip a %s." % item.get_name()
+        msg = "You unequip a %s." % item.name
     else:
         msg = "You do not have an item in this slot."
     return msg
@@ -250,8 +249,8 @@ def add_spaceship(name, coords, spawn, exterior):
     extras = load_extras(extras)
     spaceship = exterior.add_spaceship(coords, name)
     spaceship.load_interior(level_definition, obj_definitions, extras)
-    spaceship.set_view(InteriorView(spaceship.get_interior()))
-    spaceship.set_spawn_point(spawn)
+    spaceship.view = InteriorView(spaceship.interior)
+    spaceship.spawn_point = spawn
     return spaceship
 
 

@@ -85,9 +85,9 @@ class TestInteriorLevelObjectOperations(unittest.TestCase):
         obj = self.level.get_objects((1, 0))[-1]
         self.assertEqual(obj, stationary,
                          "same object should be retreived")
-        self.assertEqual(obj.get_coords(), (1, 0),
+        self.assertEqual(obj.coords, (1, 0),
                          "object should have coordinates set")
-        self.assertEqual(obj.get_interior(), self.level,
+        self.assertEqual(obj.interior, self.level,
                          "level should be set as interior attribute")
 
     def test_object_can_be_added_at_index(self):
@@ -96,9 +96,9 @@ class TestInteriorLevelObjectOperations(unittest.TestCase):
         obj = self.level.get_objects((1, 0))[-2]
         self.assertEqual(obj, stationary,
                          "same object should be retreived")
-        self.assertEqual(obj.get_coords(), (1, 0),
+        self.assertEqual(obj.coords, (1, 0),
                          "object should have coordinates set")
-        self.assertEqual(obj.get_interior(), self.level,
+        self.assertEqual(obj.interior, self.level,
                          "level should be set as interior attribute")
 
     def test_object_can_be_moved(self):
@@ -107,7 +107,7 @@ class TestInteriorLevelObjectOperations(unittest.TestCase):
         obj = self.level.get_objects((1, 0))[-1]
         self.assertEqual(obj, stationary,
                          "same object should be retreived")
-        self.assertEqual(obj.get_coords(), (1, 0),
+        self.assertEqual(obj.coords, (1, 0),
                          "object should have correct coordinates set")
 
     def test_nonexistent_object_movement_raises_exception(self):
@@ -180,7 +180,7 @@ class TestInteriorLevelPlayerOperations(unittest.TestCase):
         self.level.add_player((1, 0), Player('Josh'))
         self.level.add_player((2, 0), Player('Tosh'))
         self.assertEqual(self.level.get_nearest_players_coords((0, 0),
-                         player.get_sight(), [(0, 0), (1, 0), (2, 0)]),
+                         player.sight, [(0, 0), (1, 0), (2, 0)]),
                          [(1, 0), (2, 0)], ("coordinates should be returned "
                          "in correct order"))
 
@@ -190,13 +190,13 @@ class TestInteriorLevelPlayerOperations(unittest.TestCase):
         self.level.add_object((1, 0), TestStationaryBlocking())
         self.level.add_player((2, 0), Player('Josh'))
         self.assertEqual(self.level.get_nearest_players_coords((0, 0),
-                         player.get_sight(), [(0, 0), (1, 0)]), [],
+                         player.sight, [(0, 0), (1, 0)]), [],
                          "invisible players should not be returned")
 
     def test_no_players_show_up_if_no_visible_players(self):
         player = Player('Mike')
         self.level.add_player((0, 0), player)
         self.assertEqual(self.level.get_nearest_players_coords((0, 0), 
-                         player.get_sight(), [(0, 0), (1, 0), (2, 0)]), [],
+                         player.sight, [(0, 0), (1, 0), (2, 0)]), [],
                          ("no players should be returned with no surrounding "
                          "players"))

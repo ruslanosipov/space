@@ -9,7 +9,7 @@ class TestExteriorViewGenerate(unittest.TestCase):
     def setUp(self):
         level = ExteriorLevel()
         spaceship = level.add_spaceship((0, 0, 0, 0), 'USS Enterprise')
-        spaceship.set_color((255, 0, 0))
+        spaceship.color = (255, 0, 0)
         self.view = ExteriorView(level)
 
     def test_field_size(self):

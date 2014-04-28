@@ -11,7 +11,6 @@ class Level5D(object):
     # decorators
 
     def _validate(func):
-
         @wraps(func)
         def wrapper(self, (p, q, x, y), char=None):
             p, q, x, y = self._validate_coordinates(p, q, x, y)
@@ -45,28 +44,28 @@ class Level5D(object):
     def update(self):
         remove = []
         for i, projectile in enumerate(self.projectiles):
-            coords = projectile.get_coords()
+            coords = projectile.coords
             dx, dy = projectile.move()
             if (dx, dy) != (0, 0):
                 p, q, x, y = coords
                 coords = self._validate_coordinates(p, q, x + dx, y + dy)
-                projectile.set_coords(coords)
+                projectile.coords = coords
                 self.move_object((p, q, x, y), coords, projectile)
             for obj in self.get_objects(coords):
                 try:
                     if obj == projectile:
                         continue
-                    obj.receive_damage(projectile.get_damage())
+                    obj.receive_damage(projectile.damage)
                     projectile.receive_damage(1)
                 except AttributeError:
                     pass
-            if not projectile.is_alive():
+            if not projectile.is_alive:
                 self.remove_object(coords, projectile)
                 remove.append(i)
         self.projectiles = \
             [p for i, p in enumerate(self.projectiles) if i not in remove]
         for spaceship in self.spaceships:
-            coords = spaceship.get_coords()
+            coords = spaceship.coords
             directions = spaceship.move()
             for (dx, dy) in directions:
                 if (dx, dy) != (0, 0):
@@ -77,7 +76,7 @@ class Level5D(object):
                         hostile.receive_damage(100)
                         spaceship.receive_damage(100)
                     else:
-                        spaceship.set_coords(coords)
+                        spaceship.coords = coords
                         self.move_object((p, q, x, y), coords, spaceship)
 
     #--------------------------------------------------------------------------
@@ -90,7 +89,7 @@ class Level5D(object):
     def add_projectile(self, (p, q, x, y), pointer, dmg, spd, rng):
         # TODO: validate coordinates
         projectile = Projectile(pointer, dmg, spd, rng)
-        projectile.set_coords((p, q, x, y))
+        projectile.coords = (p, q, x, y)
         self.projectiles.append(projectile)
         self.add_object((p, q, x, y), projectile)
 
@@ -109,9 +108,9 @@ class Level5D(object):
         return self.levels[(p, q)].remove_object((x, y), obj)
 
     def teleport_player(self, player, receiver, sender):
-        sender.get_interior().remove_player(player)
-        receiver.get_interior().add_player(
-            receiver.get_teleport_point(), player)
+        sender.interior.remove_player(player)
+        receiver.interior.add_player(
+            receiver.teleport_point, player)
 
     #--------------------------------------------------------------------------
     # bulk object accessors
@@ -164,6 +163,3 @@ class Level5D(object):
             if obj.__class__.__name__ == 'Spaceship':
                 return obj
         return False
-
-    def get_spaceships(self):
-        return self.spaceships

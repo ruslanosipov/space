@@ -24,7 +24,7 @@ class TestSpaceshipFire(unittest.TestCase):
         level = ExteriorLevel()
         spaceship = add_spaceship('TestSpaceship',
                                   (0, 0, 0, 0), (0, 0), level)
-        exterior_fire(spaceship.get_coords(), spaceship.get_pointer(), level)
+        exterior_fire(spaceship.coords, spaceship.get_pointer(), level)
         level.update()
         obj = level.get_objects((0, 0, 0, -1))[-1]
         self.assertTrue(isinstance(obj, Projectile),

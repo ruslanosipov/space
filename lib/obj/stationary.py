@@ -1,3 +1,5 @@
+"""Base class for immobile objects."""
+
 from lib.obj.tile import Tile
 
 
@@ -9,9 +11,10 @@ class Stationary(Tile):
 
     def __init__(self, *args, **kwargs):
         super(Stationary, self).__init__(*args, **kwargs)
-        self.pickupable = False
-        self.moveable = False
+        self.is_pickupable = False
+        self.is_moveable = False
 
     def activate(self):
+        """Activate an object."""
         msg = "You activate the %s, nothing happens..." % self.name
         return msg

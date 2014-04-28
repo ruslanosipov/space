@@ -1,77 +1,43 @@
+"""Spaceships shoot using these missiles."""
+
+from lib.obj.baseobject import BaseObject
 from lib.utl import bresenham
 
 
-class Projectile:
-    """
-    Spaceships shoot using these missiles.
-    """
+class Projectile(BaseObject):
+    """Spaceships shoot using these missiles."""
 
     def __init__(self, direction, damage, speed, lifespan):
+        self._color = None
         self.char = '*'
-        self.directions = bresenham.get_line((0, 0), direction)[1:]
-        self.position = 0
-        self.lifestep = 0
-        self.lifespan = lifespan
-        self.damage = damage
-        self.speed = speed
-        self.movement = 0
-        self.alive = True
         self.coords = (0, 0, 0, 0)
-        self.default_color = True
+        self.damage = damage
+        self.directions = bresenham.get_line((0, 0), direction)[1:]
         self.health = 1
+        self.is_alive = True
+        self.is_default_color = True
+        self.lifespan = lifespan
+        self.lifestep = 0
+        self.movement = 0
+        self.position = 0
+        self.speed = speed
 
     def __repr__(self):
         return "<class '%s'>" % self.__class__.__name__
 
     def move(self):
+        """Move one step."""
         self.movement += self.speed
         if self.movement >= 1000:
             self.lifestep += 1
             self.movement -= 1000
             if self.lifestep >= self.lifespan:
-                self.alive = False
-            self._increment_position
+                self.is_alive = False
             return self.directions[self.position]
         return (0, 0)
 
     def receive_damage(self, damage):
+        """Receive damage."""
         self.health -= damage
         if self.health <= 0:
-            self.alive = False
-
-    def _increment_position(self):
-        if self.position >= len(self.directions) - 1:
-            self.position = 0
-        else:
-            self.position += 1
-
-    #--------------------------------------------------------------------------
-    # accessors
-
-    def is_alive(self):
-        return self.alive
-
-    def is_default_color(self):
-        return self.default_color
-
-    def get_color(self):
-        return self.color
-
-    def get_char(self):
-        return self.char
-
-    def get_coords(self):
-        return self.coords
-
-    def get_damage(self):
-        return self.damage
-
-    def get_health(self):
-        return self.health
-
-    def set_color(self, color):
-        self.default_color = False
-        self.color = color
-
-    def set_coords(self, (p, q, x, y)):
-        self.coords = (p, q, x, y)
+            self.is_alive = False

@@ -1,45 +1,56 @@
-from lib.utl import bresenham
+"""Spaceship object."""
+
 from lib.interior.level3d import Level3D
+from lib.obj.baseobject import BaseObject
+from lib.utl import bresenham
 
 
-class Spaceship(object):
+class Spaceship(BaseObject):
+    """Spaceship object."""
+
+    control = 5
+    health_max = 100
+    speed_max = 500
 
     #--------------------------------------------------------------------------
-    # setup
+    # Setup.
 
     def __init__(self, char, name, coords, exterior=None):
+        self._color = None
         self.char = char
-        self.name = name
         self.coords = coords
         self.exterior = exterior
+        self.health = self.health_max
+        self.inertia = {}
+        self.interior = None
+        self.is_alive = True
+        self.is_default_color = True
+        self.name = name
+        self.pilot = None
+        self.players = []
+        self.pointer = 0
         self.pointers = [(0, -2), (1, -2), (2, -1), (2, 0), (2, 1), (1, 2),
                          (0, 2), (-1, 2), (-2, 1), (-2, 0), (-2, -1), (-1, -2)]
-        self.pointer = 0
-        self.speed = 0
-        self.speed_max = 500
-        self.inertia = {}
-        self.health = self.health_max = 100
-        self.alive = True
-        self.interior = None
-        self.players = []
         self.spawn_point = (0, 0)
+        self.speed = 0
         self.teleport_point = None
-        self.control = 5
-        self.default_color = True
-        self.pilot = None
 
     def __repr__(self):
         return "<class '%s'> %s" % (self.__class__.__name__, self.name)
 
-    def load_interior(self, level, obj_data, extras={}):
+    def load_interior(self, level, obj_data, extras=None):
+        """Load ship interior."""
+        if extras is None:
+            extras = {}
         self.interior = Level3D()
-        self.interior.set_spaceship(self)
+        self.interior.spaceship = self
         self.interior.load_converted_char_map(level, obj_data, extras)
 
     #--------------------------------------------------------------------------
-    # movement
+    # Movement.
 
     def accelerate(self, acceleration):
+        """Accelerate the spaceship."""
         self.speed += acceleration
         if self.speed < 0:
             self.speed = 0
@@ -47,6 +58,7 @@ class Spaceship(object):
             self.speed = self.speed_max
 
     def move(self):
+        """Move one tick."""
         directions = []
         if self.pointer not in self.inertia.keys():
             self.inertia[self.pointer] = [self.speed, self.speed, 0]
@@ -62,12 +74,12 @@ class Spaceship(object):
             if movement >= 1000:
                 movement -= 1000
                 path = bresenham.get_line((0, 0), self.pointers[pointer])
-                x, y = path[1]
-                directions.append((x, y))
+                directions.append(path[1])
             self.inertia[pointer][2] = movement
         return directions
 
     def rotate_pointer(self, reverse=False):
+        """Rotate direction in which the ship is pointing."""
         i = 1 if not reverse else -1
         if self.pointer == len(self.pointers) - 1 and not reverse:
             self.pointer = 0
@@ -77,85 +89,27 @@ class Spaceship(object):
             self.pointer += i
 
     #--------------------------------------------------------------------------
-    # combat
+    # Combat.
 
     def receive_damage(self, damage):
+        """Receive damage and (possibly) die."""
         self.health -= damage
         if self.health <= 0:
-            if self.get_pilot():
-                self.get_pilot().set_pilot()
-            self.alive = False
-            self.set_color((50, 50, 50))
+            if self.pilot:
+                self.pilot.toggle_pilot()
+            self.is_alive = False
+            self.color = (50, 50, 50)
             self.speed = 0
 
     #--------------------------------------------------------------------------
-    # accessors
+    # Accessors.
 
     def get_abs_pointer(self):
+        """Get absolute pointer value."""
         dx, dy = self.pointers[self.pointer]
         q, p, x, y = self.coords
         return (q, p, x + dx, y + dy)
 
-    def is_alive(self):
-        return self.alive
-
-    def is_default_color(self):
-        return self.default_color
-
-    def get_char(self):
-        return self.char
-
-    def get_color(self):
-        return self.color
-
-    def get_coords(self):
-        return self.coords
-
-    def get_exterior(self):
-        return self.exterior
-
-    def get_health(self):
-        return self.health
-
-    def get_interior(self):
-        return self.interior
-
-    def get_name(self):
-        return self.name
-
-    def get_pilot(self):
-        return self.pilot
-
-    def get_spawn_point(self):
-        return self.spawn_point
-
-    def get_speed(self):
-        return self.speed
-
-    def get_teleport_point(self):
-        return self.teleport_point
-
     def get_pointer(self):
+        """Get relative pointer value."""
         return self.pointers[self.pointer]
-
-    def get_view(self):
-        return self.view
-
-    def set_color(self, color):
-        self.default_color = False
-        self.color = color
-
-    def set_coords(self, (p, q, x, y)):
-        self.coords = (p, q, x, y)
-
-    def set_pilot(self, player=None):
-        self.pilot = player
-
-    def set_spawn_point(self, (x, y)):
-        self.spawn_point = (x, y)
-
-    def set_teleport_point(self, (x, y)):
-        self.teleport_point = (x, y)
-
-    def set_view(self, view):
-        self.view = view

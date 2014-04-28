@@ -1,8 +1,13 @@
+"""Test melee weapon instance."""
+
 from lib.obj.meleeweapon import MeleeWeapon
 
 
 class TestMeleeWeapon(MeleeWeapon):
+    """Test melee weapon instance."""
 
     def __init__(self):
         super(TestMeleeWeapon, self).__init__(
-            ')', 'test melee weapon', (20, 25))
+                char=')',
+                name='test melee weapon',
+                damage=(20, 25))

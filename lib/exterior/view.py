@@ -22,9 +22,9 @@ class ExteriorView(View):
                             view[ny][nx] = '+'
                         else:
                             obj = l.get_objects((p, q, x, y))[-1]
-                            view[ny][nx] = obj.get_char()
-                            if not obj.is_default_color():
-                                colors[(nx, ny)] = obj.get_color()
+                            view[ny][nx] = obj.char
+                            if not obj.is_default_color:
+                                colors[(nx, ny)] = obj.color
                     nx += 1
             ny += 1
         for y, line in enumerate(view):

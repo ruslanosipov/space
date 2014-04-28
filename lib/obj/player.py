@@ -1,46 +1,49 @@
-import random
+"""Main characters."""
+
 import copy
+import random
 
 from lib.obj.mob import Mob
 
+
 class ItemCanNotBeEquipped(Exception):
-    pass
+    """Item can not be equipped."""
+
 
 class Player(Mob):
     """
     Main characters: happy '@'s running around the screen.
     """
 
+    unarmed_damage = (5, 15)
+
     def __init__(self, name):
         super(Player, self).__init__('@', name, 11)
+        self.color = (147, 112, 219)
+        self.interior = None  # Ship interior player belongs to.
         self.inventory = {}
-        self.target = None
-        self.pilot = False
-        self.interior = None
-        self.unarmed_damage = (5, 15)
-        self.equipment = {
-            'hands': None,
-            'torso': None,
-            'head': None}
+        self.is_looking = False
+        self.is_pilot = False
         self.look_coords = None
-        self.looking = False
-        self.set_color((147, 112, 219))
+        self.target = None
 
     #--------------------------------------------------------------------------
-    # equipment and inventory
+    # Equipment and inventory.
 
     def equip(self, item):
+        """Equip an item."""
         try:
-            slot = item.get_slot()
+            slot = item.slot
         except AttributeError:
             raise ItemCanNotBeEquipped
         if self.equipment[slot] is not None:
             self.inventory_add(self.equipment[slot])
         self.equipment[slot] = item
         if slot == 'torso':
-            self.char = item.get_player_char()
+            self.char = item.player_char
 
     def inventory_add(self, item, qty=1):
+        """Add item to an inventory."""
         for obj in self.inventory:
             if item == obj:
                 self.inventory[obj] += qty
@@ -49,8 +52,9 @@ class Player(Mob):
             self.inventory[item] = qty
 
     def inventory_remove_by_name(self, name):
+        """Remove item from inventory."""
         for item, qty in self.inventory.items():
-            if item.get_name() == name:
+            if item.name == name:
                 if qty > 1:
                     self.inventory[item] -= 1
                     return copy.deepcopy(item)
@@ -60,6 +64,7 @@ class Player(Mob):
         return False
 
     def unequip(self, slot='hands'):
+        """Unequip item in a given slot."""
         if slot not in self.equipment.keys() or self.equipment[slot] is None:
             return False
         item = self.equipment[slot]
@@ -69,90 +74,68 @@ class Player(Mob):
         return item
 
     #--------------------------------------------------------------------------
-    # messages
+    # Messages.
 
     def get_melee_attack_messages(self, target):
+        """Return attack messages for player and hostile."""
         if self.equipment['hands'] is None:
             player_msg = "You punch %s." % target
-            hostile_msg = "%s punches you!" % self.get_name()
+            hostile_msg = "%s punches you!" % self.name
         else:
-            weapon = self.equipment['hands'].get_name()
+            weapon = self.equipment['hands'].name
             player_msg = "You hit %s with a %s." % (target, weapon)
-            hostile_msg = "%s hits you with a %s." % (self.get_name(), weapon)
+            hostile_msg = "%s hits you with a %s." % (self.name, weapon)
         return player_msg, hostile_msg
 
     #--------------------------------------------------------------------------
-    # accessors
+    # Accessors.
 
-    def is_looking(self):
-        return self.looking
-
-    def is_pilot(self):
-        return self.pilot
-
-    def get_equipment(self, slot=None):
-        if slot is None:
-            return self.equipment
+    def get_equipment_slot(self, slot):
+        """Get equipment slot value."""
         try:
             return self.equipment[slot]
         except KeyError:
             return False
 
-    def get_inventory(self):
-        return self.inventory
-
-    def get_interior(self):
-        return self.interior
-
-    def get_look_coords(self):
-        return self.look_coords
-
     def get_melee_damage(self):
+        """Random damage within player's/weapon's damage values."""
         if self.equipment['hands'] is None:
             dmg_min, dmg_max = self.unarmed_damage
         else:
             try:
-                dmg_min, dmg_max = self.equipment['hands'].get_melee_damage()
+                dmg_min, dmg_max = self.equipment['hands'].melee_damage
             except AttributeError:
-                dmg_min, dmg_max = map(lambda x: x + 5, self.unarmed_damage)
+                dmg_min, dmg_max = [dmg + 5 for dmg in self.unarmed_damage]
         return random.randint(dmg_min, dmg_max)
 
     def get_ranged_damage(self):
+        """Random damage within weapon's min/max damage values."""
         try:
-            dmg_min, dmg_max = self.equipment['hands'].get_ranged_damage()
-            return random.randint(dmg_min, dmg_max)
+            dmg_min, dmg_max = self.equipment['hands'].ranged_damage
         except AttributeError:
             return False
-
-    def get_target(self):
-        return self.target
+        return random.randint(dmg_min, dmg_max)
 
     def is_gunman(self):
+        """Check if player is wielding a gun."""
         if self.equipment['hands'] is None:
             return False
         try:
-            return self.equipment['hands'].is_ranged_weapon()
+            return self.equipment['hands'].is_ranged_weapon
         except AttributeError:
             return False
 
-    def set_look_coords(self, (x, y)):
-        self.look_coords = (x, y)
-
-    def set_looking(self):
-        self.looking = False if self.looking else True
-        if not self.looking:
+    def toggle_looking(self):
+        """Toggle if player is in a looking mode."""
+        self.is_looking = False if self.is_looking else True
+        if not self.is_looking:
             self.look_coords = None
 
-    def set_pilot(self):
-        if self.pilot:
-            self.pilot = False
-            self.get_interior().get_spaceship().set_pilot()
+    def toggle_pilot(self):
+        """Toggle if player is in a pilot mode."""
+        if self.is_pilot:
+            self.is_pilot = False
+            self.interior.spaceship.pilot = None
         else:
-            self.pilot = True
-            self.get_interior().get_spaceship().set_pilot(self)
-
-    def set_interior(self, interior=None):
-        self.interior = interior
-
-    def set_target(self, target=None):
-        self.target = target
+            self.is_pilot = True
+            self.interior.spaceship.pilot = self

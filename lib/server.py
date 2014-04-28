@@ -77,7 +77,7 @@ class CommandProtocol(AMP):
         equipment = self.factory.game.get_equipment(self.uid)
         amp_equipment = []
         for k, v in equipment.items():
-            v = 'None' if v is None else v.get_name()
+            v = 'None' if v is None else v.name
             amp_equipment.append({'slot': k, 'item': v})
         logging.debug(
                 "%s:Request equipment, response: %s.", self.uid, amp_equipment)
@@ -88,7 +88,7 @@ class CommandProtocol(AMP):
         inventory = self.factory.game.get_inventory(self.uid)
         amp_inventory = []
         for item, qty in inventory.items():
-            amp_inventory.append({'item': item.get_name(), 'qty': qty})
+            amp_inventory.append({'item': item.name, 'qty': qty})
         logging.debug(
                 "%s:Request inventory, response: %s.", self.uid, amp_inventory)
         return {'inventory': amp_inventory}
@@ -110,7 +110,7 @@ class CommandProtocol(AMP):
     def set_equipment(self, equipment):
         amp_equipment = []
         for k, v in equipment.items():
-            v = 'None' if v is None else v.get_name()
+            v = 'None' if v is None else v.name
             amp_equipment.append({'slot': k, 'item': v})
         logging.debug("%s:Set equipment to %s.", self.uid, amp_equipment)
         return self.callRemote(commands.SetEquipment, equipment=amp_equipment)
@@ -118,7 +118,7 @@ class CommandProtocol(AMP):
     def set_inventory(self, inventory):
         amp_inventory = []
         for item, qty in inventory.items():
-            amp_inventory.append({'item': item.get_name(), 'qty': qty})
+            amp_inventory.append({'item': item.name, 'qty': qty})
         logging.debug("%s:Set inventory to %s.", self.uid, amp_inventory)
         return self.callRemote(commands.SetInventory, inventory=amp_inventory)
 

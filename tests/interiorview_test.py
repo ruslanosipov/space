@@ -18,7 +18,7 @@ class TestInteriorViewGenerate(unittest.TestCase):
         level = InteriorLevel()
         level.load_char_map(tiles_map, items_map, self.obj_defs)
         mike = Player('Mike')
-        mike.set_color((255, 0, 0))
+        mike.color = (255, 0, 0)
         level.add_player((2, 1), mike)
         self.view = InteriorView(level)
 

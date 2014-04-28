@@ -25,9 +25,9 @@ class InteriorView(View):
                             rel_look = (nx, ny)
                         if (x, y) in visible_tiles:
                             obj = l.get_objects((x, y))[-1]
-                            view[ny][nx] = obj.get_char()
-                            if not obj.is_default_color():
-                                colors[(nx, ny)] = obj.get_color()
+                            view[ny][nx] = obj.char
+                            if not obj.is_default_color:
+                                colors[(nx, ny)] = obj.color
         for y, line in enumerate(view):
             view[y] = ''.join(line)
         return view, colors, rel_pointer, rel_look

@@ -39,11 +39,11 @@ class Level(object):
                         f = eval(name)
                         obj = f()
                         try:
-                            obj.set_coords((x, y))
+                            obj.coords = (x, y)
                         except AttributeError:
                             pass
                         try:
-                            obj.set_interior(self)
+                            obj.interior = self
                         except AttributeError:
                             pass
                         level[y][x].append(obj)
@@ -87,7 +87,7 @@ class Level(object):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             raise IndexError("coordinates can not be outside the level")
         for obj in self.level[y][x]:
-            if obj.is_path_blocker():
+            if obj.is_path_blocker:
                 return True
         return False
 
@@ -95,7 +95,7 @@ class Level(object):
         if not 0 <= y < self.get_height() or not 0 <= x < self.get_width(y):
             raise IndexError("coordinates can not be outside the level")
         for obj in self.level[y][x]:
-            if obj.is_view_blocker():
+            if obj.is_view_blocker:
                 return True
         return False
 
@@ -104,9 +104,6 @@ class Level(object):
 
     def get_height(self):
         return len(self.level)
-
-    def get_level(self):
-        return self.level
 
     def get_width(self, y):
         return len(self.level[y])

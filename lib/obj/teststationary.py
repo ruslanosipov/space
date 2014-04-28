@@ -1,11 +1,13 @@
+"""Test stationary object instance."""
+
 from lib.obj.stationary import Stationary
 
 
 class TestStationary(Stationary):
+    """Test stationary object instance."""
 
     def __init__(self):
         super(TestStationary, self).__init__('/', 'test stationary')
 
     def activate(self):
-        msg = "You activate the %s..." % self.get_name()
-        return msg
+        return "You activate the %s..." % self.name

@@ -1,32 +1,25 @@
+"""Allows players to take control of the spaceship."""
+
 from lib.obj.stationary import Stationary
 
 
 class NavigationConsole(Stationary):
-    """
-    Allows players to take control of the spaceship by calling
-    activate() method.
-    """
+    """Allows players to take control of the spaceship."""
 
     def __init__(self):
         super(NavigationConsole, self).__init__(
-            'n',
-            'navigation console',
-            True)
+            char='n',
+            name='navigation console',
+            is_path_blocker=True)
         self.player = None
 
     def activate(self):
-        if self.player.get_interior().get_spaceship().get_pilot():
+        if self.player.interior.spaceship.pilot:
             msg = "Someone else is operating the console..."
-        elif self.player.get_interior().get_spaceship().is_alive():
-            self.player.set_pilot()
+        elif self.player.interior.spaceship.is_alive:
+            self.player.toggle_pilot()
             msg = "You are piloting the spaceship now..."
         else:
             msg = "The console is inoperable."
-        self.set_player()
+        self.player = None
         return msg
-
-    #--------------------------------------------------------------------------
-    # accessors
-
-    def set_player(self, player=None):
-        self.player = player

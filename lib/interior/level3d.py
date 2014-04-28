@@ -72,11 +72,11 @@ class Level3D(Level):
 
     def add_object(self, (x, y), obj, position=0):
         if super(Level3D, self).add_object((x, y), obj, position) is not False:
-            obj.set_coords((x, y))
-            obj.set_interior(self)
+            obj.coords = (x, y)
+            obj.interior = self
 
     def remove_player(self, player):
-        self.remove_object(player.get_coords(), player)
+        self.remove_object(player.coords, player)
         self.players.remove(player)
 
     #--------------------------------------------------------------------------
@@ -88,15 +88,3 @@ class Level3D(Level):
                 self.extra_tiles[(x, y)] = Space()
             return [self.extra_tiles[(x, y)]]
         return self.level[y][x]
-
-    #--------------------------------------------------------------------------
-    # accessors
-
-    def get_players(self):
-        return self.players
-
-    def get_spaceship(self):
-        return self.spaceship
-
-    def set_spaceship(self, spaceship):
-        self.spaceship = spaceship

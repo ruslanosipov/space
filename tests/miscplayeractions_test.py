@@ -34,12 +34,12 @@ class TestAddPlayer(unittest.TestCase):
 
     def test_player_can_be_added_with_default_spawn_point(self):
         misc.add_player('Mike', self.spaceship)
-        obj = self.spaceship.get_interior().get_objects((5, 5))[-1]
+        obj = self.spaceship.interior.get_objects((5, 5))[-1]
         self.assertTrue(isinstance(obj, Player))
 
     def test_player_can_be_added_with_custom_spawn_point(self):
         misc.add_player('Mike', self.spaceship, (0, 0))
-        obj = self.spaceship.get_interior().get_objects((0, 0))[-1]
+        obj = self.spaceship.interior.get_objects((0, 0))[-1]
         self.assertTrue(isinstance(obj, Player))
 
 
@@ -55,14 +55,14 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         self.player.inventory_add(TestItem())
         self.assertEqual(misc.drop_item(self.player, 'test item'),
                          "You drop a test item.")
-        obj = self.spaceship.get_interior().get_objects((5, 5))[-2]
+        obj = self.spaceship.interior.get_objects((5, 5))[-2]
         self.assertTrue(isinstance(obj, TestItem))
-        self.assertEqual(len(self.player.get_inventory()), 0)
+        self.assertEqual(len(self.player.inventory), 0)
 
     def test_drop_nonexistent_item(self):
         self.assertEqual(misc.drop_item(self.player, 'test item'),
                          "You do not have such an item.")
-        objects = self.spaceship.get_interior().get_objects((5, 5))
+        objects = self.spaceship.interior.get_objects((5, 5))
         for obj in objects:
             self.assertFalse(isinstance(obj, TestItem))
 
@@ -70,15 +70,14 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         item = TestItem()
         self.player.inventory_add(item, 3)
         misc.drop_item(self.player, 'test item')
-        self.assertEqual(self.player.get_inventory(), {item: 2})
-        obj = self.spaceship.get_interior().get_objects((5, 5))[-2]
+        self.assertEqual(self.player.inventory, {item: 2})
+        obj = self.spaceship.interior.get_objects((5, 5))[-2]
         self.assertTrue(isinstance(obj, TestItem))
 
     def test_equip_item_without_a_slot(self):
-        def method_does_not_exist():
-            raise AttributeError
         item = TestItem()
-        item.get_slot = method_does_not_exist
+        del item.slot
+        item.is_pickupable = True
         self.player.inventory_add(item)
         self.assertEqual(misc.equip_item(self.player, 'test item'),
                          "Item can not be equipped.")
@@ -92,7 +91,7 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         self.player.inventory_add(item, 2)
         self.assertEqual(misc.equip_item(self.player, 'test item'),
                          "You equip a test item.")
-        self.assertEqual(self.player.get_inventory(), {item: 1})
+        self.assertEqual(self.player.inventory, {item: 1})
 
     def test_equip_item(self):
         self.player.inventory_add(TestItem())
@@ -101,19 +100,19 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
 
     def test_pick_up_existing_object(self):
         item = TestItem()
-        self.spaceship.get_interior().add_object((1, 1), item)
+        self.spaceship.interior.add_object((1, 1), item)
         self.assertEqual(
             misc.pick_up_obj(
-                self.player, (1, 1), self.spaceship.get_interior()),
+                self.player, (1, 1), self.spaceship.interior),
             "You pick up a test item...")
         self.assertNotIn(
-            item, self.spaceship.get_interior().get_objects((1, 1)))
-        self.assertIn(item, self.player.get_inventory().keys())
+            item, self.spaceship.interior.get_objects((1, 1)))
+        self.assertIn(item, self.player.inventory.keys())
 
     def test_pick_up_nonexistent_object(self):
         self.assertEqual(
             misc.pick_up_obj(
-                self.player, (1, 1), self.spaceship.get_interior()),
+                self.player, (1, 1), self.spaceship.interior),
             "Nothing to pick up here...")
 
     def test_unequip_item(self):
@@ -122,7 +121,7 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         misc.equip_item(self.player, 'test item')
         self.assertEqual(misc.unequip_item(self.player, 'hands'),
                          "You unequip a test item.")
-        self.assertEqual(self.player.get_inventory(), {item: 1})
+        self.assertEqual(self.player.inventory, {item: 1})
 
     def test_unequip_item_from_invalid_slot(self):
         item = TestItem()
@@ -130,7 +129,7 @@ class TestEquipmentAndInventoryInteraction(unittest.TestCase):
         misc.equip_item(self.player, 'test item')
         self.assertEqual(misc.unequip_item(self.player, 'invalid'),
                          "You do not have an item in this slot.")
-        self.assertEqual(self.player.get_inventory(), {})
+        self.assertEqual(self.player.inventory, {})
 
     def test_attempt_to_unequip_empty_slot(self):
         self.assertEqual(misc.unequip_item(self.player, 'hands'),
@@ -151,13 +150,13 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
     def test_moving_is_possible(self):
         self.assertEqual(
             misc.move(self.player, (1, 0), self.level, self.chatserver), '')
-        self.assertEqual(self.player.get_coords(), (1, 0))
+        self.assertEqual(self.player.coords, (1, 0))
 
     def test_some_objects_obstruct_path(self):
         self.assertEqual(
             misc.move(self.player, (0, 1), self.level, self.chatserver),
             "Your path is obstructed by the test blocking stationary...")
-        self.assertEqual(self.player.get_coords(), (0, 0))
+        self.assertEqual(self.player.coords, (0, 0))
 
     def test_moving_into_player_attacks_player(self):
         hostile = Player('Josh')
@@ -170,7 +169,7 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
         self.assertEqual(
             self.chatserver.get_recent_for_recipient(hostile),
             [('Mike punches you!', 3)])
-        self.assertLess(hostile.get_health(), 100)
+        self.assertLess(hostile.health, 100)
 
 
 class TestTargetAndFire(unittest.TestCase):
@@ -187,12 +186,12 @@ class TestTargetAndFire(unittest.TestCase):
     def test_target_can_be_set(self):
         self.assertEqual(
             misc.set_target(self.player, self.level, [(0, 0), (1, 0)]), '')
-        self.assertEqual(self.player.get_target(), (1, 0))
+        self.assertEqual(self.player.target, (1, 0))
 
     def test_target_can_not_be_set_if_no_visible_players(self):
         self.assertEqual(misc.set_target(self.player, self.level, [(0, 0)]),
                          'No suitable target found...')
-        self.assertIsNone(self.player.get_target())
+        self.assertIsNone(self.player.target)
 
     def test_weapon_is_required_to_fire(self):
         self.assertEqual(
@@ -218,7 +217,7 @@ class TestTargetAndFire(unittest.TestCase):
         self.assertEqual(
             self.chatserver.get_recent_for_recipient(self.hostile),
             [('Mike shoots at you.', 3)])
-        self.assertLess(self.hostile.get_health(), 100)
+        self.assertLess(self.hostile.health, 100)
 
 
 class TestLook(unittest.TestCase):
