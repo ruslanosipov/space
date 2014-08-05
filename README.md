@@ -7,7 +7,7 @@
 (https://coveralls.io/r/ruslanosipov/space)
 
 Space is a multiplayer roguelike game with ship vs ship and crew vs crew
-battles. 
+battles.
 
 ## Key bindings
 
@@ -62,13 +62,21 @@ use tpope's commit message guidelines (for details see
 
 ## Dependencies
 
-Currently the game does not require a lot to run, and I would prefer to keep
-it that way. It uses virtualenv and pip bundle, so you can set up the
-environment as follows:
+The game uses virtualenv and pip bundle, but `pygame` module needs to be
+installed separately (this dependency is to be removed in the future).
+
+Mac OS X, via `homebrew`:
+
+    brew tap homebrew/python
+    brew update
+    brew install pygame
+
+Linux, via `apt-get`:
+
+    sudo apt-get install python-pygame
+
+After `pygame` is installed, run:
 
     virtualenv env
     . env/bin/activate
     pip install -r requirements.txt
-
-There might be an issue with installing pygame package via pip - don't forget
-to install the dependencies in this case.
