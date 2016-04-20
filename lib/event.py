@@ -37,10 +37,14 @@ class Event(object):
         self.keys = {
             'dir': {
                 'keys': {
+                    'b': ('prev', 'arg', (-1, 1)),
                     'h': ('prev', 'arg', (-1, 0)),
                     'j': ('prev', 'arg', (0, 1)),
                     'k': ('prev', 'arg', (0, -1)),
                     'l': ('prev', 'arg', (1, 0)),
+                    'n': ('prev', 'arg', (1, 1)),
+                    'u': ('prev', 'arg', (1, -1)),
+                    'y': ('prev', 'arg', (-1, -1)),
                     'any': ('prev', 'arg', False)},
                 'temp': True},
             'eqp': {
@@ -61,10 +65,14 @@ class Event(object):
                 'temp': False},
             'look': {
                 'keys': {
+                    'b': (None, 'look_dir', (-1, 1)),
                     'h': (None, 'look_dir', (-1, 0)),
                     'j': (None, 'look_dir', (0, 1)),
                     'k': (None, 'look_dir', (0, -1)),
                     'l': (None, 'look_dir', (1, 0)),
+                    'n': (None, 'look_dir', (1, 1)),
+                    'u': (None, 'look_dir', (1, -1)),
+                    'y': (None, 'look_dir', (-1, -1)),
                     'Q': ('normal', 'look_done', 1)},
                 'temp': False},
             'normal': {
@@ -72,10 +80,14 @@ class Event(object):
                     'a': ('dir', 'activate', None),
                     'f': (None, 'fire', 1),
                     'i': ('inv', 'inventory', 1),
+                    'b': (None, 'move', (-1, 1)),
                     'h': (None, 'move', (-1, 0)),
                     'j': (None, 'move', (0, 1)),
                     'k': (None, 'move', (0, -1)),
                     'l': (None, 'move', (1, 0)),
+                    'n': (None, 'move', (1, 1)),
+                    'u': (None, 'move', (1, -1)),
+                    'y': (None, 'move', (-1, -1)),
                     't': (None, 'target', 1),
                     'v': ('look', 'look', 1),
                     'E': ('eqp', 'equipment', 1),

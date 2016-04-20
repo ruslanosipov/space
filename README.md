@@ -15,10 +15,14 @@ battles.
 
 | Key     | Player      | Spaceship    |
 | :------ | ----------- | -----------: |
-| `h`     | move left   | rotate left  |
-| `j`     | move down   | decelerate   |
-| `k`     | move up     | accelerate   |
-| `l`     | move right  | rotate right |
+| `h`     | move West   | rotate left  |
+| `j`     | move South  | decelerate   |
+| `k`     | move North  | accelerate   |
+| `l`     | move East   | rotate right |
+| `y`     | move NW     | -            |
+| `u`     | move NE     | -            |
+| `b`     | move SW     | -            |
+| `n`     | move SE     | -            |
 | `t`     | set target  | -            |
 | `f`     | fire        | fire missile |
 | `v`     | look        | -            |
