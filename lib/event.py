@@ -93,6 +93,8 @@ class Event(object):
                     'E': ('eqp', 'equipment', 1),
                     'Q': (None, 'quit', 1),
                     ',': (None, 'pickup', (0, 0)),
+                    '<': (None, 'cycle_target', True),
+                    '>': (None, 'cycle_target', False),
                     '/': ('insert', 'say', None)},
                 'temp': False},
             'pilot': {

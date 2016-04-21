@@ -176,16 +176,29 @@ class TestTargetAndFire(unittest.TestCase):
 
     def setUp(self):
         self.level = InteriorLevel()
-        char_map, obj_defs = [[['.'], ['.']]], {'.': 'TestTile'}
+        char_map, obj_defs = [
+            [['.'], ['.'], ['.'], ['.']],
+            [['.'], ['.'], ['.'], ['.']],
+            [['.'], ['.'], ['.'], ['.']]], {'.': 'TestTile'}
         self.level.load_converted_char_map(char_map, obj_defs)
         self.player, self.hostile = Player('Mike'), Player('Josh')
         self.level.add_player((0, 0), self.player)
         self.level.add_player((1, 0), self.hostile)
         self.chatserver = ChatServer()
 
-    def test_target_can_be_set(self):
+    def test_target_can_be_set_with_single_foe(self):
         self.assertEqual(
             misc.set_target(self.player, self.level, [(0, 0), (1, 0)]), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_target_is_set_to_closest_foe(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+
+        self.assertEqual(misc.set_target(
+            self.player, self.level, [(0, 0), (1, 0), (2, 2), (3, 0)]), '')
         self.assertEqual(self.player.target, (1, 0))
 
     def test_target_can_not_be_set_if_no_visible_players(self):

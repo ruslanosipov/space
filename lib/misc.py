@@ -1,4 +1,6 @@
 import ast
+import heapq
+import math
 import random
 
 from lib.obj.corpse import Corpse
@@ -215,11 +217,19 @@ def set_target(player, level, visible_tiles):
         player.coords,
         player.sight,
         visible_tiles)
-    if len(targets):
-        # TODO: implement switching between targets
+    if len(targets) == 0:
+        status = 'No suitable target found...'
+    elif len(targets) == 1:
         player.target = targets[0]
     else:
-        status = 'No suitable target found...'
+        targets_by_distance = []
+        player_x, player_y = player.coords
+        for i, (x, y) in enumerate(targets):
+            heapq.heappush(targets_by_distance, (math.sqrt(
+                (max(player_x, x) - min(player_x, x)) ** 2 +
+                (max(player_y, y) - min(player_y, x))), i))
+        _, closest_index = heapq.heappop(targets_by_distance)
+        player.target = targets[closest_index]
     return status
 
 
