@@ -59,6 +59,8 @@ class GameClient(object):
         if events:
             evt, evt_arg = events
             self.evt_mode = self.event.get_mode()
+            logging.debug("Received event. Mode: {}, event: {}, args: {}.".format(
+                self.evt_mode, evt, evt_arg))
 
             if evt == 'quit':
                 self.command.stop()

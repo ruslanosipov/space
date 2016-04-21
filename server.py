@@ -55,6 +55,10 @@ class GameServer(object):
             if not data:
                 continue
             for evt, arg in data:
+                logging.debug(
+                    "Received event '{}' with args '{}' from client {}.".format(
+                        evt, arg, uid))
+
                 if uid in self.players:
                     player, client = self.players[uid], self.clients[uid]
                 if evt == 'connect' and uid not in self.players:
@@ -73,6 +77,7 @@ class GameServer(object):
                         'target': [None, None],
                         'look_coords': [None, None]}
                     client = self.clients[uid]
+
                 spaceship = player.interior.spaceship
                 if not player.is_alive:
                     continue

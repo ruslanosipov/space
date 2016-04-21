@@ -78,7 +78,7 @@ class Event(object):
             'normal': {
                 'keys': {
                     'a': ('dir', 'activate', None),
-                    'f': (None, 'fire', 1),
+                    'f': (None, 'int_fire', 1),
                     'i': ('inv', 'inventory', 1),
                     'b': (None, 'move', (-1, 1)),
                     'h': (None, 'move', (-1, 0)),
