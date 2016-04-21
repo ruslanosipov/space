@@ -108,6 +108,10 @@ class Player(Mob):
                 dmg_min, dmg_max = [dmg + 5 for dmg in self.unarmed_damage]
         return random.randint(dmg_min, dmg_max)
 
+    def get_ranged_accuracy(self):
+        """Number from 0 to a 100, chance of hitting the target."""
+        return self.equipment['hands'].ranged_accuracy
+
     def get_ranged_damage(self):
         """Random damage within weapon's min/max damage values."""
         try:

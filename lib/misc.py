@@ -1,4 +1,5 @@
 import ast
+import random
 
 from lib.obj.corpse import Corpse
 from lib.obj.player import ItemCanNotBeEquipped
@@ -113,9 +114,13 @@ def interior_fire(player, level, chat):
         return "You have no weapon to fire from..."
     if target:
         hostile = level.get_player(target)
-        hostile.receive_damage(player.get_ranged_damage())
         msg = 'You shoot at %s.' % hostile.name
         hostile_msg = '%s shoots at you.' % player.name
+        if random.randint(0, 99) < player.get_ranged_accuracy():
+            hostile.receive_damage(player.get_ranged_damage())
+        else:
+            msg += ' You miss.'
+            hostile_msg += ' %s misses.' % player.name
         if not hostile.is_alive:
             level.remove_object(target, hostile)
             level.add_object(target, Corpse(hostile.name))

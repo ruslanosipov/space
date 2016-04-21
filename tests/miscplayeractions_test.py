@@ -205,8 +205,10 @@ class TestTargetAndFire(unittest.TestCase):
             misc.interior_fire(self.player, self.level, self.chatserver),
             "Target is not set...")
 
-    def test_can_fire_at_other_player(self):
-        self.player.inventory_add(TestRangedWeapon())
+    def test_can_fire_at_other_player_with_100_accuracy(self):
+        weapon = TestRangedWeapon()
+        weapon.ranged_accuracy = 100
+        self.player.inventory_add(weapon)
         misc.equip_item(self.player, 'test ranged weapon')
         misc.set_target(self.player, self.level, [(0, 0), (1, 0)])
         self.assertEqual(
@@ -218,6 +220,22 @@ class TestTargetAndFire(unittest.TestCase):
             self.chatserver.get_recent_for_recipient(self.hostile),
             [('Mike shoots at you.', 3)])
         self.assertLess(self.hostile.health, 100)
+
+    def test_fire_and_miss_with_0_accuracy(self):
+        weapon = TestRangedWeapon()
+        weapon.ranged_accuracy = 0
+        self.player.inventory_add(weapon)
+        misc.equip_item(self.player, 'test ranged weapon')
+        misc.set_target(self.player, self.level, [(0, 0), (1, 0)])
+        self.assertEqual(
+            misc.interior_fire(self.player, self.level, self.chatserver), '')
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.player),
+            [('You shoot at Josh. You miss.', 3)])
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.hostile),
+            [('Mike shoots at you. Mike misses.', 3)])
+        self.assertEquals(self.hostile.health, 100)
 
 
 class TestLook(unittest.TestCase):

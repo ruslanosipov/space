@@ -10,5 +10,6 @@ class LaserGun(RangedWeapon):
         super(LaserGun, self).__init__(
                 char='}',
                 name='laser gun',
-                damage=(25, 40))
+                damage=(25, 40),
+                accuracy=50)
         self.color = (255, 0, 0)

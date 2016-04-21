@@ -10,4 +10,5 @@ class TestRangedWeapon(RangedWeapon):
         super(TestRangedWeapon, self).__init__(
             char='}',
             name='test ranged weapon',
-            damage=(10, 20))
+            damage=(10, 20),
+            accuracy=100)
