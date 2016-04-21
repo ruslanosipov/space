@@ -140,7 +140,10 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
 
     def setUp(self):
         self.level = InteriorLevel()
-        char_map = [[['.'], ['.']], [['.', '+'], ['.']]]
+        char_map = [
+            [['.'], ['.']],
+            [['.', '+'], ['.']],
+            [['.'], ['.']]]
         obj_defs = {'.': 'TestTile', '+': 'TestStationaryBlocking'}
         self.level.load_converted_char_map(char_map, obj_defs)
         self.player = Player('Mike')
@@ -151,6 +154,14 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
         self.assertEqual(
             misc.move(self.player, (1, 0), self.level, self.chatserver), '')
         self.assertEqual(self.player.coords, (1, 0))
+
+    def test_moving_updates_other_players_target(self):
+        hostile = Player('Tom')
+        hostile.target = (0, 0)
+        self.level.add_player((0, 2), hostile)
+        self.assertEqual(
+            misc.move(self.player, (1, 0), self.level, self.chatserver), '')
+        self.assertEqual(hostile.target, (1, 0))
 
     def test_some_objects_obstruct_path(self):
         self.assertEqual(

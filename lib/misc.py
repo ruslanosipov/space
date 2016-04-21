@@ -142,6 +142,10 @@ def move(player, (x, y), level, chat):
     status = ''
     hostile = level.get_player((x, y))
     if not level.is_path_blocker((x, y)):
+        # Update other players' targets first.
+        for hostile in level.players:
+            if player.coords == hostile.target:
+                hostile.target = (x, y)
         level.move_object(player.coords, (x, y), player)
         player.coords = (x, y)
     elif hostile:

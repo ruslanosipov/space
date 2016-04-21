@@ -37,7 +37,7 @@ class Level3D(Level):
 
     def get_nearest_players_coords(self, (x0, y0), eyesight, visible):
         """
-        Returns list of coordinates, nearest first
+        Returns list of coordinates, nearest first.
         """
         players = []
         for y in xrange(y0 - eyesight, y0 + eyesight + 1):

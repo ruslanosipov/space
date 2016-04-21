@@ -155,6 +155,10 @@ class GameServer(object):
                     player.coords,
                     int_radius,
                     player.sight)
+                # A well working hack to make sure player's target is always
+                # visible (to avoid tracking enemies through walls).
+                if player.target not in visible_tiles:
+                    player.target = None
             for evt, arg in data:
                 msg = None
                 if evt == 'target':
