@@ -1,4 +1,5 @@
 import ast
+import random
 
 from lib.obj.corpse import Corpse
 from lib.obj.player import ItemCanNotBeEquipped
@@ -113,9 +114,13 @@ def interior_fire(player, level, chat):
         return "You have no weapon to fire from..."
     if target:
         hostile = level.get_player(target)
-        hostile.receive_damage(player.get_ranged_damage())
         msg = 'You shoot at %s.' % hostile.name
         hostile_msg = '%s shoots at you.' % player.name
+        if random.randint(0, 99) < player.get_ranged_accuracy():
+            hostile.receive_damage(player.get_ranged_damage())
+        else:
+            msg += ' You miss.'
+            hostile_msg += ' %s misses.' % player.name
         if not hostile.is_alive:
             level.remove_object(target, hostile)
             level.add_object(target, Corpse(hostile.name))
@@ -135,6 +140,10 @@ def move(player, (x, y), level, chat):
     status = ''
     hostile = level.get_player((x, y))
     if not level.is_path_blocker((x, y)):
+        # Update other players' targets first.
+        for hostile in level.players:
+            if player.coords == hostile.target:
+                hostile.target = (x, y)
         level.move_object(player.coords, (x, y), player)
         player.coords = (x, y)
     elif hostile:
@@ -200,21 +209,29 @@ def pick_up_obj(player, (x, y), level):
     return msg
 
 
-def set_target(player, level, visible_tiles):
+def set_target(player, use_closest_target=True, shift=1):
     """
-    Sets a target for a player if one is within visible_tiles. Returns
+    Sets a target for a player if one is within visible tiles. Returns
     string.
+
+    Args:
+        player -- lib.obj.player.Player instance.
+        use_closest_target -- always set to closest target.
+        shift -- either +1 or -1, shift current target further/closer.
     """
     status = ''
-    targets = level.get_nearest_players_coords(
-        player.coords,
-        player.sight,
-        visible_tiles)
-    if len(targets):
-        # TODO: implement switching between targets
-        player.target = targets[0]
-    else:
+    if len(player.visible_targets) == 0:
         status = 'No suitable target found...'
+    elif use_closest_target or player.target is None:
+        player.target = player.visible_targets[0]  # Already sorted by distance.
+    else:
+        current_i = player.visible_targets.index(player.target)
+        current_i += shift
+        if current_i >= len(player.visible_targets):
+            current_i -= len(player.visible_targets)
+        elif current_i < 0:
+            current_i += len(player.visible_targets)
+        player.target = player.visible_targets[current_i]
     return status
 
 

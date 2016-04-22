@@ -24,6 +24,8 @@ battles.
 | `b`     | move SW     | -            |
 | `n`     | move SE     | -            |
 | `t`     | set target  | -            |
+| `>`     | next target | -            |
+| `<`     | prev target | -            |
 | `f`     | fire        | fire missile |
 | `v`     | look        | -            |
 | `a`     | activate    | -            |

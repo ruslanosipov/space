@@ -140,7 +140,10 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
 
     def setUp(self):
         self.level = InteriorLevel()
-        char_map = [[['.'], ['.']], [['.', '+'], ['.']]]
+        char_map = [
+            [['.'], ['.']],
+            [['.', '+'], ['.']],
+            [['.'], ['.']]]
         obj_defs = {'.': 'TestTile', '+': 'TestStationaryBlocking'}
         self.level.load_converted_char_map(char_map, obj_defs)
         self.player = Player('Mike')
@@ -151,6 +154,14 @@ class TestMoveAndMeleeAttack(unittest.TestCase):
         self.assertEqual(
             misc.move(self.player, (1, 0), self.level, self.chatserver), '')
         self.assertEqual(self.player.coords, (1, 0))
+
+    def test_moving_updates_other_players_target(self):
+        hostile = Player('Tom')
+        hostile.target = (0, 0)
+        self.level.add_player((0, 2), hostile)
+        self.assertEqual(
+            misc.move(self.player, (1, 0), self.level, self.chatserver), '')
+        self.assertEqual(hostile.target, (1, 0))
 
     def test_some_objects_obstruct_path(self):
         self.assertEqual(
@@ -176,20 +187,89 @@ class TestTargetAndFire(unittest.TestCase):
 
     def setUp(self):
         self.level = InteriorLevel()
-        char_map, obj_defs = [[['.'], ['.']]], {'.': 'TestTile'}
+        char_map, obj_defs = [
+            [['.'], ['.'], ['.'], ['.']],
+            [['.'], ['.'], ['.'], ['.']],
+            [['.'], ['.'], ['.'], ['.']]], {'.': 'TestTile'}
         self.level.load_converted_char_map(char_map, obj_defs)
         self.player, self.hostile = Player('Mike'), Player('Josh')
+        self.player.visible_targets = [(1, 0)]
         self.level.add_player((0, 0), self.player)
         self.level.add_player((1, 0), self.hostile)
         self.chatserver = ChatServer()
 
-    def test_target_can_be_set(self):
-        self.assertEqual(
-            misc.set_target(self.player, self.level, [(0, 0), (1, 0)]), '')
+    def test_target_can_be_set_with_single_foe(self):
+        self.assertEqual(misc.set_target(self.player), '')
         self.assertEqual(self.player.target, (1, 0))
 
+    def test_target_is_set_to_closest_foe(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+
+        self.assertEqual(misc.set_target(self.player), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_if_target_is_none_target_is_set_to_closest_foe_when_cycled(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+        self.player.target = None
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_closer(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_further(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (3, 0))
+
+    def test_cycle_target_to_beggining(self):
+        self.second_hostile = Player('Tim')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_to_end(self):
+        self.second_hostile = Player('Tim')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2)]
+        self.player.target = (1, 0)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (2, 2))
+
     def test_target_can_not_be_set_if_no_visible_players(self):
-        self.assertEqual(misc.set_target(self.player, self.level, [(0, 0)]),
+        self.player.visible_targets = []
+
+        self.assertEqual(misc.set_target(self.player),
                          'No suitable target found...')
         self.assertIsNone(self.player.target)
 
@@ -205,8 +285,10 @@ class TestTargetAndFire(unittest.TestCase):
             misc.interior_fire(self.player, self.level, self.chatserver),
             "Target is not set...")
 
-    def test_can_fire_at_other_player(self):
-        self.player.inventory_add(TestRangedWeapon())
+    def test_can_fire_at_other_player_with_100_accuracy(self):
+        weapon = TestRangedWeapon()
+        weapon.ranged_accuracy = 100
+        self.player.inventory_add(weapon)
         misc.equip_item(self.player, 'test ranged weapon')
         misc.set_target(self.player, self.level, [(0, 0), (1, 0)])
         self.assertEqual(
@@ -218,6 +300,22 @@ class TestTargetAndFire(unittest.TestCase):
             self.chatserver.get_recent_for_recipient(self.hostile),
             [('Mike shoots at you.', 3)])
         self.assertLess(self.hostile.health, 100)
+
+    def test_fire_and_miss_with_0_accuracy(self):
+        weapon = TestRangedWeapon()
+        weapon.ranged_accuracy = 0
+        self.player.inventory_add(weapon)
+        misc.equip_item(self.player, 'test ranged weapon')
+        misc.set_target(self.player, self.level, [(0, 0), (1, 0)])
+        self.assertEqual(
+            misc.interior_fire(self.player, self.level, self.chatserver), '')
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.player),
+            [('You shoot at Josh. You miss.', 3)])
+        self.assertEqual(
+            self.chatserver.get_recent_for_recipient(self.hostile),
+            [('Mike shoots at you. Mike misses.', 3)])
+        self.assertEquals(self.hostile.health, 100)
 
 
 class TestLook(unittest.TestCase):
