@@ -12,7 +12,9 @@ Options:
     --help -h       Show this screen.
 """
 
+import heapq
 import logging
+import math
 
 import docopt
 
@@ -155,15 +157,30 @@ class GameServer(object):
                     player.coords,
                     int_radius,
                     player.sight)
+                # Recalculate visible targets.
+                visible_targets = int_level.get_nearest_players_coords(
+                    player.coords,
+                    player.sight,
+                    visible_tiles)
+                targets_by_distance = []
+                player_x, player_y = player.coords
+                for i, (x, y) in enumerate(visible_targets):
+                    heapq.heappush(targets_by_distance, (math.sqrt(
+                        (max(player_x, x) - min(player_x, x)) ** 2 +
+                        (max(player_y, y) - min(player_y, x))), (x, y)))
+                player.visible_targets = [
+                        item[1] for item in targets_by_distance]
                 # A well working hack to make sure player's target is always
                 # visible (to avoid tracking enemies through walls).
-                if player.target not in visible_tiles:
+                if player.target not in player.visible_targets:
                     player.target = None
             for evt, arg in data:
                 msg = None
                 if evt == 'target':
+                    client['top_status_bar'][-1] = misc.set_target(player)
+                elif evt == 'cycle_target':
                     client['top_status_bar'][-1] = misc.set_target(
-                        player, int_level, visible_tiles)
+                        player, use_closest_target=False, shift=arg)
                 elif evt == 'look':
                     client['top_status_bar'][-1] = misc.look(
                         player, (0, 0),

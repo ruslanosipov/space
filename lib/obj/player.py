@@ -26,6 +26,7 @@ class Player(Mob):
         self.is_pilot = False
         self.look_coords = None
         self.target = None
+        self.visible_targets = None
 
     #--------------------------------------------------------------------------
     # Equipment and inventory.

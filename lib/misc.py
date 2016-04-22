@@ -1,6 +1,4 @@
 import ast
-import heapq
-import math
 import random
 
 from lib.obj.corpse import Corpse
@@ -211,29 +209,29 @@ def pick_up_obj(player, (x, y), level):
     return msg
 
 
-def set_target(player, level, visible_tiles):
+def set_target(player, use_closest_target=True, shift=1):
     """
-    Sets a target for a player if one is within visible_tiles. Returns
+    Sets a target for a player if one is within visible tiles. Returns
     string.
+
+    Args:
+        player -- lib.obj.player.Player instance.
+        use_closest_target -- always set to closest target.
+        shift -- either +1 or -1, shift current target further/closer.
     """
     status = ''
-    targets = level.get_nearest_players_coords(
-        player.coords,
-        player.sight,
-        visible_tiles)
-    if len(targets) == 0:
+    if len(player.visible_targets) == 0:
         status = 'No suitable target found...'
-    elif len(targets) == 1:
-        player.target = targets[0]
+    elif use_closest_target or player.target is None:
+        player.target = player.visible_targets[0]  # Already sorted by distance.
     else:
-        targets_by_distance = []
-        player_x, player_y = player.coords
-        for i, (x, y) in enumerate(targets):
-            heapq.heappush(targets_by_distance, (math.sqrt(
-                (max(player_x, x) - min(player_x, x)) ** 2 +
-                (max(player_y, y) - min(player_y, x))), i))
-        _, closest_index = heapq.heappop(targets_by_distance)
-        player.target = targets[closest_index]
+        current_i = player.visible_targets.index(player.target)
+        current_i += shift
+        if current_i >= len(player.visible_targets):
+            current_i -= len(player.visible_targets)
+        elif current_i < 0:
+            current_i += len(player.visible_targets)
+        player.target = player.visible_targets[current_i]
     return status
 
 

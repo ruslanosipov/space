@@ -193,13 +193,13 @@ class TestTargetAndFire(unittest.TestCase):
             [['.'], ['.'], ['.'], ['.']]], {'.': 'TestTile'}
         self.level.load_converted_char_map(char_map, obj_defs)
         self.player, self.hostile = Player('Mike'), Player('Josh')
+        self.player.visible_targets = [(1, 0)]
         self.level.add_player((0, 0), self.player)
         self.level.add_player((1, 0), self.hostile)
         self.chatserver = ChatServer()
 
     def test_target_can_be_set_with_single_foe(self):
-        self.assertEqual(
-            misc.set_target(self.player, self.level, [(0, 0), (1, 0)]), '')
+        self.assertEqual(misc.set_target(self.player), '')
         self.assertEqual(self.player.target, (1, 0))
 
     def test_target_is_set_to_closest_foe(self):
@@ -207,13 +207,69 @@ class TestTargetAndFire(unittest.TestCase):
         self.third_hostile = Player('Steve')
         self.level.add_player((2, 2), self.second_hostile)
         self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
 
-        self.assertEqual(misc.set_target(
-            self.player, self.level, [(0, 0), (1, 0), (2, 2), (3, 0)]), '')
+        self.assertEqual(misc.set_target(self.player), '')
         self.assertEqual(self.player.target, (1, 0))
 
+    def test_if_target_is_none_target_is_set_to_closest_foe_when_cycled(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+        self.player.target = None
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_closer(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_further(self):
+        self.second_hostile = Player('Tim')
+        self.third_hostile = Player('Steve')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.level.add_player((3, 0), self.third_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2), (3, 0)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (3, 0))
+
+    def test_cycle_target_to_beggining(self):
+        self.second_hostile = Player('Tim')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2)]
+        self.player.target = (2, 2)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=1), '')
+        self.assertEqual(self.player.target, (1, 0))
+
+    def test_cycle_target_to_end(self):
+        self.second_hostile = Player('Tim')
+        self.level.add_player((2, 2), self.second_hostile)
+        self.player.visible_targets = [(1, 0), (2, 2)]
+        self.player.target = (1, 0)
+
+        self.assertEqual(misc.set_target(self.player, use_closest_target=False, shift=-1), '')
+        self.assertEqual(self.player.target, (2, 2))
+
     def test_target_can_not_be_set_if_no_visible_players(self):
-        self.assertEqual(misc.set_target(self.player, self.level, [(0, 0)]),
+        self.player.visible_targets = []
+
+        self.assertEqual(misc.set_target(self.player),
                          'No suitable target found...')
         self.assertIsNone(self.player.target)
 
