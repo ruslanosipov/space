@@ -89,21 +89,21 @@ class GameClient(object):
                     d = self.command.callCommand('query_equipment')
                     d.addCallback(getattr(self, 'set_equipment'))
                 self.evt, self.evt_arg = None, None
-            self.ui.set_evt_mode_desc('')
+            self.ui.evt_mode_desc = ''
             self.require_arg = False
             if self.evt in ['say']:
-                self.ui.set_prompt('')
+                self.ui.prompt = ''
             self.event.collapse_current_layout()
         elif evt_arg is None:
             self.evt = evt
             self.require_arg = True
-            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
+            self.ui.evt_mode_desc = evt.capitalize() + '...'
         elif evt in ['inventory', 'equipment']:
             d = self.command.callCommand('query_%s' % evt)
             d.addCallback(getattr(self, 'set_%s' % evt))
         elif evt == 'reset_right_pane':
             self.event.collapse_current_layout()
-            self.ui.set_mode()
+            self.ui.mode = 'chat'
         else:
             self.evt, self.evt_arg = evt, evt_arg
 
@@ -112,10 +112,10 @@ class GameClient(object):
 
     def _process_insert(self, evt, evt_arg):
         if evt == 'insert_type':
-            self.ui.set_prompt(evt_arg)
+            self.ui.prompt = evt_arg
         else:
             self.evt = evt
-            self.ui.set_evt_mode_desc(evt.capitalize() + '...')
+            self.ui.evt_mode_desc = evt.capitalize() + '...'
             self.require_arg = True
 
     def _draw_screen(self):
@@ -128,77 +128,77 @@ class GameClient(object):
 
     def add_chat_messages(self, messages):
         self.chat.add_multiple(messages)
-        self.ui.set_chat_log(self.chat.get_log())
+        self.ui.chat_log = self.chat.get_log()
 
     def set_bottom_status_bar(self, text):
-        self.ui.set_bottom_status_bar(text)
+        self.ui.bottom_status_bar = text
 
     def set_command(self, command):
         self.command = command
 
     def set_equipment(self, equipment):
-        self.ui.set_equipment(equipment)
+        self.ui.equipment = equipment
         self.evt_mode = 'equipment'
         self.event.set_mode('eqp')
-        self.ui.set_mode('equipment')
+        self.ui.mode = self.evt_mode
 
     def set_inventory(self, inventory):
-        self.ui.set_inventory(inventory)
+        self.ui.inventor = inventory
         self.evt_mode = 'inventory'
         self.event.set_mode('inv')
-        self.ui.set_mode('inventory')
+        self.ui.mode = self.evt_mode
 
     def set_look_pointer(self, (x, y)):
-        self.ui.set_look_pointer((x, y))
+        self.ui.look_pointer = (x, y)
 
     def set_pilot(self, is_pilot):
         if is_pilot:
             self.event.set_mode('pilot')
         elif not is_pilot and self.evt_mode == 'pilot':
             self.event.set_mode('normal')
-        self.ui.set_pilot_mode()
+        self.ui.toggle_pilot()
 
     def set_target(self, (x, y)):
-        self.ui.set_target((x, y))
+        self.ui.target = (x, y)
 
     def set_top_status_bar(self, text):
         ver = 'v0.3.1-alpha'
         text += ' ' * (80 - len(text) - len(ver)) + ver
-        self.ui.set_top_status_bar(text)
+        self.ui.top_status_bar = text
 
     def set_view(self, view, colors):
-        self.ui.set_view_field(view)
-        self.ui.set_colors(colors)
+        self.ui.view_field = view
+        self.ui.colors = colors
 
     def setup_drop(self):
-        inventory = self.ui.get_inventory()
+        inventory = self.ui.inventory
         inventory_keys = inventory.keys()
         keys = self.event.extend_current_layout('arg', inventory_keys)
         inventory_keys = [
             '%s %s' % (k, i) for k, i in zip(keys, inventory_keys)]
-        self.ui.set_inventory(dict(zip(inventory_keys, inventory.values())))
+        self.ui.inventory = dict(zip(inventory_keys, inventory.values()))
 
     def setup_equip(self):
-        inventory = self.ui.get_inventory()
+        inventory = self.ui.inventory
         inventory_keys = inventory.keys()
         keys = self.event.extend_current_layout('arg', inventory_keys)
         inventory_keys = [
             '%s %s' % (k, i) for k, i in zip(keys, inventory_keys)]
-        self.ui.set_inventory(dict(zip(inventory_keys, inventory.values())))
+        self.ui.inventory = dict(zip(inventory_keys, inventory.values()))
 
     def setup_unequip(self):
-        equipment = self.ui.get_equipment()
+        equipment = self.ui.equipment
         equipment_keys = equipment.keys()
         keys = self.event.extend_current_layout('arg', equipment_keys)
         equipment_keys = [
             '%s %s' % (k, e) for k, e in zip(keys, equipment_keys)]
-        self.ui.set_equipment(dict(zip(equipment_keys, equipment.values())))
+        self.ui.equipment = dict(zip(equipment_keys, equipment.values()))
 
     def unset_look_pointer(self):
-        self.ui.set_look_pointer(None)
+        self.ui.look_pointer = None
 
     def unset_target(self):
-        self.ui.set_target(None)
+        self.ui.target = None
 
 def main(arguments):
     level = logging.DEBUG if arguments['--debug'] else logging.INFO
