@@ -30,10 +30,15 @@ class UI(object):
 
     def compose(self):
         self.oscillator = self.oscillator + 1 if self.oscillator < 50 else 0
+
         top_bar = self._compose_top_status_bar()
+
         left_pane = self._compose_view_pane()
+
         right_pane = getattr(self, '_compose_%s_pane' % self.mode)()
+
         bottom_bar = self._compose_bottom_status_bar()
+
         return top_bar, left_pane, right_pane, bottom_bar
 
     #--------------------------------------------------------------------------
@@ -133,11 +138,29 @@ class UI(object):
     #--------------------------------------------------------------------------
     # accessors
 
+    def get_equipment(self):
+        return self.equipment
+
+    def get_inventory(self):
+        return self.inventory
+
+    def get_prompt(self):
+        return self.prompt
+
+    def set_bottom_status_bar(self, bottom_status_bar):
+        self.bottom_status_bar = bottom_status_bar
+
+    def set_chat_log(self, chat_log):
+        self.chat_log = chat_log
+
+    def set_colors(self, colors):
+        self.colors = colors
+
     def set_default_colors(self, int_colors, ext_colors):
         self.default_colors = self.int_colors = int_colors
         self.ext_colors = ext_colors
 
-    def toggle_pilot_mode(self):
+    def set_pilot_mode(self):
         if self.is_pilot_mode:
             self.default_colors = self.int_colors
             self.is_pilot_mode = False
@@ -145,16 +168,31 @@ class UI(object):
             self.default_colors = self.ext_colors
             self.is_pilot_mode = True
 
-    @evt_mode_desc.setter
-    def evt_mode_desc(self, value):
-        self.evt_mode_desc = value + (24 - len(value)) * ' '
+    def set_evt_mode_desc(self, evt_mode_desc):
+        self.evt_mode_desc = evt_mode_desc + (24 - len(evt_mode_desc)) * ' '
 
-    @look_pointer.setter
-    def look_pointer(self, value):
-        self.look_pointer = value
+    def set_equipment(self, equipment):
+        self.equipment = equipment
+
+    def set_inventory(self, inventory):
+        self.inventory = inventory
+
+    def set_look_pointer(self, look_pointer):
+        self.look_pointer = look_pointer
         self.oscillator = 0
 
-    @target.setter
-    def target(self, value):
-        self.target = value
+    def set_mode(self, mode='chat'):
+        self.mode = mode
+
+    def set_prompt(self, prompt):
+        self.prompt = prompt
+
+    def set_target(self, target):
+        self.target = target
         self.oscillator = 0
+
+    def set_top_status_bar(self, top_status_bar):
+        self.top_status_bar = top_status_bar
+
+    def set_view_field(self, view_field):
+        self.view_field = view_field
