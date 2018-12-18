@@ -4,7 +4,9 @@
 [![Code Coverage](https://coveralls.io/repos/ruslanosipov/space/badge.png?branch=develop)](https://coveralls.io/r/ruslanosipov/space)
 
 Space is a multiplayer roguelike game with ship vs ship and crew vs crew
-battles.
+battles. **I abandoned work on this project a few years ago. Picking it up
+and continuing would be somewhat difficult, in part due to using a number
+ofoutdated packages, and not being ready for a Python 2 -> 3 migration.**
 
 ## Key bindings
 
